@@ -7,21 +7,9 @@ workspace "Oak"
         "Release"
     }
 
-    project "Oak"
-        kind "ConsoleApp"
-        language "C++"
-        targetdir "bin/%{cfg.buildcfg}"
+    group "Dependencies"
+        include "thirdparty/glfw"
+        include "thirdparty/glad"
+    group ""
 
-        files
-        {
-            "**.hpp",
-            "**.cpp"
-        }
-
-        filter "configurations:Debug"
-            defines { "DEBUG" }
-            symbols "On"
-
-        filter "configurations:Release"
-            defines { "NDEBUG" }
-            optimize "On"
+    include "Oak"
