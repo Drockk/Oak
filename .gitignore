@@ -1,0 +1,11 @@
+#Binaries
+*.exe
+
+#Build directories
+bin/
+obj/
+
+#Visual Studio files and dirs
+.vs/
+*.sln
+*.vcxproj*
