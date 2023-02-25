@@ -1,36 +1,42 @@
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
+//#include <glad/gl.h>
+//#include <GLFW/glfw3.h>
 
-#include <iostream>
+//#include <iostream>
 
-#include "Window.hpp"
+#include "Application.hpp"
 
 int main()
 {
-    oak::Window test;
-    test.createWindow("Test", 800, 600);
+    oak::Application application("Oak!");
+
+    application.init();
+    application.run();
+    application.shutdown();
+
+    //oak::Window test;
+    //test.createWindow("Test", 800, 600);
 
     //Glag: Load all OpenGL function pointers
-    auto version = gladLoadGL(glfwGetProcAddress);
-    if (version == 0)
-    {
-        std::cerr << "Failed to initialize OpenGL context" << std::endl;
-    }
+    //auto version = gladLoadGL(glfwGetProcAddress);
+    //if (version == 0)
+    //{
+    //    std::cerr << "Failed to initialize OpenGL context" << std::endl;
+    //}
 
-    std::cout << "Loaded OpenGL " << GLAD_VERSION_MAJOR(version) << "." << GLAD_VERSION_MINOR(version) << std::endl;
+    //std::cout << "Loaded OpenGL " << GLAD_VERSION_MAJOR(version) << "." << GLAD_VERSION_MINOR(version) << std::endl;
 
-    glViewport(0, 0, 800, 600);
+    //glViewport(0, 0, 800, 600);
 
     //Loop until the user closes the window.
-    while (true)
-    {
+    //while (true)
+    //{
         //Render here.
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+    //    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    //    glClear(GL_COLOR_BUFFER_BIT);
 
-        test.onUpdate();
-    }
+    //    test.onUpdate();
+    //}
 
-    test.onShutdown();
+    //test.onShutdown();
     return 0;
 }
