@@ -26,4 +26,17 @@ namespace oak
 
         glfwMakeContextCurrent(m_Window);
     }
+
+    void Window::onUpdate()
+    {
+        glfwSwapBuffers(m_Window);
+        glfwPollEvents();
+    }
+
+    void Window::onShutdown()
+    {
+        glfwDestroyWindow(m_Window);
+        m_Window = nullptr;
+        glfwTerminate();
+    }
 }

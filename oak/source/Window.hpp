@@ -20,6 +20,9 @@ namespace oak
 
         WindowErrorCodes createWindow(const std::string& title, uint32_t width, uint32_t height);
 
+        void onUpdate();
+        void onShutdown();
+
     private:
         GLFWwindow* m_Window{ nullptr };
     };
