@@ -1,4 +1,6 @@
 #pragma once
+#include <glad/gl.h>
+#include "Event.hpp"
 #include "Window.hpp"
 
 namespace oak
@@ -14,8 +16,9 @@ namespace oak
         void shutdown();
 
     private:
-        Window m_Window;
-
         bool m_Running{ true };
+
+        std::shared_ptr<EventQueue> m_EventQueue;
+        Window m_Window;
     };
 }

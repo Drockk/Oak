@@ -4,8 +4,10 @@
 
 namespace oak
 {
-    WindowErrorCodes Window::createWindow(const std::string& title, uint32_t width, uint32_t height)
+    WindowErrorCodes Window::createWindow(const std::string& title, uint32_t width, uint32_t height, std::shared_ptr<EventQueue> eventQueue)
     {
+        m_WindowProperties = { title, width, height, eventQueue };
+
         if (!glfwInit())
         {
             std::cerr << "Cannot initialize GLFW\n";
@@ -25,6 +27,20 @@ namespace oak
         }
 
         glfwMakeContextCurrent(m_Window);
+        glfwSetWindowUserPointer(m_Window, reinterpret_cast<void*>(&m_WindowProperties));
+
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
+            auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
+            properties->eventQueue->sendEvent(std::make_shared<WindowCloseEvent>());
+        });
+
+        glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+            auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
+            properties->width = width;
+            properties->height = height;
+
+            glViewport(0, 0, width, height);
+        });
     }
 
     void Window::onUpdate()
