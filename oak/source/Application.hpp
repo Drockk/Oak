@@ -18,6 +18,10 @@ namespace oak
     private:
         bool m_Running{ true };
 
+        GLuint m_ShaderProgram{ 0 };
+        GLuint m_VAO{ 0 };
+        GLuint m_VBO{ 0 };
+
         std::shared_ptr<EventQueue> m_EventQueue;
         Window m_Window;
     };
