@@ -21,6 +21,9 @@ namespace oak
 
         GLuint m_VAO;
         GLuint m_VBO;
+        GLuint m_EBO;
+        GLuint m_Texture1;
+        GLuint m_Texture2;
 
         std::shared_ptr<EventQueue> m_EventQueue;
         Shader m_Shader;

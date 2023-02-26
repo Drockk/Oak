@@ -16,6 +16,8 @@ namespace oak
 
         void use();
 
+        void setInt(const std::string& name, int value);
+
     private:
         std::string readFile(const std::filesystem::path& path);
         GLuint createShader(GLenum type, const char* shaderSource);

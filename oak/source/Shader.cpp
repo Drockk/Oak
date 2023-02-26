@@ -38,6 +38,11 @@ namespace oak
         glUseProgram(m_ProgramId);
     }
 
+    void Shader::setInt(const std::string& name, int value)
+    {
+        glUniform1i(glGetUniformLocation(m_ProgramId, name.c_str()), value);
+    }
+
     std::string Shader::readFile(const std::filesystem::path& path)
     {
         if (!std::filesystem::is_regular_file(path))
