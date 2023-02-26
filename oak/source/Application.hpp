@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/gl.h>
 #include "Event.hpp"
+#include "Shader.hpp"
 #include "Window.hpp"
 
 namespace oak
@@ -18,11 +19,11 @@ namespace oak
     private:
         bool m_Running{ true };
 
-        GLuint m_ShaderProgram{ 0 };
-        GLuint m_VAO[2];
-        GLuint m_VBO[2];
+        GLuint m_VAO;
+        GLuint m_VBO;
 
         std::shared_ptr<EventQueue> m_EventQueue;
+        Shader m_Shader;
         Window m_Window;
     };
 }
