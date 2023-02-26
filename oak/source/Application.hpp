@@ -19,8 +19,8 @@ namespace oak
         bool m_Running{ true };
 
         GLuint m_ShaderProgram{ 0 };
-        GLuint m_VAO{ 0 };
-        GLuint m_VBO{ 0 };
+        GLuint m_VAO[2];
+        GLuint m_VBO[2];
 
         std::shared_ptr<EventQueue> m_EventQueue;
         Window m_Window;

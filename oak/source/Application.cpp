@@ -14,12 +14,18 @@ const char* vertexShaderSource = "#version 330 core\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
-const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
+const char* fragmentShader1Source = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"}\n\0";
+const char* fragmentShader2Source = "#version 330 core\n"
+"out vec4 FragColor;\n"
+"void main()\n"
+"{\n"
+"   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+"}\n\0";
 
 namespace oak
 {
@@ -63,7 +69,7 @@ namespace oak
         }
         // fragment shader
         unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+        glShaderSource(fragmentShader, 1, &fragmentShader1Source, NULL);
         glCompileShader(fragmentShader);
         // check for shader compile errors
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
@@ -87,26 +93,32 @@ namespace oak
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
-        float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
+        float firstTriangle[] = {
+        -0.9f, -0.5f, 0.0f,  // left 
+        -0.0f, -0.5f, 0.0f,  // right
+        -0.45f, 0.5f, 0.0f,  // top 
+        };
+        float secondTriangle[] = {
+            0.0f, -0.5f, 0.0f,  // left
+            0.9f, -0.5f, 0.0f,  // right
+            0.45f, 0.5f, 0.0f   // top 
         };
 
-        glGenVertexArrays(1, &m_VAO);
-        glGenBuffers(1, &m_VBO);
+        glGenVertexArrays(2, m_VAO);
+        glGenBuffers(2, m_VBO);
 
-        glBindVertexArray(m_VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
+        //First triangle setup
+        glBindVertexArray(m_VAO[0]);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glBindVertexArray(0);
+        //Second triangle setup
+        glBindVertexArray(m_VAO[1]);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO[1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
     }
 
     void Application::run()
@@ -118,7 +130,10 @@ namespace oak
             glClear(GL_COLOR_BUFFER_BIT);
 
             glUseProgram(m_ShaderProgram);
-            glBindVertexArray(m_VAO);
+
+            glBindVertexArray(m_VAO[0]);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(m_VAO[1]);
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             m_Window.onUpdate();
@@ -128,8 +143,8 @@ namespace oak
 
     void Application::shutdown()
     {
-        glDeleteVertexArrays(1, &m_VAO);
-        glDeleteBuffers(1, &m_VBO);
+        glDeleteVertexArrays(2, m_VAO);
+        glDeleteBuffers(2, m_VBO);
         glDeleteProgram(m_ShaderProgram);
 
         m_Window.onShutdown();
