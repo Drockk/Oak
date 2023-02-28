@@ -3,6 +3,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 namespace oak
@@ -34,11 +38,11 @@ namespace oak
         m_Shader.loadFromFile("resources/shaders/shader.vs", "resources/shaders/shader.fs");
 
         float vertices[] = {
-            // positions          // colors           // texture coords
-             0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-             0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+            // positions          // texture coords
+             0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
         };
 
         unsigned int indices[] = {
@@ -59,17 +63,13 @@ namespace oak
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
         // position attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
-        // color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
         // texture coord attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         // load and create a texture
-        stbi_set_flip_vertically_on_load(true);
         glGenTextures(1, &m_Texture1);
         glBindTexture(GL_TEXTURE_2D, m_Texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
         // set the texture wrapping parameters
@@ -81,6 +81,7 @@ namespace oak
         // load image, create texture and generate mipmaps
         int width, height, nrChannels;
         // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+        stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load("resources/textures/container.jpg", &width, &height, &nrChannels, 0);
         if (data)
         {
@@ -136,8 +137,17 @@ namespace oak
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, m_Texture2);
 
+            //Create transformations
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+            transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
 
             m_Shader.use();
+            m_Shader.setMat4("transform", transform);
+            //unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+            //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
             glBindVertexArray(m_VAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

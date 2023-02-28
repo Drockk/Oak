@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <filesystem>
 
@@ -17,6 +19,7 @@ namespace oak
         void use();
 
         void setInt(const std::string& name, int value);
+        void setMat4(const std::string& name, glm::mat4 value);
 
     private:
         std::string readFile(const std::filesystem::path& path);

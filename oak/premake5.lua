@@ -15,8 +15,9 @@ project "Oak"
         {
             "source",
             "%{wks.location}/thirdparty/eventpp/include",
-            "%{wks.location}/thirdparty/glfw/include",
             "%{wks.location}/thirdparty/glad/include",
+            "%{wks.location}/thirdparty/glfw/include",
+            "%{wks.location}/thirdparty/glm",
             "%{wks.location}/thirdparty/stb/"
         }
 
