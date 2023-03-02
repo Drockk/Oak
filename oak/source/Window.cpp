@@ -29,17 +29,24 @@ namespace oak
         glfwMakeContextCurrent(m_Window);
         glfwSetWindowUserPointer(m_Window, reinterpret_cast<void*>(&m_WindowProperties));
 
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
             auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
-            properties->eventQueue->sendEvent(std::make_shared<WindowCloseEvent>());
+            properties->eventQueue->sendEvent(std::make_shared<MouseMovedEvent>(static_cast<float>(x), static_cast<float>(y)));
         });
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
-            properties->width = width;
-            properties->height = height;
+            properties->eventQueue->sendEvent(std::make_shared<WindowResizeEvent>(width, height));
+        });
 
-            glViewport(0, 0, width, height);
+        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double x, double y) {
+            auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
+            properties->eventQueue->sendEvent(std::make_shared<MouseScrolledEvent>(x, y));
+        });
+
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
+            auto properties = reinterpret_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
+            properties->eventQueue->sendEvent(std::make_shared<WindowCloseEvent>());
         });
     }
 
