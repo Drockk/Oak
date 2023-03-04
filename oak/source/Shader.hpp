@@ -20,6 +20,8 @@ namespace oak
 
         void setInt(const std::string& name, int value);
         void setMat4(const std::string& name, glm::mat4 value);
+        void setVec3(const std::string& name, glm::vec3 value);
+        void setVec3(const std::string& name, float x, float y, float z);
 
     private:
         std::string readFile(const std::filesystem::path& path);

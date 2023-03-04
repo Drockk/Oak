@@ -48,6 +48,16 @@ namespace oak
         glUniformMatrix4fv(glGetUniformLocation(m_ProgramId, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
     }
 
+    void Shader::setVec3(const std::string& name, glm::vec3 value)
+    {
+        glUniform3f(glGetUniformLocation(m_ProgramId, name.c_str()), value.x, value.y, value.z);
+    }
+
+    void Shader::setVec3(const std::string& name, float x, float y, float z)
+    {
+        glUniform3f(glGetUniformLocation(m_ProgramId, name.c_str()), x, y, z);
+    }
+
     std::string Shader::readFile(const std::filesystem::path& path)
     {
         if (!std::filesystem::is_regular_file(path))
