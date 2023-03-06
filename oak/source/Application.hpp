@@ -1,5 +1,7 @@
 #pragma once
 #include <glad/gl.h>
+
+#include "Camera.hpp"
 #include "Event.hpp"
 #include "Shader.hpp"
 #include "Window.hpp"
@@ -23,6 +25,7 @@ namespace oak
         GLuint m_LightCubeVAO;
         GLuint m_VBO;
 
+        Camera m_Camera;
         std::shared_ptr<EventQueue> m_EventQueue;
         Shader m_LightingShader;
         Shader m_LightCubeShader;
