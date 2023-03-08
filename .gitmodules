@@ -1,9 +1,0 @@
-[submodule "thirdparty/glfw"]
-	path = thirdparty/glfw
-	url = https://github.com/Drockk/glfw.git
-[submodule "thirdparty/eventpp"]
-	path = thirdparty/eventpp
-	url = https://github.com/wqking/eventpp.git
-[submodule "thirdparty/glm"]
-	path = thirdparty/glm
-	url = https://github.com/g-truc/glm.git

@@ -1,11 +1,18 @@
-#Binaries
-*.exe
+# Binaries
+bin/*
 
-#Build directories
-bin/
-obj/
+#Oak files
+*.log
 
-#Visual Studio files and dirs
+# Visual Studio files and folder
 .vs/
-*.sln
-*.vcxproj*
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
+
+# Directories
+Oak/vendor/VulkanSDK
+OakEd/assets/cache
+scripts/__pycache__
