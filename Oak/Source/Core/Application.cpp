@@ -1,13 +1,20 @@
 #include "Core/Application.hpp"
+#include "Core/Log.hpp"
 
 namespace oak
 {
-    Application::Application()
+    void Application::init()
+    {
+        oak::Log::init();
+        OAK_CORE_INFO("I am alive!");
+    }
+
+    void Application::run()
     {
 
     }
 
-    Application::~Application()
+    void Application::shutdown()
     {
 
     }
