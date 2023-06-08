@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+#include "Oak/Core/Window.hpp"
+
 namespace oak
 {
     class Application
@@ -14,6 +16,7 @@ namespace oak
         void shutdown();
 
     private:
+        std::unique_ptr<oak::Window> m_Window;
     };
 }
 
