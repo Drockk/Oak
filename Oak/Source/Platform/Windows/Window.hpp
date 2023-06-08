@@ -1,7 +1,5 @@
 #pragma once
-#include <GLFW
-
-#include <memory>
+#include <GLFW/glfw3.h>
 
 namespace Windows
 {
@@ -12,6 +10,6 @@ namespace Windows
         ~Window();
 
     private:
-        std::unique_ptr<GLFWwindow> m_Window;
+        GLFWwindow* m_Window;
     };
 }

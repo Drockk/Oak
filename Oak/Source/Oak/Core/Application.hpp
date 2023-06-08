@@ -3,19 +3,18 @@
 
 namespace oak
 {
-class Application
-{
-public:
-    Application() = default;
-    virtual ~Application() = default;
+    class Application
+    {
+    public:
+        Application() = default;
+        virtual ~Application() = default;
 
-    void init();
-    void run();
-    void shutdown();
+        void init();
+        void run();
+        void shutdown();
 
-private:
-
-};
+    private:
+    };
 }
 
 std::unique_ptr<oak::Application> createApplication();

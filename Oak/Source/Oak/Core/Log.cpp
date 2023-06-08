@@ -1,3 +1,5 @@
+#include "oakpch.hpp"
+
 #include "Oak/Core/Log.hpp"
 
 // This ignores all warnings raised inside External headers

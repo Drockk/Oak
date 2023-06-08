@@ -1,6 +1,9 @@
 #Dirs
 .vs/
-out/
+bin/
 
 #Files
-CMakePresets.json
+*.vcxproj*
+*.exe
+*.log
+*.sln
