@@ -1,5 +1,5 @@
 #include <Oak.hpp>
-#include <Core/Entrypoint.hpp>
+#include <Oak/Core/Entrypoint.hpp>
 
 #include <memory>
 

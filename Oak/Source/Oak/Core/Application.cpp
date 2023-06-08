@@ -1,5 +1,5 @@
-#include "Core/Application.hpp"
-#include "Core/Log.hpp"
+#include "Oak/Core/Application.hpp"
+#include "Oak/Core/Log.hpp"
 
 namespace oak
 {
