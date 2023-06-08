@@ -21,12 +21,14 @@ project "Sandbox"
     externalincludedirs
     {
         "%{IncludeDir.oak}",
-        "%{IncludeDir.spdlog}"
+        "%{IncludeDir.spdlog}",
+        "%{IncludeDir.glfw}"
     }
 
     links
     {
-        "Oak"
+        "Oak",
+        "GLFW"
     }
 
     filter "system:windows"
