@@ -1,0 +1,6 @@
+[submodule "Oak/Thridparty/spdlog"]
+	path = Oak/Thridparty/spdlog
+	url = https://github.com/gabime/spdlog.git
+[submodule "Oak/Thridparty/glfw"]
+	path = Oak/Thridparty/glfw
+	url = https://github.com/Drockk/glfw.git

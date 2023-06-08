@@ -15,11 +15,11 @@ namespace oak
 
         static void init();
 
-        static std::shared_ptr<spdlog::logger>& getCoreLogger()
+        inline static std::shared_ptr<spdlog::logger>& getCoreLogger()
         {
             return s_CoreLogger;
         }
-        static std::shared_ptr<spdlog::logger>& getClientLogger()
+        inline static std::shared_ptr<spdlog::logger>& getClientLogger()
         {
             return s_ClientLogger;
         }
