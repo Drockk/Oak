@@ -13,8 +13,13 @@ namespace Windows
         Window(const std::string& name, std::pair<uint32_t, uint32_t> resolution);
         ~Window() override;
 
-        void run() override;
+        [[noreturn]] void run() override;
+
     private:
-        GLFWwindow* m_Window;
+        [[noreturn]] void createWindow(const std::string& name, std::pair<uint32_t, uint32_t> resolution);
+        [[noreturn]] void setCallbacks();
+
+        GLFWwindow* m_Window{nullptr};
+        inline static uint8_t s_WindowCount{ 0 };
     };
 }

@@ -7,7 +7,6 @@ namespace oak
     void Application::init()
     {
         oak::Log::init();
-        OAK_CORE_INFO("I am alive!");
 
         m_Window = Window::create("Oak", {1280, 720});
     }
