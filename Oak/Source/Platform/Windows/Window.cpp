@@ -1,13 +1,15 @@
 #include "oakpch.hpp"
 #include "Platform/Windows/Window.hpp"
 
+#include"Oak/Events/ApplicationEvent.hpp"
+
 #include <stdexcept>
 
 namespace Windows
 {
-    Window::Window(const std::string& name, std::pair<uint32_t, uint32_t> resolution)
+    Window::Window(oak::WindowData t_data): oak::Window(t_data)
     {
-        if (s_WindowCount <= 0)
+        if (s_WindowCount == 0)
         {
             if (!glfwInit())
             {
@@ -23,7 +25,7 @@ namespace Windows
             throw std::runtime_error(std::format("GLFW Error({}): {}", code, description));
             });
 
-        createWindow(name, resolution);
+        createWindow(t_data);
 
         glfwMakeContextCurrent(m_Window);
 
@@ -53,21 +55,30 @@ namespace Windows
         }
     }
 
-    void Window::createWindow(const std::string& name, std::pair<uint32_t, uint32_t> resolution)
+    void Window::createWindow(oak::WindowData t_data)
     {
-        auto [width, height] = resolution;
-        m_Window = glfwCreateWindow(width, height, name.c_str(), nullptr, nullptr);
+        auto [width, height] = t_data.resolution;
+        m_Window = glfwCreateWindow(width, height, t_data.name.c_str(), nullptr, nullptr);
         if (!m_Window)
         {
             glfwTerminate();
             throw std::runtime_error("Cannot create GLFW window");
         }
+
+        glfwSetWindowUserPointer(m_Window, &m_Data);
     }
 
     void Window::setCallbacks()
     {
         glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
-            OAK_CORE_CRITICAL("TODO Implement WindowsCloseCallback");
+            auto data = reinterpret_cast<oak::WindowData*>(glfwGetWindowUserPointer(window));
+
+            if (!data->onEvent)
+            {
+                throw std::invalid_argument("onEvent callback not setted");
+            }
+
+            data->onEvent(oak::WindowCloseEvent());
             });
 
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -76,23 +87,25 @@ namespace Windows
             });
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-            OAK_CORE_CRITICAL("TODO Implement FramebufferSizeCallback");
-            OAK_CORE_TRACE("Width: {} Height: {}", width, height);
-            });
+            auto data = reinterpret_cast<oak::WindowData*>(glfwGetWindowUserPointer(window));
 
-        glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale) {
-            OAK_CORE_CRITICAL("TODO Implement WindowContentScaleCallback");
-            OAK_CORE_TRACE("XScale: {} YScale: {}", xscale, yscale);
-            });
+            if (!data->onEvent)
+            {
+                throw std::invalid_argument("onEvent callback not setted");
+            }
 
-        glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos) {
-            OAK_CORE_CRITICAL("TODO Implement WindowPosCallback");
-            OAK_CORE_TRACE("XPos: {} YPos: {}", xpos, ypos);
+            data->onEvent(oak::WindowResizeEvent(width, height));
             });
 
         glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused) {
-            OAK_CORE_CRITICAL("TODO Implement WindowFocusCallback");
-            OAK_CORE_TRACE("focused: {}", focused);
+            auto data = reinterpret_cast<oak::WindowData*>(glfwGetWindowUserPointer(window));
+
+            if (!data->onEvent)
+            {
+                throw std::invalid_argument("onEvent callback not setted");
+            }
+
+            data->onEvent(oak::WindowFocusEvent(focused));
             });
     }
 }

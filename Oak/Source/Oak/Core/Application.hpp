@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "Oak/Core/Window.hpp"
+#include "Oak/Events/Event.hpp"
 
 namespace oak
 {
@@ -16,6 +17,8 @@ namespace oak
         void shutdown();
 
     private:
+        void onEvent(const Event& t_event);
+
         std::unique_ptr<oak::Window> m_Window;
     };
 }

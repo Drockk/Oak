@@ -44,6 +44,25 @@ namespace oak
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
     };
 
+    class WindowFocusEvent : public Event
+    {
+    public:
+        WindowFocusEvent(bool t_focus): m_Focus(t_focus)
+        {
+        }
+
+        [[nodiscard]] bool getFocus() const
+        {
+            return m_Focus;
+        }
+
+        EVENT_CLASS_TYPE(WindowFocus);
+        EVENT_CLASS_CATEGORY(EventCategoryApplication);
+
+    private:
+        bool m_Focus;
+    };
+
     class AppTickEvent: public Event
     {
     public:

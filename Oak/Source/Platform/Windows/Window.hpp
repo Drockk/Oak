@@ -10,13 +10,13 @@ namespace Windows
     class Window final : public oak::Window
     {
     public:
-        Window(const std::string& name, std::pair<uint32_t, uint32_t> resolution);
+        Window(oak::WindowData t_data);
         ~Window() override;
 
         [[noreturn]] void run() override;
 
     private:
-        [[noreturn]] void createWindow(const std::string& name, std::pair<uint32_t, uint32_t> resolution);
+        [[noreturn]] void createWindow(oak::WindowData t_data);
         [[noreturn]] void setCallbacks();
 
         GLFWwindow* m_Window{nullptr};
