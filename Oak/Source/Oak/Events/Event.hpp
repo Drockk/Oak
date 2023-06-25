@@ -49,17 +49,6 @@ namespace oak
             return getCategoryFlags() & category;
         }
 
-        [[nodiscard]] bool getHandled() const
-        {
-            return m_Handled;
-        }
-
-        void setHandled(bool t_handled)
-        {
-            m_Handled = t_handled;
-        }
-
-    private:
         bool m_Handled{false};
     };
 
@@ -74,7 +63,7 @@ namespace oak
         {
             if (m_Event.getEventType() == T::getStaticType())
             {
-                m_Event.getHandled() |= t_func(static_cast<T&>(m_Event));
+                m_Event.m_Handled |= t_func(static_cast<T&>(m_Event));
                 return true;
             }
 

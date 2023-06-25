@@ -13,11 +13,11 @@ namespace Windows
         Window(oak::WindowData t_data);
         ~Window() override;
 
-        [[noreturn]] void run() override;
+        void onUpdate() override;
 
     private:
-        [[noreturn]] void createWindow(oak::WindowData t_data);
-        [[noreturn]] void setCallbacks();
+        void createWindow(oak::WindowData t_data);
+        void setCallbacks();
 
         GLFWwindow* m_Window{nullptr};
         inline static uint8_t s_WindowCount{ 0 };

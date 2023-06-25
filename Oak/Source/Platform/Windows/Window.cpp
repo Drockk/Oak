@@ -46,13 +46,10 @@ namespace Windows
         }
     }
 
-    void Window::run()
+    void Window::onUpdate()
     {
-        while (!glfwWindowShouldClose(m_Window))
-        {
-            glfwSwapBuffers(m_Window);
-            glfwPollEvents();
-        }
+        glfwSwapBuffers(m_Window);
+        glfwPollEvents();
     }
 
     void Window::createWindow(oak::WindowData t_data)
@@ -78,7 +75,8 @@ namespace Windows
                 throw std::invalid_argument("onEvent callback not setted");
             }
 
-            data->onEvent(oak::WindowCloseEvent());
+            oak::WindowCloseEvent event;
+            data->onEvent(event);
             });
 
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -94,7 +92,8 @@ namespace Windows
                 throw std::invalid_argument("onEvent callback not setted");
             }
 
-            data->onEvent(oak::WindowResizeEvent(width, height));
+            oak::WindowResizeEvent event(width, height);
+            data->onEvent(event);
             });
 
         glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused) {
@@ -105,7 +104,8 @@ namespace Windows
                 throw std::invalid_argument("onEvent callback not setted");
             }
 
-            data->onEvent(oak::WindowFocusEvent(focused));
+            oak::WindowFocusEvent event(focused);
+            data->onEvent(event);
             });
     }
 }

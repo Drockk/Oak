@@ -3,6 +3,7 @@
 
 #include "Oak/Core/Window.hpp"
 #include "Oak/Events/Event.hpp"
+#include "Oak/Events/ApplicationEvent.hpp"
 
 namespace oak
 {
@@ -17,7 +18,12 @@ namespace oak
         void shutdown();
 
     private:
-        void onEvent(const Event& t_event);
+        void onEvent(Event& t_event);
+        bool onWindowClose(WindowCloseEvent& e);
+        bool onWindowResize(WindowResizeEvent& e);
+
+        bool m_Running{ true };
+        bool m_Minimized{ false };
 
         std::unique_ptr<oak::Window> m_Window;
     };
