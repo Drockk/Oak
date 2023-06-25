@@ -22,6 +22,7 @@ workspace "Oak"
     group ""
 
     group "Dependencies"
+        include "Oak/Thridparty/glad"
         include "Oak/Thridparty/glfw"
     group ""
 

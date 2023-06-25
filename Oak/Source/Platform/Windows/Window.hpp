@@ -1,5 +1,6 @@
 #pragma once
 #include "Oak/Core/Window.hpp"
+#include "Oak/Renderer/GraphicsContext.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -21,5 +22,7 @@ namespace Windows
 
         GLFWwindow* m_Window{nullptr};
         inline static uint8_t s_WindowCount{ 0 };
+
+        std::shared_ptr<oak::GraphicsContext> m_Context;
     };
 }

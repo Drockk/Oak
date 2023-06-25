@@ -23,12 +23,14 @@ project "Oak"
 
     externalincludedirs
     {
+        "%{IncludeDir.glad}",
+        "%{IncludeDir.glfw}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.glfw}"
     }
 
     links
     {
+        "Glad",
         "GLFW"
     }
 

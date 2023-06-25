@@ -15,17 +15,12 @@ namespace oak
 
     void Application::run()
     {
-        try {
-            while (m_Running) {
-                if (!m_Minimized) {
-                    //TODO: In the future
-                }
-
-                m_Window->onUpdate();
+        while (m_Running) {
+            if (!m_Minimized) {
+                //TODO: In the future
             }
-        }
-        catch (const std::exception& e) {
-            OAK_CORE_CRITICAL(e.what());
+
+            m_Window->onUpdate();
         }
     }
 
@@ -38,6 +33,7 @@ namespace oak
     {
         EventDispatcher eventDispatcher(t_event);
         eventDispatcher.dispatch<WindowCloseEvent>(OAK_BIND_EVENT_FN(Application::onWindowClose));
+        eventDispatcher.dispatch<WindowResizeEvent>(OAK_BIND_EVENT_FN(Application::onWindowResize));
     }
 
     bool Application::onWindowClose(WindowCloseEvent& e)

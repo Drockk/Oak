@@ -32,6 +32,10 @@ namespace Windows
         setCallbacks();
 
         ++s_WindowCount;
+
+        m_Context = oak::GraphicsContext::create(
+            { m_Window });
+        m_Context->init();
     }
 
     Window::~Window()
@@ -48,7 +52,7 @@ namespace Windows
 
     void Window::onUpdate()
     {
-        glfwSwapBuffers(m_Window);
+        m_Context->swapBuffers();
         glfwPollEvents();
     }
 
@@ -80,8 +84,15 @@ namespace Windows
             });
 
         glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-            OAK_CORE_CRITICAL("TODO Implement WindowSizeCallback");
-            OAK_CORE_TRACE("Width: {} Height: {}", width, height);
+            auto data = reinterpret_cast<oak::WindowData*>(glfwGetWindowUserPointer(window));
+
+            if (!data->onEvent)
+            {
+                throw std::invalid_argument("onEvent callback not setted");
+            }
+
+            oak::WindowResizeEvent event(width, height);
+            data->onEvent(event);
             });
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
