@@ -15,36 +15,32 @@ project "Sandbox"
 
     includedirs
     {
-        "Source"
-    }
-
-    externalincludedirs
-    {
-        "%{IncludeDir.oak}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.glm}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.glfw}"
+        "%{IncludeDir.oak}",
+        "%{wks.location}/Oak/vendor",
     }
 
     links
     {
-        "Oak",
-        "GLFW"
+        "Oak"
     }
 
     filter "system:windows"
         systemversion "latest"
 
-        defines
-        {
-            "VI_PLATFORM_WINDOWS"
-        }
-
     filter "configurations:Debug"
-        defines "VI_DEBUG"
+        defines "OAK_DEBUG"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
-        defines "VI_RELEASE"
+        defines "OAK_RELEASE"
+        runtime "Release"
+        optimize "on"
+
+    filter "configurations:Dist"
+        defines "OAK_DIST"
         runtime "Release"
         optimize "on"
