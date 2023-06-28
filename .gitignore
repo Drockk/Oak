@@ -1,9 +1,14 @@
 #Dirs
+.idea/
 .vs/
 bin/
+__pycache__/
 
 #Files
 *.vcxproj*
+*.csproj
 *.exe
 *.log
 *.sln
+
+OakEd/Resources/Scripts/

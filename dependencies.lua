@@ -1,6 +1,6 @@
 -- Oak dependencies
 
-VULKAND_SDK = os.getenv()
+VULKAND_SDK = os.getenv("VULKAN_SDK")
 
 ThridpartyDir = "%{wks.location}/Oak/Thridparty"
 
