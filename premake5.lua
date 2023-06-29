@@ -40,5 +40,5 @@ workspace "Oak"
     group ""
 
     group "Tools"
-        -- include "OakEd"
+        include "OakEd"
     group ""

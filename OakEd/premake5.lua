@@ -1,4 +1,4 @@
-project "Sandbox"
+project "OakEd"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++20"
@@ -15,10 +15,19 @@ project "Sandbox"
 
     includedirs
     {
+        "Source"
+    }
+
+    externalincludedirs
+    {
         "%{IncludeDir.entt}",
+        "%{IncludeDir.filewatch}",
+        "%{IncludeDir.glad}",
+        "%{IncludeDir.glfw}",
         "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGuizmo}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.oak}",
+        "%{wks.location}/Oak/Source",
         "%{wks.location}/Oak/Thirdparty",
     }
 
@@ -31,16 +40,16 @@ project "Sandbox"
         systemversion "latest"
 
     filter "configurations:Debug"
-        defines "OAK_DEBUG"
+        defines "HZ_DEBUG"
         runtime "Debug"
         symbols "on"
 
     filter "configurations:Release"
-        defines "OAK_RELEASE"
+        defines "HZ_RELEASE"
         runtime "Release"
         optimize "on"
 
     filter "configurations:Dist"
-        defines "OAK_DIST"
+        defines "HZ_DIST"
         runtime "Release"
         optimize "on"
