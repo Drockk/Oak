@@ -13,42 +13,105 @@ project "Oak"
     files
     {
         "Source/**.hpp",
-        "Source/**.cpp"
+        "Source/**.cpp",
+        "vendor/stb_image/**.h",
+        "vendor/stb_image/**.cpp",
+        "vendor/glm/glm/**.hpp",
+        "vendor/glm/glm/**.inl",
+
+        "vendor/ImGuizmo/ImGuizmo.h",
+        "vendor/ImGuizmo/ImGuizmo.cpp"
+    }
+
+    defines
+    {
+        "_CRT_SECURE_NO_WARNINGS",
+        "GLFW_INCLUDE_NONE"
     }
 
     includedirs
     {
-        "Source"
-    }
-
-    externalincludedirs
-    {
-        "%{IncludeDir.glad}",
-        "%{IncludeDir.glfw}",
-        "%{IncludeDir.spdlog}",
+        "Source",
+        "vendor/spdlog/include",
+        "%{IncludeDir.Box2D}",
+        "%{IncludeDir.filewatch}",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}",
+        "%{IncludeDir.ImGui}",
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.msdfgen}",
+        "%{IncludeDir.msdf_atlas_gen}",
+        "%{IncludeDir.stb_image}",
+        "%{IncludeDir.entt}",
+        "%{IncludeDir.mono}",
+        "%{IncludeDir.yaml_cpp}",
+        "%{IncludeDir.ImGuizmo}",
+        "%{IncludeDir.VulkanSDK}"
     }
 
     links
     {
+        "Box2D",
+        "GLFW",
         "Glad",
-        "GLFW"
+        "ImGui",
+        "msdf-atlas-gen",
+        "yaml-cpp",
+        "opengl32.lib",
+
+        "%{Library.mono}",
     }
+
+    filter "files:vendor/ImGuizmo/**.cpp"
+    flags { "NoPCH" }
 
     filter "system:windows"
         systemversion "latest"
 
         defines
         {
-            "VI_PLATFORM_WINDOWS",
-            "GLFW_INCLUDE_NONE"
+        }
+
+        links
+        {
+            "%{Library.WinSock}",
+            "%{Library.WinMM}",
+            "%{Library.WinVersion}",
+            "%{Library.BCrypt}",
         }
 
     filter "configurations:Debug"
-        defines "VI_DEBUG"
+        defines "OAK_DEBUG"
         runtime "Debug"
-        symbols "On"
+        symbols "on"
+
+        links
+        {
+            "%{Library.ShaderC_Debug}",
+            "%{Library.SPIRV_Cross_Debug}",
+            "%{Library.SPIRV_Cross_GLSL_Debug}"
+        }
 
     filter "configurations:Release"
-        defines "VI_RELEASE"
+        defines "OAK_RELEASE"
         runtime "Release"
-        optimize "On"
+        optimize "on"
+
+        links
+        {
+            "%{Library.ShaderC_Release}",
+            "%{Library.SPIRV_Cross_Release}",
+            "%{Library.SPIRV_Cross_GLSL_Release}"
+        }
+
+    filter "configurations:Dist"
+        defines "OAK_DIST"
+        runtime "Release"
+        optimize "on"
+
+        links
+        {
+            "%{Library.ShaderC_Release}",
+            "%{Library.SPIRV_Cross_Release}",
+            "%{Library.SPIRV_Cross_GLSL_Release}"
+        }

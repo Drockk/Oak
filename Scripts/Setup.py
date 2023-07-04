@@ -25,4 +25,4 @@ if premake_installed:
 
     print("\nSetup completed!")
 else:
-    print("Hazel requires Premake to generate project files.")
+    print("Oak requires Premake to generate project files.")

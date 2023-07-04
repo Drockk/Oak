@@ -1,5 +1,5 @@
-local HazelRootDir = '../../../..'
-include (HazelRootDir .. "/vendor/premake/premake_customization/solution_items.lua")
+local OakRootDir = '../../../..'
+include (OakRootDir .. "/vendor/premake/premake_customization/solution_items.lua")
 
 workspace "Sandbox"
 	architecture "x86_64"
@@ -35,7 +35,7 @@ project "Sandbox"
 
 	links
 	{
-		"Hazel-ScriptCore"
+		"Oak-ScriptCore"
 	}
 
 	filter "configurations:Debug"

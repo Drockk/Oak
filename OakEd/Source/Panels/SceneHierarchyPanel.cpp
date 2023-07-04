@@ -418,7 +418,7 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                         if (texture->IsLoaded())
                             component.Texture = texture;
                         else
-                            HZ_WARN("Could not load texture {0}", texturePath.filename().string());
+                            OAK_WARN("Could not load texture {0}", texturePath.filename().string());
                     }
                     ImGui::EndDragDropTarget();
                 }

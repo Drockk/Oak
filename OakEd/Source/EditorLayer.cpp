@@ -666,7 +666,7 @@ void EditorLayer::openProject(const std::filesystem::path &t_path)
 
 bool EditorLayer::openProject()
 {
-    std::string filepath = FileDialogs::OpenFile("Hazel Project (*.hproj)\0*.hproj\0");
+    std::string filepath = FileDialogs::OpenFile("Oak Project (*.oproj)\0*.oproj\0");
     if (filepath.empty())
     {
         return false;
@@ -691,7 +691,7 @@ void EditorLayer::newScene()
 
 void EditorLayer::openScene()
 {
-    std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");
+    std::string filepath = FileDialogs::OpenFile("Oak Scene (*.oak)\0*.oak\0");
     if (!filepath.empty())
     {
         openScene(filepath);
@@ -705,7 +705,7 @@ void EditorLayer::openScene(const std::filesystem::path &t_path)
         onSceneStop();
     }
 
-    if (t_path.extension().string() != ".hazel")
+    if (t_path.extension().string() != ".oak")
     {
         OAK_WARN("Could not load {0} - not a scene file", t_path.filename().string());
         return;
