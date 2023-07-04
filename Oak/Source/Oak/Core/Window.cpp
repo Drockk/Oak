@@ -4,8 +4,8 @@
 
 namespace oak
 {
-    std::unique_ptr<Window> Window::create(const std::string& name, std::pair<uint32_t, uint32_t> resolution)
+    std::unique_ptr<Window> Window::create(WindowData t_data)
     {
-        return std::make_unique<Windows::Window>(name, resolution);
+        return std::make_unique<Windows::Window>(t_data);
     }
 }
