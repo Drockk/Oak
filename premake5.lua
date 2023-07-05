@@ -31,8 +31,12 @@ workspace "Oak"
 
     group "Dependencies"
         include "Thridparty/Premake"
+        include "Oak/Thridparty/box2d"
         include "Oak/Thridparty/glad"
         include "Oak/Thridparty/glfw"
+        include "Oak/Thridparty/imgui"
+        include "Oak/Thridparty/msdf-atlas-gen"
+        include "Oak/Thridparty/yaml-cpp"
     group ""
 
     group "Examples"

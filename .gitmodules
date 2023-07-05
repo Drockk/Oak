@@ -4,3 +4,12 @@
 [submodule "Oak/Thridparty/glfw"]
 	path = Oak/Thridparty/glfw
 	url = https://github.com/Drockk/glfw.git
+[submodule "Oak/Thridparty/box2d"]
+	path = Oak/Thridparty/box2d
+	url = https://github.com/Drockk/box2d
+[submodule "Oak/Thridparty/imgui"]
+	path = Oak/Thridparty/imgui
+	url = https://github.com/Drockk/imgui
+[submodule "Oak/Thridparty/yaml-cpp"]
+	path = Oak/Thridparty/yaml-cpp
+	url = https://github.com/Drockk/yaml-cpp
