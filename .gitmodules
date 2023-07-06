@@ -13,3 +13,11 @@
 [submodule "Oak/Thridparty/yaml-cpp"]
 	path = Oak/Thridparty/yaml-cpp
 	url = https://github.com/Drockk/yaml-cpp
+[submodule "Oak/Thridparty/msdf-atlas-gen"]
+	path = Oak/Thridparty/msdf-atlas-gen
+	url = https://github.com/Drockk/msdf-atlas-gen.git
+[submodule "Oak/Thridparty/msdf-atlas-gen/msdfgen/"]
+	url = https://github.com/Drockk/msdfgen.git
+[submodule "Oak/Thridparty/freetype"]
+	path = Oak/Thridparty/freetype
+	url = https://github.com/Drockk/freetype.git
