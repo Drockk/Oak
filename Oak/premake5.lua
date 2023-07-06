@@ -14,13 +14,13 @@ project "Oak"
     {
         "Source/**.hpp",
         "Source/**.cpp",
-        "vendor/stb_image/**.h",
-        "vendor/stb_image/**.cpp",
-        "vendor/glm/glm/**.hpp",
-        "vendor/glm/glm/**.inl",
+        "%{Thirdparty}/stb_image/**.h",
+        "%{Thirdparty}/stb_image/**.cpp",
+        "%{Thirdparty}/glm/glm/**.hpp",
+        "%{Thirdparty}/glm/glm/**.inl",
 
-        "vendor/ImGuizmo/ImGuizmo.h",
-        "vendor/ImGuizmo/ImGuizmo.cpp"
+        "%{Thirdparty}/ImGuizmo/ImGuizmo.h",
+        "%{Thirdparty}/ImGuizmo/ImGuizmo.cpp"
     }
 
     defines
@@ -32,7 +32,7 @@ project "Oak"
     includedirs
     {
         "Source",
-        "vendor/spdlog/include",
+        "%{Thirdparty}/spdlog/include",
         "%{IncludeDir.Box2D}",
         "%{IncludeDir.filewatch}",
         "%{IncludeDir.GLFW}",

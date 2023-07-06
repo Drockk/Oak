@@ -12,3 +12,4 @@ __pycache__/
 *.sln
 
 OakEd/Resources/Scripts/
+.vscode/

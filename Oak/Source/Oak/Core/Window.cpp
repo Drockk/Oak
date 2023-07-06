@@ -1,11 +1,19 @@
 #include "oakpch.hpp"
 #include "Oak/Core/Window.hpp"
-#include "Platform/Windows/Window.hpp"
+
+#ifdef OAK_PLATFORM_WINDOWS
+    #include "Platform/Windows/WindowsWindow.hpp"
+#endif
 
 namespace oak
 {
-    std::unique_ptr<Window> Window::create(WindowData t_data)
+    Scope<Window> Window::create(const WindowProps& t_props)
     {
-        return std::make_unique<Windows::Window>(t_data);
+    #ifdef OAK_PLATFORM_WINDOWS
+        return createScope<WindowsWindow>(t_props);
+    #else
+        OAK_CORE_ASSERT(false, "Unknown platform!");
+        return nullptr;
+    #endif
     }
 }

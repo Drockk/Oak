@@ -1,29 +1,42 @@
 #pragma once
+
+#include "Oak/Core/Base.hpp"
 #include "Oak/Events/Event.hpp"
 
-#include <string>
+#include <sstream>
 
 namespace oak
 {
-    struct WindowData
+    struct WindowProps
     {
-        std::string name;
+        std::string title;
         std::pair<uint32_t, uint32_t> resolution;
-        std::function<void(Event&)> onEvent;
+
+        WindowProps(const std::string& t_title = "Oak Engine", std::pair<uint32_t, uint32_t> t_resolution = {1600, 900})
+            : title{ t_title }, resolution{ t_resolution }
+        {
+        }
     };
 
+    // Interface representing a desktop system based Window
     class Window
     {
     public:
-        Window() = delete;
-        Window(WindowData t_data): m_Data(t_data) {}
+        using EventCallbackFn = std::function<void(Event&)>;
+
         virtual ~Window() = default;
 
         virtual void onUpdate() = 0;
 
-        static std::unique_ptr<Window> create(WindowData t_data);
+        virtual std::pair<uint32_t, uint32_t> getResolution() const = 0;
 
-    protected:
-        WindowData m_Data;
+        // Window attributes
+        virtual void setEventCallback(const EventCallbackFn& t_callback) = 0;
+        virtual void setVSync(bool t_enabled) = 0;
+        virtual bool isVSync() const = 0;
+
+        virtual void* getNativeWindow() const = 0;
+
+        static Scope<Window> create(const WindowProps& t_props = WindowProps());
     };
 }

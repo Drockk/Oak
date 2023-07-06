@@ -21,3 +21,6 @@
 [submodule "Oak/Thridparty/freetype"]
 	path = Oak/Thridparty/freetype
 	url = https://github.com/Drockk/freetype.git
+[submodule "Oak/Thridparty/glm"]
+	path = Oak/Thridparty/glm
+	url = https://github.com/g-truc/glm.git
