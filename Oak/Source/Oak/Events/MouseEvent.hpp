@@ -5,76 +5,65 @@
 
 namespace oak
 {
-    class MouseMovedEvent: public Event
+    class MouseMovedEvent : public Event
     {
     public:
-        explicit MouseMovedEvent(const float x, const float y) : m_MouseX(x), m_MouseY(y) {}
+        MouseMovedEvent(std::pair<float, float> t_position)
+            : m_Position{ t_position } {}
 
-        [[nodiscard]] float getX() const
+        std::pair<float, float> getPosition() const
         {
-            return m_MouseX;
+            return m_Position;
         }
 
-        [[nodiscard]] float getY() const
+        std::string toString() const override
         {
-            return m_MouseY;
-        }
-
-        [[nodiscard]] std::string toString() const override
-        {
+            auto [x, y] = m_Position;
             std::stringstream ss;
-            ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+            ss << "MouseMovedEvent: " << x << ", " << y;
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(MouseMoved);
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput);
-
+        EVENT_CLASS_TYPE(MouseMoved)
+        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
     private:
-        float m_MouseX, m_MouseY;
+        std::pair<float, float> m_Position{};
     };
 
     class MouseScrolledEvent : public Event
     {
     public:
-        explicit MouseScrolledEvent(const float xOffset, const float yOffset) : m_XOffset(xOffset), m_YOffset(yOffset) {}
+        MouseScrolledEvent(std::pair<float, float> t_offset)
+            : m_Offset{ t_offset } {}
 
-        [[nodiscard]] float getXOffset() const
+        std::pair<float, float> getOffset() const
         {
-            return m_XOffset;
+            return m_Offset;
         }
 
-        [[nodiscard]] float getYOffset() const
-        {
-            return m_YOffset;
-        }
-
-        [[nodiscard]] std::string toString() const override
+        std::string toString() const override
         {
             std::stringstream ss;
-            ss << "MouseScrolledEvent: " << getXOffset() << ", " << getYOffset();
+            auto [x, y] = m_Offset;
+            ss << "MouseScrolledEvent: " << x << ", " << y;
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(MouseScrolled);
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput);
-
+        EVENT_CLASS_TYPE(MouseScrolled)
+        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
     private:
-        float m_XOffset, m_YOffset;
+        std::pair<float, float> m_Offset{};
     };
 
     class MouseButtonEvent : public Event
     {
     public:
-        [[nodiscard]] MouseCode getMouseButton() const
-        {
-            return m_Button;
-        }
+        MouseCode getMouseButton() const { return m_Button; }
 
-        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton);
-
+        EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
     protected:
-        explicit MouseButtonEvent(const MouseCode button) : m_Button(button){}
+        MouseButtonEvent(const MouseCode t_button)
+            : m_Button(t_button) {}
 
         MouseCode m_Button;
     };
@@ -82,9 +71,10 @@ namespace oak
     class MouseButtonPressedEvent : public MouseButtonEvent
     {
     public:
-        explicit MouseButtonPressedEvent(const MouseCode button) : MouseButtonEvent(button) {}
+        MouseButtonPressedEvent(MouseCode t_button)
+            : MouseButtonEvent(t_button) {}
 
-        [[nodiscard]] std::string toString() const override
+        std::string toString() const override
         {
             std::stringstream ss;
             ss << "MouseButtonPressedEvent: " << m_Button;
@@ -97,9 +87,10 @@ namespace oak
     class MouseButtonReleasedEvent : public MouseButtonEvent
     {
     public:
-        explicit MouseButtonReleasedEvent(const MouseCode button) : MouseButtonEvent(button) {}
+        MouseButtonReleasedEvent(MouseCode t_button)
+            : MouseButtonEvent(t_button) {}
 
-        [[nodiscard]] std::string toString() const override
+        std::string toString() const override
         {
             std::stringstream ss;
             ss << "MouseButtonReleasedEvent: " << m_Button;

@@ -4,38 +4,29 @@
 
 namespace oak
 {
-    class WindowResizeEvent: public Event
+    class WindowResizeEvent : public Event
     {
     public:
-        WindowResizeEvent(uint32_t width, uint32_t height) : m_Width(width), m_Height(height)
-        {
-        }
+        WindowResizeEvent(std::pair<uint32_t, uint32_t> t_resolution)
+            : m_Resolution{ t_resolution } {}
 
-        [[nodiscard]] uint32_t getWidth() const
-        {
-            return m_Width;
-        }
+        std::pair<uint32_t, uint32_t> getResolution() const { return m_Resolution; }
 
-        [[nodiscard]] uint32_t getHeight() const
+        std::string toString() const override
         {
-            return m_Height;
-        }
-
-        [[nodiscard]] std::string toString() const override
-        {
+            auto [width, height] = m_Resolution;
             std::stringstream ss;
-            ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+            ss << "WindowResizeEvent: " << width << ", " << height;
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(WindowResize);
-        EVENT_CLASS_CATEGORY(EventCategoryApplication);
-
+        EVENT_CLASS_TYPE(WindowResize)
+        EVENT_CLASS_CATEGORY(EventCategoryApplication)
     private:
-        uint32_t m_Width, m_Height;
+        std::pair<uint32_t, uint32_t> m_Resolution;
     };
 
-    class WindowCloseEvent: public Event
+    class WindowCloseEvent : public Event
     {
     public:
         WindowCloseEvent() = default;
@@ -44,26 +35,7 @@ namespace oak
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
     };
 
-    class WindowFocusEvent : public Event
-    {
-    public:
-        WindowFocusEvent(bool t_focus): m_Focus(t_focus)
-        {
-        }
-
-        [[nodiscard]] bool getFocus() const
-        {
-            return m_Focus;
-        }
-
-        EVENT_CLASS_TYPE(WindowFocus);
-        EVENT_CLASS_CATEGORY(EventCategoryApplication);
-
-    private:
-        bool m_Focus;
-    };
-
-    class AppTickEvent: public Event
+    class AppTickEvent : public Event
     {
     public:
         AppTickEvent() = default;
@@ -72,7 +44,7 @@ namespace oak
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
     };
 
-    class AppUpdateEvent: public Event
+    class AppUpdateEvent : public Event
     {
     public:
         AppUpdateEvent() = default;
@@ -81,7 +53,7 @@ namespace oak
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
     };
 
-    class AppRenderEvent: public Event
+    class AppRenderEvent : public Event
     {
     public:
         AppRenderEvent() = default;

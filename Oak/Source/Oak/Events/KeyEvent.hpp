@@ -1,53 +1,51 @@
 #pragma once
+
 #include "Oak/Events/Event.hpp"
 #include "Oak/Core/KeyCodes.hpp"
 
 namespace oak
 {
-    class KeyEvent: public Event
+    class KeyEvent : public Event
     {
     public:
-        KeyCode getKeyCode() const
-        {
-            return m_KeyCode;
-        }
+        KeyCode getKeyCode() const { return m_KeyCode; }
 
-        EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput);
-
+        EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
     protected:
-        explicit KeyEvent(const KeyCode keycode): m_KeyCode(keycode) {}
+        KeyEvent(KeyCode t_keycode)
+            : m_KeyCode(t_keycode) {}
 
         KeyCode m_KeyCode;
     };
 
-    class KeyPressedEvent: public KeyEvent
+    class KeyPressedEvent : public KeyEvent
     {
     public:
-        explicit KeyPressedEvent(const KeyCode keycode, const uint16_t repeatCount) : KeyEvent(keycode), m_RepeatCount(repeatCount) {
-        }
+        KeyPressedEvent(KeyCode t_keycode, bool t_isRepeat = false)
+            : KeyEvent(t_keycode), m_IsRepeat(t_isRepeat) {}
 
-        [[nodiscard]] uint16_t getRepeatCount() const {
-            return m_RepeatCount;
-        }
+        bool isRepeat() const { return m_IsRepeat; }
 
-        [[nodiscard]] std::string toString() const override {
+        std::string toString() const override
+        {
             std::stringstream ss;
-            ss << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
+            ss << "KeyPressedEvent: " << m_KeyCode << " (repeat = " << m_IsRepeat << ")";
             return ss.str();
         }
 
-        EVENT_CLASS_TYPE(KeyPressed);
-
+        EVENT_CLASS_TYPE(KeyPressed)
     private:
-        uint16_t m_RepeatCount;
+        bool m_IsRepeat;
     };
 
-    class KeyReleasedEvent: public KeyEvent {
+    class KeyReleasedEvent : public KeyEvent
+    {
     public:
-        explicit KeyReleasedEvent(const KeyCode keycode) : KeyEvent(keycode) {
-        }
+        KeyReleasedEvent(KeyCode t_keycode)
+            : KeyEvent(t_keycode) {}
 
-        [[nodiscard]] std::string toString() const override {
+        std::string toString() const override
+        {
             std::stringstream ss;
             ss << "KeyReleasedEvent: " << m_KeyCode;
             return ss.str();
@@ -56,12 +54,14 @@ namespace oak
         EVENT_CLASS_TYPE(KeyReleased)
     };
 
-    class KeyTypedEvent: public KeyEvent {
+    class KeyTypedEvent : public KeyEvent
+    {
     public:
-        explicit KeyTypedEvent(const KeyCode keycode) : KeyEvent(keycode) {
-        }
+        KeyTypedEvent(KeyCode t_keycode)
+            : KeyEvent(t_keycode) {}
 
-        [[nodiscard]] std::string toString() const override {
+        std::string toString() const override
+        {
             std::stringstream ss;
             ss << "KeyTypedEvent: " << m_KeyCode;
             return ss.str();
