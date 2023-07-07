@@ -11,11 +11,11 @@ class OakEd : public oak::Application
     }
 };
 
-std::unique_ptr<oak::Application> createApplication(ApplicationCommandLineArgs args)
+oak::Scope<oak::Application> createApplication(oak::ApplicationCommandLineArgs args)
 {
-    ApplicationSpecification spec;
-    spec.Name = "OakEd";
-    spec.CommandLineArgs = args;
+    oak::ApplicationSpecification spec;
+    spec.name = "OakEd";
+    spec.commandLineArgs = args;
 
-    return std::make_unique<OakEd>(spec);
+    return oak::createScope<OakEd>(spec);
 }

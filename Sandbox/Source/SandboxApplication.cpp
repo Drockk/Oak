@@ -10,7 +10,7 @@ public:
     ~SandboxApplication() = default;
 };
 
-std::unique_ptr<oak::Application> createApplication()
+oak::Scope<oak::Application> createApplication()
 {
-    return std::make_unique<SandboxApplication>();
+    return oak::createScope<SandboxApplication>();
 }

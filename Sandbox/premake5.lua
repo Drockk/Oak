@@ -18,7 +18,7 @@ project "Sandbox"
         "%{IncludeDir.entt}",
         "%{IncludeDir.glm}",
         "%{IncludeDir.spdlog}",
-        "%{IncludeDir.oak}",
+        "%{wks.location}/Oak/Source",
         "%{wks.location}/Oak/Thirdparty",
     }
 
