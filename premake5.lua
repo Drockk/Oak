@@ -41,7 +41,7 @@ workspace "Oak"
     group ""
 
     group "Examples"
-        include "Sandbox"
+        -- include "Sandbox"
     group ""
 
     group "Tools"
