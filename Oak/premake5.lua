@@ -62,7 +62,7 @@ project "Oak"
         "%{Library.mono}",
     }
 
-    filter "files:vendor/ImGuizmo/**.cpp"
+    filter "files:Thridparty/ImGuizmo/**.cpp"
     flags { "NoPCH" }
 
     filter "system:windows"

@@ -24,3 +24,6 @@
 [submodule "Oak/Thridparty/glm"]
 	path = Oak/Thridparty/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "Oak/Thridparty/ImGuizmo"]
+	path = Oak/Thridparty/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
