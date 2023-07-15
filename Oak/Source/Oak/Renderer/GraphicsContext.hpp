@@ -13,6 +13,6 @@ namespace oak
         virtual void init() = 0;
         virtual void swapBuffers() = 0;
 
-        static std::shared_ptr<GraphicsContext> create(std::any t_window);
+        static Scope<GraphicsContext> create(std::any t_window);
     };
 }
