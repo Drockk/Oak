@@ -10,8 +10,8 @@ namespace oak
     public:
         virtual ~Shader() = default;
 
-        virtual bind() const = 0;
-        virtual unbind() const = 0;
+        virtual void bind() const = 0;
+        virtual void unbind() const = 0;
 
         virtual void setInt(const std::string& t_name, int t_value) = 0;
         virtual void setIntArray(const std::string& t_name, int* t_values, uint32_t t_count) = 0;

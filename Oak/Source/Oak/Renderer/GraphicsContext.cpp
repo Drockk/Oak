@@ -1,5 +1,6 @@
 #include "oakpch.hpp"
 
+#include "Oak/Renderer/Renderer.hpp"
 #include "Oak/Renderer/GraphicsContext.hpp"
 #include "Platform/OpenGL/Context.hpp"
 
