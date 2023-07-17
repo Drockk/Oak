@@ -544,10 +544,10 @@ namespace oak
 
     void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
     {
-        if (src.Texture)
-            drawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+        if (src.texture)
+            drawQuad(transform, src.texture, src.tilingFactor, src.color, entityID);
         else
-            drawQuad(transform, src.Color, entityID);
+            drawQuad(transform, src.color, entityID);
     }
 
     void Renderer2D::drawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
@@ -665,7 +665,7 @@ namespace oak
 
     void Renderer2D::drawString(const std::string& string, const glm::mat4& transform, const TextComponent& component, int entityID)
     {
-        drawString(string, component.FontAsset, transform, { component.Color, component.Kerning, component.LineSpacing }, entityID);
+        drawString(string, component.fontAsset, transform, { component.color, component.kerning, component.lineSpacing }, entityID);
     }
 
     float Renderer2D::getLineWidth()

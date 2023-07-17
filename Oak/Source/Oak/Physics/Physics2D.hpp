@@ -6,7 +6,7 @@
 
 namespace oak::utils
 {
-    inline b2BodyType Rigidbody2DTypeToBox2DBody(Rigidbody2DComponent::BodyType t_bodyType)
+    inline b2BodyType rigidbody2DTypeToBox2DBody(Rigidbody2DComponent::BodyType t_bodyType)
     {
         switch (t_bodyType)
         {
@@ -22,7 +22,7 @@ namespace oak::utils
         return b2_staticBody;
     }
 
-    inline Rigidbody2DComponent::BodyType Rigidbody2DTypeFromBox2DBody(b2BodyType t_bodyType)
+    inline Rigidbody2DComponent::BodyType rigidbody2DTypeFromBox2DBody(b2BodyType t_bodyType)
     {
         switch (t_bodyType)
         {
