@@ -25,6 +25,7 @@ project "OakEd"
         "%{IncludeDir.glad}",
         "%{IncludeDir.glfw}",
         "%{IncludeDir.glm}",
+        "%{IncludeDir.ImGui}",
         "%{IncludeDir.ImGuizmo}",
         "%{Thirdparty}/spdlog/include",
         "%{wks.location}/Oak/Source",

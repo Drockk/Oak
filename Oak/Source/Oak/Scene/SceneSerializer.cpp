@@ -236,7 +236,7 @@ namespace oak
 
             // Fields
             Ref<ScriptClass> entityClass = ScriptEngine::getEntityClass(scriptComponent.className);
-            const auto& fields = entityClass->fetFields();
+            const auto& fields = entityClass->getFields();
             if (fields.size() > 0)
             {
                 out << YAML::Key << "ScriptFields" << YAML::Value;
@@ -249,12 +249,12 @@ namespace oak
 
                     out << YAML::BeginMap; // ScriptField
                     out << YAML::Key << "Name" << YAML::Value << name;
-                    out << YAML::Key << "Type" << YAML::Value << utils::scriptFieldTypeToString(field.Type);
+                    out << YAML::Key << "Type" << YAML::Value << utils::scriptFieldTypeToString(field.type);
 
                     out << YAML::Key << "Data" << YAML::Value;
                     ScriptFieldInstance& scriptField = entityFields.at(name);
 
-                    switch (field.Type)
+                    switch (field.type)
                     {
                         WRITE_SCRIPT_FIELD(Float, float);
                         WRITE_SCRIPT_FIELD(Double, double);
@@ -492,7 +492,7 @@ namespace oak
                                 if (fields.find(name) == fields.end())
                                     continue;
 
-                                fieldInstance.Field = fields.at(name);
+                                fieldInstance.field = fields.at(name);
 
                                 switch (type)
                                 {

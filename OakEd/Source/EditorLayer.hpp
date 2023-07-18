@@ -6,7 +6,7 @@
 
 #include "Oak/Renderer/EditorCamera.hpp"
 
-class EditorLayer : public Layer
+class EditorLayer : public oak::Layer
 {
 public:
     EditorLayer();
@@ -15,12 +15,12 @@ public:
     void onAttach() override;
     void onDetach() override;
 
-    void onUpdate(Timestep t_ts) override;
+    void onUpdate(oak::Timestep t_ts) override;
     void onImGuiRender() override;
-    void onEvent(Event& t_e) override;
+    void onEvent(oak::Event& t_e) override;
 private:
-    bool onKeyPressed(KeyPressedEvent& t_e);
-    bool onMouseButtonPressed(MouseButtonPressedEvent& t_e);
+    bool onKeyPressed(oak::KeyPressedEvent& t_e);
+    bool onMouseButtonPressed(oak::MouseButtonPressedEvent& t_e);
 
     void onOverlayRender();
 
@@ -35,7 +35,7 @@ private:
     void saveScene();
     void saveSceneAs();
 
-    void serializeScene(Ref<Scene> t_scene, const std::filesystem::path& t_path);
+    void serializeScene(oak::Ref<oak::Scene> t_scene, const std::filesystem::path& t_path);
 
     void onScenePlay();
     void onSceneSimulate();
@@ -47,27 +47,27 @@ private:
     // UI Panels
     void uiToolbar();
 private:
-    Oak::OrthographicCameraController m_CameraController;
+    oak::OrthographicCameraController m_CameraController;
 
     // Temp
-    Ref<VertexArray> m_SquareVA;
-    Ref<Shader> m_FlatColorShader;
-    Ref<Framebuffer> m_Framebuffer;
+    oak::Ref<oak::VertexArray> m_SquareVA;
+    oak::Ref<oak::Shader> m_FlatColorShader;
+    oak::Ref<oak::Framebuffer> m_Framebuffer;
 
-    Ref<Scene> m_ActiveScene;
-    Ref<Scene> m_EditorScene;
+    oak::Ref<oak::Scene> m_ActiveScene;
+    oak::Ref<oak::Scene> m_EditorScene;
     std::filesystem::path m_EditorScenePath;
-    Entity m_SquareEntity;
-    Entity m_CameraEntity;
-    Entity m_SecondCamera;
+    oak::Entity m_SquareEntity;
+    oak::Entity m_CameraEntity;
+    oak::Entity m_SecondCamera;
 
-    Entity m_HoveredEntity;
+    oak::Entity m_HoveredEntity;
 
     bool m_PrimaryCamera = true;
 
-    EditorCamera m_EditorCamera;
+    oak::EditorCamera m_EditorCamera;
 
-    Ref<Texture2D> m_CheckerboardTexture;
+    oak::Ref<oak::Texture2D> m_CheckerboardTexture;
 
     bool m_ViewportFocused = false, m_ViewportHovered = false;
     glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
@@ -87,8 +87,8 @@ private:
 
     // Panels
     SceneHierarchyPanel m_SceneHierarchyPanel;
-    Scope<ContentBrowserPanel> m_ContentBrowserPanel;
+    oak::Scope<ContentBrowserPanel> m_ContentBrowserPanel;
 
     // Editor resources
-    Ref<Texture2D> m_IconPlay, m_IconPause, m_IconStep, m_IconSimulate, m_IconStop;
+    oak::Ref<oak::Texture2D> m_IconPlay, m_IconPause, m_IconStep, m_IconSimulate, m_IconStop;
 };
