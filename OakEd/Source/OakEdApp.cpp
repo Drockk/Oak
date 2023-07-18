@@ -5,6 +5,7 @@
 
 class OakEd : public oak::Application
 {
+public:
     OakEd(const oak::ApplicationSpecification& spec) : Application(spec)
     {
         pushLayer(new EditorLayer());

@@ -448,7 +448,7 @@ namespace oak
                 {
                     auto& cc = deserializedEntity.addComponent<CameraComponent>();
 
-                    auto& cameraProps = cameraComponent["Camera"];
+                    auto cameraProps = cameraComponent["Camera"];
                     cc.camera.setProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
 
                     cc.camera.setPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());

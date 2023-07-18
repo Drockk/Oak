@@ -4,9 +4,9 @@
 #include "Oak/Scripting/ScriptEngine.hpp"
 #include "Oak/UI/UI.hpp"
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
-#include <imgui/misc/cpp/imgui_stdlib.h>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -37,7 +37,7 @@ void SceneHierarchyPanel::onImGuiRender()
     if (m_Context)
     {
         m_Context->m_Registry.each([&](auto t_entityID) {
-            Entity entity{ t_entityID , m_Context.get() };
+            oak::Entity entity{ t_entityID , m_Context.get() };
             drawEntityNode(entity);
         });
 
@@ -47,11 +47,11 @@ void SceneHierarchyPanel::onImGuiRender()
         }
 
         // Right-click on blank space
-        if (ImGui::BeginPopupContextWindow(0, 1, false))
+        if (ImGui::BeginPopupContextWindow(0, 1))
         {
             if (ImGui::MenuItem("Create Empty Entity"))
             {
-                m_Context->CreateEntity("Empty Entity");
+                m_Context->createEntity("Empty Entity");
             }
 
             ImGui::EndPopup();
@@ -68,14 +68,14 @@ void SceneHierarchyPanel::onImGuiRender()
     ImGui::End();
 }
 
-void SceneHierarchyPanel::setSelectedEntity(Entity t_entity)
+void SceneHierarchyPanel::setSelectedEntity(oak::Entity t_entity)
 {
     m_SelectionContext = t_entity;
 }
 
-void SceneHierarchyPanel::drawEntityNode(Entity entity)
+void SceneHierarchyPanel::drawEntityNode(oak::Entity entity)
 {
-    auto &tag = entity.GetComponent<TagComponent>().Tag;
+    auto &tag = entity.getComponent<oak::TagComponent>().tag;
 
     ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
     flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -109,7 +109,7 @@ void SceneHierarchyPanel::drawEntityNode(Entity entity)
 
     if (entityDeleted)
     {
-        m_Context->DestroyEntity(entity);
+        m_Context->destroyEntity(entity);
         if (m_SelectionContext == entity)
         {
             m_SelectionContext = {};
@@ -184,12 +184,12 @@ static void drawVec3Control(const std::string &label, glm::vec3 &values, float r
 }
 
 template <typename T, typename UIFunction>
-static void drawComponent(const std::string &name, Entity entity, UIFunction uiFunction)
+static void drawComponent(const std::string &name, oak::Entity entity, UIFunction uiFunction)
 {
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_FramePadding;
-    if (entity.HasComponent<T>())
+    if (entity.hasComponent<T>())
     {
-        auto &component = entity.GetComponent<T>();
+        auto &component = entity.getComponent<T>();
         ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4, 4});
@@ -219,15 +219,15 @@ static void drawComponent(const std::string &name, Entity entity, UIFunction uiF
         }
 
         if (removeComponent)
-            entity.RemoveComponent<T>();
+            entity.removeComponent<T>();
     }
 }
 
-void SceneHierarchyPanel::drawComponents(Entity entity)
+void SceneHierarchyPanel::drawComponents(oak::Entity entity)
 {
-    if (entity.HasComponent<TagComponent>())
+    if (entity.hasComponent<oak::TagComponent>())
     {
-        auto &tag = entity.GetComponent<TagComponent>().Tag;
+        auto &tag = entity.getComponent<oak::TagComponent>().tag;
 
         char buffer[256];
         memset(buffer, 0, sizeof(buffer));
@@ -246,36 +246,36 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
 
     if (ImGui::BeginPopup("AddComponent"))
     {
-        DisplayAddComponentEntry<CameraComponent>("Camera");
-        DisplayAddComponentEntry<ScriptComponent>("Script");
-        DisplayAddComponentEntry<SpriteRendererComponent>("Sprite Renderer");
-        DisplayAddComponentEntry<CircleRendererComponent>("Circle Renderer");
-        DisplayAddComponentEntry<Rigidbody2DComponent>("Rigidbody 2D");
-        DisplayAddComponentEntry<BoxCollider2DComponent>("Box Collider 2D");
-        DisplayAddComponentEntry<CircleCollider2DComponent>("Circle Collider 2D");
-        DisplayAddComponentEntry<TextComponent>("Text Component");
+        displayAddComponentEntry<oak::CameraComponent>("Camera");
+        displayAddComponentEntry<oak::ScriptComponent>("Script");
+        displayAddComponentEntry<oak::SpriteRendererComponent>("Sprite Renderer");
+        displayAddComponentEntry<oak::CircleRendererComponent>("Circle Renderer");
+        displayAddComponentEntry<oak::Rigidbody2DComponent>("Rigidbody 2D");
+        displayAddComponentEntry<oak::BoxCollider2DComponent>("Box Collider 2D");
+        displayAddComponentEntry<oak::CircleCollider2DComponent>("Circle Collider 2D");
+        displayAddComponentEntry<oak::TextComponent>("Text Component");
 
         ImGui::EndPopup();
     }
 
     ImGui::PopItemWidth();
 
-    DrawComponent<TransformComponent>("Transform", entity, [](auto &component)
+    drawComponent<oak::TransformComponent>("Transform", entity, [](auto &component)
                                       {
-                DrawVec3Control("Translation", component.Translation);
-                glm::vec3 rotation = glm::degrees(component.Rotation);
-                DrawVec3Control("Rotation", rotation);
-                component.Rotation = glm::radians(rotation);
-                DrawVec3Control("Scale", component.Scale, 1.0f); });
+                drawVec3Control("Translation", component.translation);
+                glm::vec3 rotation = glm::degrees(component.rotation);
+                drawVec3Control("Rotation", rotation);
+                component.rotation = glm::radians(rotation);
+                drawVec3Control("Scale", component.scale, 1.0f); });
 
-    DrawComponent<CameraComponent>("Camera", entity, [](auto &component)
+    drawComponent<oak::CameraComponent>("Camera", entity, [](auto &component)
                                    {
-                auto& camera = component.Camera;
+                auto& camera = component.camera;
 
-                ImGui::Checkbox("Primary", &component.Primary);
+                ImGui::Checkbox("Primary", &component.primary);
 
                 const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
-                const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.GetProjectionType()];
+                const char* currentProjectionTypeString = projectionTypeStrings[(int)camera.getProjectionType()];
                 if (ImGui::BeginCombo("Projection", currentProjectionTypeString))
                 {
                     for (int i = 0; i < 2; i++)
@@ -284,7 +284,7 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                         if (ImGui::Selectable(projectionTypeStrings[i], isSelected))
                         {
                             currentProjectionTypeString = projectionTypeStrings[i];
-                            camera.SetProjectionType((SceneCamera::ProjectionType)i);
+                            camera.setProjectionType((oak::SceneCamera::ProjectionType)i);
                         }
 
                         if (isSelected)
@@ -294,69 +294,69 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                     ImGui::EndCombo();
                 }
 
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Perspective)
+                if (camera.getProjectionType() == oak::SceneCamera::ProjectionType::Perspective)
                 {
-                    float perspectiveVerticalFov = glm::degrees(camera.GetPerspectiveVerticalFOV());
+                    float perspectiveVerticalFov = glm::degrees(camera.getPerspectiveVerticalFOV());
                     if (ImGui::DragFloat("Vertical FOV", &perspectiveVerticalFov))
-                        camera.SetPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));
+                        camera.setPerspectiveVerticalFOV(glm::radians(perspectiveVerticalFov));
 
-                    float perspectiveNear = camera.GetPerspectiveNearClip();
+                    float perspectiveNear = camera.getPerspectiveNearClip();
                     if (ImGui::DragFloat("Near", &perspectiveNear))
-                        camera.SetPerspectiveNearClip(perspectiveNear);
+                        camera.setPerspectiveNearClip(perspectiveNear);
 
-                    float perspectiveFar = camera.GetPerspectiveFarClip();
+                    float perspectiveFar = camera.getPerspectiveFarClip();
                     if (ImGui::DragFloat("Far", &perspectiveFar))
-                        camera.SetPerspectiveFarClip(perspectiveFar);
+                        camera.setPerspectiveFarClip(perspectiveFar);
                 }
 
-                if (camera.GetProjectionType() == SceneCamera::ProjectionType::Orthographic)
+                if (camera.getProjectionType() == oak::SceneCamera::ProjectionType::Orthographic)
                 {
-                    float orthoSize = camera.GetOrthographicSize();
+                    float orthoSize = camera.getOrthographicSize();
                     if (ImGui::DragFloat("Size", &orthoSize))
-                        camera.SetOrthographicSize(orthoSize);
+                        camera.setOrthographicSize(orthoSize);
 
-                    float orthoNear = camera.GetOrthographicNearClip();
+                    float orthoNear = camera.getOrthographicNearClip();
                     if (ImGui::DragFloat("Near", &orthoNear))
-                        camera.SetOrthographicNearClip(orthoNear);
+                        camera.setOrthographicNearClip(orthoNear);
 
-                    float orthoFar = camera.GetOrthographicFarClip();
+                    float orthoFar = camera.getOrthographicFarClip();
                     if (ImGui::DragFloat("Far", &orthoFar))
-                        camera.SetOrthographicFarClip(orthoFar);
+                        camera.setOrthographicFarClip(orthoFar);
 
-                    ImGui::Checkbox("Fixed Aspect Ratio", &component.FixedAspectRatio);
+                    ImGui::Checkbox("Fixed Aspect Ratio", &component.fixedAspectRatio);
                 } });
 
-    DrawComponent<ScriptComponent>("Script", entity, [entity, scene = m_Context](auto &component) mutable
+    drawComponent<oak::ScriptComponent>("Script", entity, [entity, scene = m_Context](auto &component) mutable
                                    {
-                bool scriptClassExists = ScriptEngine::EntityClassExists(component.ClassName);
+                bool scriptClassExists = oak::ScriptEngine::entityClassExists(component.className);
 
                 static char buffer[64];
-                strcpy_s(buffer, sizeof(buffer), component.ClassName.c_str());
+                strcpy_s(buffer, sizeof(buffer), component.className.c_str());
 
-                UI::ScopedStyleColor textColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f), !scriptClassExists);
+                oak::ui::ScopedStyleColor textColor(ImGuiCol_Text, ImVec4(0.9f, 0.2f, 0.3f, 1.0f), !scriptClassExists);
 
                 if (ImGui::InputText("Class", buffer, sizeof(buffer)))
                 {
-                    component.ClassName = buffer;
+                    component.className = buffer;
                     return;
                 }
 
                 // Fields
-                bool sceneRunning = scene->IsRunning();
+                bool sceneRunning = scene->isRunning();
                 if (sceneRunning)
                 {
-                    Ref<ScriptInstance> scriptInstance = ScriptEngine::GetEntityScriptInstance(entity.GetUUID());
+                    oak::Ref<oak::ScriptInstance> scriptInstance = oak::ScriptEngine::getEntityScriptInstance(entity.getUUID());
                     if (scriptInstance)
                     {
-                        const auto& fields = scriptInstance->GetScriptClass()->GetFields();
+                        const auto& fields = scriptInstance->getScriptClass()->getFields();
                         for (const auto& [name, field] : fields)
                         {
-                            if (field.Type == ScriptFieldType::Float)
+                            if (field.type == oak::ScriptFieldType::Float)
                             {
-                                float data = scriptInstance->GetFieldValue<float>(name);
+                                float data = scriptInstance->getFieldValue<float>(name);
                                 if (ImGui::DragFloat(name.c_str(), &data))
                                 {
-                                    scriptInstance->SetFieldValue(name, data);
+                                    scriptInstance->setFieldValue(name, data);
                                 }
                             }
                         }
@@ -366,36 +366,36 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                 {
                     if (scriptClassExists)
                     {
-                        Ref<ScriptClass> entityClass = ScriptEngine::GetEntityClass(component.ClassName);
-                        const auto& fields = entityClass->GetFields();
+                        oak::Ref<oak::ScriptClass> entityClass = oak::ScriptEngine::getEntityClass(component.className);
+                        const auto& fields = entityClass->getFields();
 
-                        auto& entityFields = ScriptEngine::GetScriptFieldMap(entity);
+                        auto& entityFields = oak::ScriptEngine::getScriptFieldMap(entity);
                         for (const auto& [name, field] : fields)
                         {
                             // Field has been set in editor
                             if (entityFields.find(name) != entityFields.end())
                             {
-                                ScriptFieldInstance& scriptField = entityFields.at(name);
+                                oak::ScriptFieldInstance& scriptField = entityFields.at(name);
 
                                 // Display control to set it maybe
-                                if (field.Type == ScriptFieldType::Float)
+                                if (field.type == oak::ScriptFieldType::Float)
                                 {
-                                    float data = scriptField.GetValue<float>();
+                                    float data = scriptField.getValue<float>();
                                     if (ImGui::DragFloat(name.c_str(), &data))
-                                        scriptField.SetValue(data);
+                                        scriptField.setValue(data);
                                 }
                             }
                             else
                             {
                                 // Display control to set it maybe
-                                if (field.Type == ScriptFieldType::Float)
+                                if (field.type == oak::ScriptFieldType::Float)
                                 {
                                     float data = 0.0f;
                                     if (ImGui::DragFloat(name.c_str(), &data))
                                     {
-                                        ScriptFieldInstance& fieldInstance = entityFields[name];
-                                        fieldInstance.Field = field;
-                                        fieldInstance.SetValue(data);
+                                        oak::ScriptFieldInstance& fieldInstance = entityFields[name];
+                                        fieldInstance.field = field;
+                                        fieldInstance.setValue(data);
                                     }
                                 }
                             }
@@ -403,9 +403,9 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                     }
                 } });
 
-    DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto &component)
+    drawComponent<oak::SpriteRendererComponent>("Sprite Renderer", entity, [](auto &component)
                                            {
-                ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
+                ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
 
                 ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
                 if (ImGui::BeginDragDropTarget())
@@ -414,27 +414,27 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                     {
                         const wchar_t* path = (const wchar_t*)payload->Data;
                         std::filesystem::path texturePath(path);
-                        Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
-                        if (texture->IsLoaded())
-                            component.Texture = texture;
+                        oak::Ref<oak::Texture2D> texture = oak::Texture2D::create(texturePath.string());
+                        if (texture->isLoaded())
+                            component.texture = texture;
                         else
-                            OAK_WARN("Could not load texture {0}", texturePath.filename().string());
+                            OAK_LOG_WARN("Could not load texture {0}", texturePath.filename().string());
                     }
                     ImGui::EndDragDropTarget();
                 }
 
-                ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f); });
+                ImGui::DragFloat("Tiling Factor", &component.tilingFactor, 0.1f, 0.0f, 100.0f); });
 
-    DrawComponent<CircleRendererComponent>("Circle Renderer", entity, [](auto &component)
+    drawComponent<oak::CircleRendererComponent>("Circle Renderer", entity, [](auto &component)
                                            {
-                ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-                ImGui::DragFloat("Thickness", &component.Thickness, 0.025f, 0.0f, 1.0f);
-                ImGui::DragFloat("Fade", &component.Fade, 0.00025f, 0.0f, 1.0f); });
+                ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Thickness", &component.thickness, 0.025f, 0.0f, 1.0f);
+                ImGui::DragFloat("Fade", &component.fade, 0.00025f, 0.0f, 1.0f); });
 
-    DrawComponent<Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto &component)
+    drawComponent<oak::Rigidbody2DComponent>("Rigidbody 2D", entity, [](auto &component)
                                         {
                 const char* bodyTypeStrings[] = { "Static", "Dynamic", "Kinematic" };
-                const char* currentBodyTypeString = bodyTypeStrings[(int)component.Type];
+                const char* currentBodyTypeString = bodyTypeStrings[(int)component.type];
                 if (ImGui::BeginCombo("Body Type", currentBodyTypeString))
                 {
                     for (int i = 0; i < 2; i++)
@@ -443,7 +443,7 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                         if (ImGui::Selectable(bodyTypeStrings[i], isSelected))
                         {
                             currentBodyTypeString = bodyTypeStrings[i];
-                            component.Type = (Rigidbody2DComponent::BodyType)i;
+                            component.type = (oak::Rigidbody2DComponent::BodyType)i;
                         }
 
                         if (isSelected)
@@ -453,42 +453,42 @@ void SceneHierarchyPanel::drawComponents(Entity entity)
                     ImGui::EndCombo();
                 }
 
-                ImGui::Checkbox("Fixed Rotation", &component.FixedRotation); });
+                ImGui::Checkbox("Fixed Rotation", &component.fixedRotation); });
 
-    DrawComponent<BoxCollider2DComponent>("Box Collider 2D", entity, [](auto &component)
+    drawComponent<oak::BoxCollider2DComponent>("Box Collider 2D", entity, [](auto &component)
                                           {
-                ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-                ImGui::DragFloat2("Size", glm::value_ptr(component.Size));
-                ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f); });
+                ImGui::DragFloat2("Offset", glm::value_ptr(component.offset));
+                ImGui::DragFloat2("Size", glm::value_ptr(component.size));
+                ImGui::DragFloat("Density", &component.density, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Friction", &component.friction, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Restitution Threshold", &component.restitutionThreshold, 0.01f, 0.0f); });
 
-    DrawComponent<CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto &component)
+    drawComponent<oak::CircleCollider2DComponent>("Circle Collider 2D", entity, [](auto &component)
                                              {
-                ImGui::DragFloat2("Offset", glm::value_ptr(component.Offset));
-                ImGui::DragFloat("Radius", &component.Radius);
-                ImGui::DragFloat("Density", &component.Density, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
-                ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f); });
+                ImGui::DragFloat2("Offset", glm::value_ptr(component.offset));
+                ImGui::DragFloat("Radius", &component.radius);
+                ImGui::DragFloat("Density", &component.density, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Friction", &component.friction, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Restitution", &component.restitution, 0.01f, 0.0f, 1.0f);
+                ImGui::DragFloat("Restitution Threshold", &component.restitutionThreshold, 0.01f, 0.0f); });
 
-    DrawComponent<TextComponent>("Text Renderer", entity, [](auto &component)
+    drawComponent<oak::TextComponent>("Text Renderer", entity, [](auto &component)
                                  {
-                ImGui::InputTextMultiline("Text String", &component.TextString);
-                ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-                ImGui::DragFloat("Kerning", &component.Kerning, 0.025f);
-                ImGui::DragFloat("Line Spacing", &component.LineSpacing, 0.025f); });
+                ImGui::InputTextMultiline("Text String", &component.textString);
+                ImGui::ColorEdit4("Color", glm::value_ptr(component.color));
+                ImGui::DragFloat("Kerning", &component.kerning, 0.025f);
+                ImGui::DragFloat("Line Spacing", &component.lineSpacing, 0.025f); });
 }
 
 template <typename T>
 void SceneHierarchyPanel::displayAddComponentEntry(const std::string &entryName)
 {
-    if (!m_SelectionContext.HasComponent<T>())
+    if (!m_SelectionContext.hasComponent<T>())
     {
         if (ImGui::MenuItem(entryName.c_str()))
         {
-            m_SelectionContext.AddComponent<T>();
+            m_SelectionContext.addComponent<T>();
             ImGui::CloseCurrentPopup();
         }
     }

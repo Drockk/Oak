@@ -1,6 +1,5 @@
 #include "oakpch.hpp"
 #include "Oak/Project/ProjectSerializer.hpp"
-#include "ProjectSerializer.h"
 
 #include <fstream>
 #include <yaml-cpp/yaml.h>

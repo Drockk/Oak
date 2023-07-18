@@ -2,9 +2,9 @@
 
 #include "Oak/Project/Project.hpp"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 
-ContentBrowserPanel::ContentBrowserPanel(): m_BaseDirectory(Project::GetAssetDirectory()), m_CurrentDirectory(m_BaseDirectory)
+ContentBrowserPanel::ContentBrowserPanel(): m_BaseDirectory(oak::Project::getAssetDirectory()), m_CurrentDirectory(m_BaseDirectory)
 {
     m_DirectoryIcon = oak::Texture2D::create("Resources/Icons/ContentBrowser/DirectoryIcon.png");
     m_FileIcon = oak::Texture2D::create("Resources/Icons/ContentBrowser/FileIcon.png");
@@ -41,7 +41,7 @@ void ContentBrowserPanel::onImGuiRender()
         ImGui::PushID(filenameString.c_str());
         oak::Ref<oak::Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-        ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+        ImGui::ImageButton((ImTextureID)icon->getRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
 
         if (ImGui::BeginDragDropSource())
         {

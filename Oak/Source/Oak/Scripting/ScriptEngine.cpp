@@ -238,7 +238,7 @@ namespace oak
     bool ScriptEngine::loadAssembly(const std::filesystem::path& filepath)
     {
         // Create an App Domain
-        s_Data->appDomain = mono_domain_create_appdomain("OakScriptRuntime", nullptr);
+        s_Data->appDomain = mono_domain_create_appdomain(strdup("OakScriptRuntime"), nullptr);
         mono_domain_set(s_Data->appDomain, true);
 
         s_Data->coreAssemblyFilepath = filepath;

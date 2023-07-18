@@ -7,6 +7,7 @@
 #include "entt.hpp"
 
 class b2World;
+class SceneHierarchyPanel;
 
 namespace oak
 {
@@ -75,6 +76,6 @@ namespace oak
 
         friend class Entity;
         friend class SceneSerializer;
-        friend class SceneHierarchyPanel;
+        friend class ::SceneHierarchyPanel;
     };
 }
