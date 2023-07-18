@@ -36,7 +36,7 @@ namespace oak
                 auto view = src.view<Component>();
                 for (auto srcEntity : view)
                 {
-                    entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity).ID);
+                    entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity).id);
 
                     auto& srcComponent = src.get<Component>(srcEntity);
                     dst.emplace_or_replace<Component>(dstEntity, srcComponent);
@@ -47,7 +47,7 @@ namespace oak
     template<typename... Component>
     static void copyComponent(ComponentGroup<Component...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
     {
-        CopyComponent<Component...>(dst, src, enttMap);
+        copyComponent<Component...>(dst, src, enttMap);
     }
 
     template<typename... Component>
@@ -56,14 +56,14 @@ namespace oak
         ([&]()
             {
                 if (src.hasComponent<Component>())
-                    dst.AddOrReplaceComponent<Component>(src.getComponent<Component>());
+                    dst.addOrReplaceComponent<Component>(src.getComponent<Component>());
             }(), ...);
     }
 
     template<typename... Component>
     static void copyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
     {
-        CopyComponentIfExists<Component...>(dst, src);
+        copyComponentIfExists<Component...>(dst, src);
     }
 
     Ref<Scene> Scene::copy(Ref<Scene> other)
@@ -173,14 +173,14 @@ namespace oak
                 m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
                     {
                         // TODO: Move to Scene::OnScenePlay
-                        if (!nsc.Instance)
+                        if (!nsc.instance)
                         {
-                            nsc.Instance = nsc.InstantiateScript();
-                            nsc.Instance->m_Entity = Entity{ entity, this };
-                            nsc.Instance->OnCreate();
+                            nsc.instance = nsc.instantiateScript();
+                            nsc.instance->m_Entity = Entity{ entity, this };
+                            nsc.instance->onCreate();
                         }
 
-                        nsc.Instance->OnUpdate(ts);
+                        nsc.instance->onUpdate(ts);
                     });
             }
 

@@ -407,7 +407,7 @@ namespace oak
         }
         catch (YAML::ParserException e)
         {
-            OAK_LOG_CORE_ERROR("Failed to load .hazel file '{0}'\n     {1}", filepath, e.what());
+            OAK_LOG_CORE_ERROR("Failed to load .oak file '{0}'\n     {1}", filepath, e.what());
             return false;
         }
 

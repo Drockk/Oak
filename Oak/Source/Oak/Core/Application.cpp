@@ -37,8 +37,8 @@ namespace oak
     void Application::shutdown()
     {
         OAK_PROFILE_FUNCTION();
-        ScriptEngine::Shutdown();
-        Renderer::Shutdown();
+        ScriptEngine::shutdown();
+        Renderer::shutdown();
     }
 
     void Application::pushLayer(Layer* t_layer)
@@ -53,7 +53,7 @@ namespace oak
     {
         OAK_PROFILE_FUNCTION();
 
-        m_LayerStack.PushOverlay(t_layer);
+        m_LayerStack.pushOverlay(t_layer);
         t_layer->onAttach();
     }
 
@@ -93,7 +93,7 @@ namespace oak
         {
             OAK_PROFILE_SCOPE("RunLoop");
 
-            float time = Time::GetTime();
+            float time = Time::getTime();
             Timestep timestep = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
@@ -108,14 +108,14 @@ namespace oak
                         layer->onUpdate(timestep);
                 }
 
-                m_ImGuiLayer->Begin();
+                m_ImGuiLayer->begin();
                 {
                     OAK_PROFILE_SCOPE("LayerStack onImGuiRender");
 
                     for (Layer* layer : m_LayerStack)
                         layer->onImGuiRender();
                 }
-                m_ImGuiLayer->End();
+                m_ImGuiLayer->end();
             }
 
             m_Window->onUpdate();
@@ -132,14 +132,15 @@ namespace oak
     {
         OAK_PROFILE_FUNCTION();
 
-        if (t_event.getWidth() == 0 || t_event.getHeight() == 0)
+        auto [width, height] = t_event.getResolution();
+        if (width == 0 || height == 0)
         {
             m_Minimized = true;
             return false;
         }
 
         m_Minimized = false;
-        Renderer::onWindowResize(t_event.getWidth(), t_event.getHeight());
+        Renderer::onWindowResize(width, height);
 
         return false;
     }
