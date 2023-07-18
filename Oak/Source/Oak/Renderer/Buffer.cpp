@@ -3,7 +3,7 @@
 
 #include "Oak/Renderer/Renderer.hpp"
 
-#include "Platform/OpenGL/OpenGLBuffer.hpp"
+#include "Platform/OpenGL/Buffer.hpp"
 
 namespace oak
 {
@@ -15,7 +15,7 @@ namespace oak
             OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return createRef<OpenGLVertexBuffer>(t_size);
+            return createRef<openGL::VertexBuffer>(t_size);
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -30,7 +30,7 @@ namespace oak
             OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return createRef<OpenGLVertexBuffer>(t_vertices, t_size);
+            return createRef<openGL::VertexBuffer>(t_vertices, t_size);
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -45,7 +45,7 @@ namespace oak
             OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return createRef<OpenGLIndexBuffer>(t_indices, t_size);
+            return createRef<openGL::IndexBuffer>(t_indices, t_size);
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");

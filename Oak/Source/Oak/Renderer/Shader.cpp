@@ -2,7 +2,7 @@
 #include "Oak/Renderer/Shader.hpp"
 
 #include "Oak/Renderer/Renderer.hpp"
-#include "Platform/OpenGL/OpenGLShader.hpp"
+#include "Platform/OpenGL/Shader.hpp"
 
 namespace oak
 {

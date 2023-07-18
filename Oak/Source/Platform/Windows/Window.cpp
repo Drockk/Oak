@@ -9,7 +9,7 @@
 
 #include "Oak/Renderer/Renderer.hpp"
 
-#include "Platform/OpenGL/OpenGLContext.hpp"
+#include "Platform/OpenGL/Context.hpp"
 
 namespace windows
 {
@@ -55,7 +55,7 @@ namespace windows
         {
             OAK_PROFILE_SCOPE("glfwCreateWindow");
 #if defined(OAK_DEBUG)
-            if (Renderer::getAPI() == RendererAPI::API::OpenGL)
+            if (oak::Renderer::getAPI() == oak::RendererAPI::API::OpenGL)
             {
                 glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
             }
@@ -64,7 +64,7 @@ namespace windows
             ++s_GLFWWindowCount;
         }
 
-        m_Context = GraphicsContext::create(m_Window);
+        m_Context = oak::GraphicsContext::create(m_Window);
         m_Context->init();
 
         glfwSetWindowUserPointer(m_Window, &m_Data);

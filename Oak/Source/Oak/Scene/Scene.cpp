@@ -19,10 +19,6 @@
 
 namespace oak
 {
-    Scene::Scene()
-    {
-    }
-
     Scene::~Scene()
     {
         delete m_PhysicsWorld;

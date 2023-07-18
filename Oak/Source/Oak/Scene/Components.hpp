@@ -18,6 +18,7 @@ namespace oak
         UUID id;
 
         IDComponent() = default;
+        IDComponent(UUID t_id): id{ t_id } {};
         IDComponent(const IDComponent&) = default;
     };
 

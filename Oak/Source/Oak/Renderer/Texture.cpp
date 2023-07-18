@@ -2,7 +2,7 @@
 #include "Oak/Renderer/Texture.hpp"
 
 #include "Oak/Renderer/Renderer.hpp"
-#include "Platform/OpenGL/OpenGLTexture.hpp"
+#include "Platform/OpenGL/Texture.hpp"
 
 namespace oak
 {
@@ -29,7 +29,7 @@ namespace oak
             OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
             return nullptr;
         case RendererAPI::API::OpenGL:
-            return createRef<OpenGLTexture2D>(t_path);
+            return createRef<openGL::Texture2D>(t_path);
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");

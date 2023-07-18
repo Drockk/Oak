@@ -76,7 +76,7 @@ namespace oak
     private:
         inline static Application* s_Instance{nullptr};
     };
-
-    // To be defined in CLIENT
-    std::unique_ptr<Application> createApplication(ApplicationCommandLineArgs t_args);
 }
+
+// To be defined in CLIENT
+oak::Scope<oak::Application> createApplication(oak::ApplicationCommandLineArgs args);

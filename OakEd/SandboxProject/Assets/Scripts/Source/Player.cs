@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,14 +33,14 @@ namespace Sandbox
 			Vector3 velocity = Vector3.Zero;
 
 			if (Input.IsKeyDown(KeyCode.W))
-				velocity.Y = 1.0f;
+				velocity.y = 1.0f;
 			else if (Input.IsKeyDown(KeyCode.S))
-				velocity.Y = -1.0f;
+				velocity.y = -1.0f;
 
 			if (Input.IsKeyDown(KeyCode.A))
-				velocity.X = -1.0f;
+				velocity.x = -1.0f;
 			else if (Input.IsKeyDown(KeyCode.D))
-				velocity.X = 1.0f;
+				velocity.x = 1.0f;
 
 			Entity cameraEntity = FindEntityByName("Camera");
 			if (cameraEntity != null)
@@ -55,7 +55,7 @@ namespace Sandbox
 
 			velocity *= speed * ts;
 
-			m_Rigidbody.ApplyLinearImpulse(velocity.XY, true);
+			m_Rigidbody.ApplyLinearImpulse(velocity.Xy, true);
 
 			//Vector3 translation = m_Transform.Translation;
 			//translation += velocity * ts;

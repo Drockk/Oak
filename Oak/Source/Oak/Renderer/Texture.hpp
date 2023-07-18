@@ -17,10 +17,10 @@ namespace oak
 
     struct TextureSpecification
     {
-        uint32_t Width = 1;
-        uint32_t Height = 1;
-        ImageFormat Format = ImageFormat::RGBA8;
-        bool GenerateMips = true;
+        uint32_t width = 1;
+        uint32_t height = 1;
+        ImageFormat format = ImageFormat::RGBA8;
+        bool generateMips = true;
     };
 
     class Texture
@@ -30,7 +30,6 @@ namespace oak
 
         virtual const TextureSpecification& getSpecification() const = 0;
 
-        virtual uint32_t getSize() const = 0;
         virtual uint32_t getWidth() const = 0;
         virtual uint32_t getHeight() const = 0;
         virtual uint32_t getRendererID() const = 0;

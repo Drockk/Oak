@@ -2,6 +2,8 @@
 #include "Oak/Core/Base.hpp"
 #include "Oak/Core/Application.hpp"
 
+//extern  std::unique_ptr<oak::Application> createApplication(oak::ApplicationCommandLineArgs t_args);
+
 #ifdef OAK_PLATFORM_WINDOWS
 
 int main(int argc, char** argv)
@@ -11,7 +13,7 @@ int main(int argc, char** argv)
         oak::Log::init();
 
         OAK_PROFILE_BEGIN_SESSION("Startup", "OakProfile-Startup.json");
-        auto app = oak::createApplication({ argc, argv });
+        auto app = createApplication({ argc, argv });
         OAK_PROFILE_END_SESSION();
 
         OAK_PROFILE_BEGIN_SESSION("Runtime", "OakProfile-Runtime.json");

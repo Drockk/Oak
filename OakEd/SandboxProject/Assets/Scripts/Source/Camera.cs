@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,20 +24,20 @@ namespace Sandbox
 		void OnUpdate(float ts)
 		{
 			if (m_Player != null)
-				Translation = new Vector3(m_Player.Translation.XY, DistanceFromPlayer);
+				Translation = new Vector3(m_Player.Translation.Xy, DistanceFromPlayer);
 
 			float speed = 1.0f;
 			Vector3 velocity = Vector3.Zero;
 
 			if (Input.IsKeyDown(KeyCode.Up))
-				velocity.Y = 1.0f;
+				velocity.y = 1.0f;
 			else if (Input.IsKeyDown(KeyCode.Down))
-				velocity.Y = -1.0f;
+				velocity.y = -1.0f;
 
 			if (Input.IsKeyDown(KeyCode.Left))
-				velocity.X = -1.0f;
+				velocity.x = -1.0f;
 			else if (Input.IsKeyDown(KeyCode.Right))
-				velocity.X = 1.0f;
+				velocity.x = 1.0f;
 
 			velocity *= speed;
 

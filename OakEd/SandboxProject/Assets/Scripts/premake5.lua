@@ -1,55 +1,55 @@
 local OakRootDir = '../../../..'
-include (OakRootDir .. "/vendor/premake/premake_customization/solution_items.lua")
+include (OakRootDir .. "/Thridparty/Premake/PremakeCustomization/solutionItems.lua")
 
 workspace "Sandbox"
-	architecture "x86_64"
-	startproject "Sandbox"
+    architecture "x86_64"
+    startproject "Sandbox"
 
-	configurations
-	{
-		"Debug",
-		"Release",
-		"Dist"
-	}
+    configurations
+    {
+        "Debug",
+        "Release",
+        "Dist"
+    }
 
-	flags
-	{
-		"MultiProcessorCompile"
-	}
+    flags
+    {
+        "MultiProcessorCompile"
+    }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 project "Sandbox"
-	kind "SharedLib"
-	language "C#"
-	dotnetframework "4.7.2"
+    kind "SharedLib"
+    language "C#"
+    dotnetframework "4.7.2"
 
-	targetdir ("Binaries")
-	objdir ("Intermediates")
+    targetdir ("Binaries")
+    objdir ("Intermediates")
 
-	files
-	{
-		"Source/**.cs",
-		"Properties/**.cs"
-	}
+    files
+    {
+        "Source/**.cs",
+        "Properties/**.cs"
+    }
 
-	links
-	{
-		"Oak-ScriptCore"
-	}
+    links
+    {
+        "Oak-ScriptCore"
+    }
 
-	filter "configurations:Debug"
-		optimize "Off"
-		symbols "Default"
+    filter "configurations:Debug"
+        optimize "Off"
+        symbols "Default"
 
-	filter "configurations:Release"
-		optimize "On"
-		symbols "Default"
+    filter "configurations:Release"
+        optimize "On"
+        symbols "Default"
 
-	filter "configurations:Dist"
-		optimize "Full"
-		symbols "Off"
+    filter "configurations:Dist"
+        optimize "Full"
+        symbols "Off"
 
 group "Oak"
-	include (OakRootDir .. "/Oak-ScriptCore")
+    include (OakRootDir .. "/Oak-ScriptCore")
 group ""

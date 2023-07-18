@@ -26,10 +26,10 @@ namespace oak
         msdfgen::BitmapConstRef<T, N> bitmap = (msdfgen::BitmapConstRef<T, N>)generator.atlasStorage();
 
         TextureSpecification spec;
-        spec.Width = bitmap.width;
-        spec.Height = bitmap.height;
-        spec.Format = ImageFormat::RGB8;
-        spec.GenerateMips = false;
+        spec.width = bitmap.width;
+        spec.height = bitmap.height;
+        spec.format = ImageFormat::RGB8;
+        spec.generateMips = false;
 
         Ref<Texture2D> texture = Texture2D::create(spec);
         texture->setData((void*)bitmap.pixels, bitmap.width * bitmap.height * 3);

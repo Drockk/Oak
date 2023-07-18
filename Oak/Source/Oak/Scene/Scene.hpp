@@ -16,7 +16,7 @@ namespace oak
     class Scene
     {
     public:
-        Scene();
+        Scene() = default;
         ~Scene();
 
         static Ref<Scene> copy(Ref<Scene> other);
