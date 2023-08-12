@@ -2,15 +2,14 @@
 
 #include "Oak/Renderer/Camera.hpp"
 
-namespace oak
-{
-    class SceneCamera : public Camera
+namespace oak {
+    class SceneCamera final : public Camera
     {
     public:
         enum class ProjectionType { Perspective = 0, Orthographic = 1 };
-    public:
+
         SceneCamera();
-        virtual ~SceneCamera() = default;
+        ~SceneCamera() override = default;
 
         void setPerspective(float verticalFOV, float nearClip, float farClip);
         void setOrthographic(float size, float nearClip, float farClip);
@@ -46,5 +45,4 @@ namespace oak
 
         float m_AspectRatio = 0.0f;
     };
-
 }

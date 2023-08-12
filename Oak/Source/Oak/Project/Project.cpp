@@ -1,23 +1,20 @@
 #include "oakpch.hpp"
-#include "Oak/Project/Project.hpp"
+#include "Project.hpp"
 
-#include "Oak/Project/ProjectSerializer.hpp"
+#include "ProjectSerializer.hpp"
 
-namespace oak
-{
+namespace oak {
     Ref<Project> Project::newProject()
     {
         s_ActiveProject = createRef<Project>();
         return s_ActiveProject;
     }
 
-    Ref<Project> Project::load(const std::filesystem::path& path)
+    Ref<Project> Project::load(const fs::path& path)
     {
-        Ref<Project> project = createRef<Project>();
+        auto project = createRef<Project>();
 
-        ProjectSerializer serializer(project);
-        if (serializer.deserialize(path))
-        {
+        if (ProjectSerializer serializer(project); serializer.deserialize(path)) {
             project->m_ProjectDirectory = path.parent_path();
             s_ActiveProject = project;
             return s_ActiveProject;
@@ -26,11 +23,9 @@ namespace oak
         return nullptr;
     }
 
-    bool Project::saveActive(const std::filesystem::path& path)
+    bool Project::saveActive(const fs::path& path)
     {
-        ProjectSerializer serializer(s_ActiveProject);
-        if (serializer.serialize(path))
-        {
+        if (ProjectSerializer serializer(s_ActiveProject); serializer.serialize(path)) {
             s_ActiveProject->m_ProjectDirectory = path.parent_path();
             return true;
         }

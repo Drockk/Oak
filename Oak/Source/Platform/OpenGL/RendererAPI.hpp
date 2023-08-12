@@ -2,9 +2,8 @@
 
 #include "Oak/Renderer/RendererAPI.hpp"
 
-namespace openGL
-{
-    class RendererAPI : public oak::RendererAPI
+namespace opengl {
+    class RendererAPI final : public oak::RendererAPI
     {
     public:
         void init() override;

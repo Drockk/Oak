@@ -1,22 +1,22 @@
 #include <Oak.hpp>
-#include <Oak/Core/Entrypoint.hpp>
+#include <Oak/Core/EntryPoint.hpp>
 
 #include "EditorLayer.hpp"
 
-class OakEd : public oak::Application
+class OakEd final : public oak::Application
 {
 public:
-    OakEd(const oak::ApplicationSpecification& spec) : Application(spec)
-    {
+    OakEd(const oak::ApplicationSpecification& spec): Application(spec) {
         pushLayer(new EditorLayer());
     }
 };
 
-oak::Scope<oak::Application> createApplication(oak::ApplicationCommandLineArgs args)
+
+oak::Application* createApplication(oak::ApplicationCommandLineArgs args)
 {
     oak::ApplicationSpecification spec;
     spec.name = "OakEd";
     spec.commandLineArgs = args;
 
-    return oak::createScope<OakEd>(spec);
+    return new OakEd(spec);
 }

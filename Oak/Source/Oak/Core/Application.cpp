@@ -9,10 +9,10 @@
 #include "Oak/Core/Input.hpp"
 #include "Oak/Utils/PlatformUtils.hpp"
 
-namespace oak
-{
-    Application::Application(const ApplicationSpecification& t_specification)
-        : m_Specification(t_specification)
+namespace oak {
+    Application* Application::s_Instance = nullptr;
+
+    Application::Application(const ApplicationSpecification& specification): m_Specification(specification)
     {
         OAK_PROFILE_FUNCTION();
 
@@ -20,8 +20,7 @@ namespace oak
         s_Instance = this;
 
         // Set working directory here
-        if (!m_Specification.workingDirectory.empty())
-        {
+        if (!m_Specification.workingDirectory.empty()) {
             std::filesystem::current_path(m_Specification.workingDirectory);
         }
 
@@ -34,27 +33,28 @@ namespace oak
         pushOverlay(m_ImGuiLayer);
     }
 
-    void Application::shutdown()
+    Application::~Application()
     {
         OAK_PROFILE_FUNCTION();
+
         ScriptEngine::shutdown();
         Renderer::shutdown();
     }
 
-    void Application::pushLayer(Layer* t_layer)
+    void Application::pushLayer(Layer* layer)
     {
         OAK_PROFILE_FUNCTION();
 
-        m_LayerStack.pushLayer(t_layer);
-        t_layer->onAttach();
+        m_LayerStack.pushLayer(layer);
+        layer->onAttach();
     }
 
-    void Application::pushOverlay(Layer* t_layer)
+    void Application::pushOverlay(Layer* layer)
     {
         OAK_PROFILE_FUNCTION();
 
-        m_LayerStack.pushOverlay(t_layer);
-        t_layer->onAttach();
+        m_LayerStack.pushOverlay(layer);
+        layer->onAttach();
     }
 
     void Application::close()
@@ -62,26 +62,27 @@ namespace oak
         m_Running = false;
     }
 
-    void Application::submitToMainThread(const std::function<void()>& t_function)
+    void Application::submitToMainThread(const std::function<void()>& function)
     {
         std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
 
-        m_MainThreadQueue.emplace_back(t_function);
+        m_MainThreadQueue.emplace_back(function);
     }
 
-    void Application::onEvent(Event& t_event)
+    void Application::onEvent(oak::Event& e)
     {
         OAK_PROFILE_FUNCTION();
 
-        EventDispatcher dispatcher(t_event);
-        dispatcher.dispatch<WindowCloseEvent>(OAK_BIND_EVENT_FN(Application::onWindowClose));
-        dispatcher.dispatch<WindowResizeEvent>(OAK_BIND_EVENT_FN(Application::onWindowResize));
+        oak::EventDispatcher dispatcher(e);
+        dispatcher.dispatch<oak::WindowCloseEvent>(OAK_BIND_EVENT_FN(Application::onWindowClose));
+        dispatcher.dispatch<oak::WindowResizeEvent>(OAK_BIND_EVENT_FN(Application::onWindowResize));
 
         for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); ++it)
         {
-            if (t_event.handled)
+            if (e.Handled) {
                 break;
-            (*it)->onEvent(t_event);
+            }
+            (*it)->onEvent(e);
         }
     }
 
@@ -93,27 +94,28 @@ namespace oak
         {
             OAK_PROFILE_SCOPE("RunLoop");
 
-            float time = Time::getTime();
-            Timestep timestep = time - m_LastFrameTime;
+            auto time = oak::Time::getTime();
+            oak::Timestep timestep = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
             executeMainThreadQueue();
 
-            if (!m_Minimized)
-            {
+            if (!m_Minimized) {
                 {
-                    OAK_PROFILE_SCOPE("LayerStack onUpdate");
+                    OAK_PROFILE_SCOPE("LayerStack OnUpdate");
 
-                    for (Layer* layer : m_LayerStack)
+                    for (auto* layer : m_LayerStack) {
                         layer->onUpdate(timestep);
+                    }
                 }
 
                 m_ImGuiLayer->begin();
                 {
-                    OAK_PROFILE_SCOPE("LayerStack onImGuiRender");
+                    OAK_PROFILE_SCOPE("LayerStack OnImGuiRender");
 
-                    for (Layer* layer : m_LayerStack)
+                    for (auto* layer : m_LayerStack) {
                         layer->onImGuiRender();
+                    }
                 }
                 m_ImGuiLayer->end();
             }
@@ -122,25 +124,23 @@ namespace oak
         }
     }
 
-    bool Application::onWindowClose(WindowCloseEvent& t_event)
+    bool Application::onWindowClose(oak::WindowCloseEvent& e)
     {
         m_Running = false;
         return true;
     }
 
-    bool Application::onWindowResize(WindowResizeEvent& t_event)
+    bool Application::onWindowResize(oak::WindowResizeEvent& e)
     {
         OAK_PROFILE_FUNCTION();
 
-        auto [width, height] = t_event.getResolution();
-        if (width == 0 || height == 0)
-        {
+        if (e.getWidth() == 0 || e.getHeight() == 0) {
             m_Minimized = true;
             return false;
         }
 
         m_Minimized = false;
-        Renderer::onWindowResize(width, height);
+        Renderer::onWindowResize(e.getWidth(), e.getHeight());
 
         return false;
     }
@@ -149,8 +149,9 @@ namespace oak
     {
         std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
 
-        for (auto& func : m_MainThreadQueue)
+        for (auto& func : m_MainThreadQueue) {
             func();
+        }
 
         m_MainThreadQueue.clear();
     }

@@ -1,11 +1,11 @@
 #pragma once
+
 #include "Oak/Renderer/RenderCommand.hpp"
 
 #include "Oak/Renderer/OrthographicCamera.hpp"
 #include "Oak/Renderer/Shader.hpp"
 
-namespace oak
-{
+namespace oak {
     class Renderer
     {
     public:
@@ -19,15 +19,12 @@ namespace oak
 
         static void submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
 
-        static RendererAPI::API getAPI()
-        {
-            return RendererAPI::getAPI();
-        }
+        static RendererAPI::API getAPI() { return RendererAPI::getAPI(); }
 
     private:
         struct SceneData
         {
-            glm::mat4 ViewProjectionMatrix{};
+            glm::mat4 ViewProjectionMatrix;
         };
 
         static Scope<SceneData> s_SceneData;

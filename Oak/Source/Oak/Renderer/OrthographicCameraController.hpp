@@ -6,40 +6,26 @@
 #include "Oak/Events/ApplicationEvent.hpp"
 #include "Oak/Events/MouseEvent.hpp"
 
-namespace oak
-{
+namespace oak {
     class OrthographicCameraController
     {
     public:
-        OrthographicCameraController(float t_aspectRatio, bool t_rotation = false);
+        OrthographicCameraController(float aspectRatio, bool rotation = false);
 
-        void onUpdate(Timestep t_ts);
-        void onEvent(Event& t_e);
+        void onUpdate(Timestep ts);
+        void onEvent(Event& e);
 
-        void onResize(float t_width, float t_height);
+        void onResize(float width, float height);
 
-        OrthographicCamera& getCamera()
-        {
-            return m_Camera;
-        }
-        const OrthographicCamera& getCamera() const
-        {
-            return m_Camera;
-        }
+        OrthographicCamera& getCamera() { return m_Camera; }
+        const OrthographicCamera& getCamera() const { return m_Camera; }
 
-        float getZoomLevel() const
-        {
-            return m_ZoomLevel;
-        }
-        void setZoomLevel(float t_level)
-        {
-            m_ZoomLevel = t_level;
-        }
-
+        float getZoomLevel() const { return m_ZoomLevel; }
+        void setZoomLevel(float level) { m_ZoomLevel = level; }
     private:
-        bool onMouseScrolled(MouseScrolledEvent& t_e);
-        bool onWindowResized(WindowResizeEvent& t_e);
-
+        bool onMouseScrolled(MouseScrolledEvent& e);
+        bool onWindowResized(WindowResizeEvent& e);
+    private:
         float m_AspectRatio;
         float m_ZoomLevel = 1.0f;
         OrthographicCamera m_Camera;

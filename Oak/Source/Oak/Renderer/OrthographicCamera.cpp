@@ -3,21 +3,19 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace oak
-{
-    OrthographicCamera::OrthographicCamera(float t_left, float t_right, float t_bottom, float t_top)
-        : m_ProjectionMatrix(glm::ortho(t_left, t_right, t_bottom, t_top, -1.0f, 1.0f)), m_ViewMatrix(1.0f)
+namespace oak {
+    OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top): m_ProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)), m_ViewMatrix(1.0f)
     {
         OAK_PROFILE_FUNCTION();
 
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
     }
 
-    void OrthographicCamera::setProjection(float t_left, float t_right, float t_bottom, float t_top)
+    void OrthographicCamera::setProjection(float left, float right, float bottom, float top)
     {
         OAK_PROFILE_FUNCTION();
 
-        m_ProjectionMatrix = glm::ortho(t_left, t_right, t_bottom, t_top, -1.0f, 1.0f);
+        m_ProjectionMatrix = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
     }
 

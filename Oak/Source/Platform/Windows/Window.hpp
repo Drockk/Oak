@@ -7,36 +7,35 @@
 
 namespace windows
 {
-    class Window : public oak::Window
+    class Window final : public oak::Window
     {
     public:
-        Window(const oak::WindowProps& t_props);
+        Window(const oak::WindowProps& props);
         ~Window() override;
 
         void onUpdate() override;
 
-        std::pair<uint32_t, uint32_t> getResolution() const override
-        {
-            return m_Data.resolution;
-        }
+        unsigned int getWidth() const override { return m_Data.width; }
+        unsigned int getHeight() const override { return m_Data.height; }
 
         // Window attributes
-        void setEventCallback(const EventCallbackFn& t_callback) override { m_Data.eventCallback = t_callback; }
-        void setVSync(bool t_enabled) override;
+        void setEventCallback(const EventCallbackFn& callback) override { m_Data.eventCallback = callback; }
+        void setVSync(bool enabled) override;
         bool isVSync() const override;
 
-        void* getNativeWindow() const { return m_Window; }
+        void* getNativeWindow() const override { return m_Window; }
+
     private:
-        virtual void init(const oak::WindowProps& t_props);
-        virtual void shutdown();
-    private:
+        void init(const oak::WindowProps& props);
+        void shutdown();
+
         GLFWwindow* m_Window;
         oak::Scope<oak::GraphicsContext> m_Context;
 
         struct WindowData
         {
             std::string title;
-            std::pair<uint32_t, uint32_t> resolution;
+            unsigned int width, height;
             bool vSync;
 
             EventCallbackFn eventCallback;

@@ -3,34 +3,33 @@
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
     static GLenum shaderDataTypeToOpenGLBaseType(oak::ShaderDataType type)
     {
         switch (type)
         {
-        case oak::ShaderDataType::Float:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Float2:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Float3:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Float4:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Mat3:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Mat4:
-            return GL_FLOAT;
-        case oak::ShaderDataType::Int:
-            return GL_INT;
-        case oak::ShaderDataType::Int2:
-            return GL_INT;
-        case oak::ShaderDataType::Int3:
-            return GL_INT;
-        case oak::ShaderDataType::Int4:
-            return GL_INT;
-        case oak::ShaderDataType::Bool:
-            return GL_BOOL;
+            case oak::ShaderDataType::Float:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Float2:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Float3:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Float4:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Mat3:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Mat4:
+                return GL_FLOAT;
+            case oak::ShaderDataType::Int:
+                return GL_INT;
+            case oak::ShaderDataType::Int2:
+                return GL_INT;
+            case oak::ShaderDataType::Int3:
+                return GL_INT;
+            case oak::ShaderDataType::Int4:
+                return GL_INT;
+            case oak::ShaderDataType::Bool:
+                return GL_BOOL;
         }
 
         OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
@@ -75,60 +74,58 @@ namespace openGL
         vertexBuffer->bind();
 
         const auto& layout = vertexBuffer->getLayout();
-        for (const auto& element : layout)
-        {
-            switch (element.type)
-            {
-            case oak::ShaderDataType::Float:
-            case oak::ShaderDataType::Float2:
-            case oak::ShaderDataType::Float3:
-            case oak::ShaderDataType::Float4:
-            {
-                glEnableVertexAttribArray(m_VertexBufferIndex);
-                glVertexAttribPointer(m_VertexBufferIndex,
-                    element.getComponentCount(),
-                    shaderDataTypeToOpenGLBaseType(element.type),
-                    element.normalized ? GL_TRUE : GL_FALSE,
-                    layout.getStride(),
-                    (const void*)element.offset);
-                m_VertexBufferIndex++;
-                break;
-            }
-            case oak::ShaderDataType::Int:
-            case oak::ShaderDataType::Int2:
-            case oak::ShaderDataType::Int3:
-            case oak::ShaderDataType::Int4:
-            case oak::ShaderDataType::Bool:
-            {
-                glEnableVertexAttribArray(m_VertexBufferIndex);
-                glVertexAttribIPointer(m_VertexBufferIndex,
-                    element.getComponentCount(),
-                    shaderDataTypeToOpenGLBaseType(element.type),
-                    layout.getStride(),
-                    (const void*)element.offset);
-                m_VertexBufferIndex++;
-                break;
-            }
-            case oak::ShaderDataType::Mat3:
-            case oak::ShaderDataType::Mat4:
-            {
-                uint8_t count = element.getComponentCount();
-                for (uint8_t i = 0; i < count; i++)
+        for (const auto& element : layout) {
+            switch (element.type) {
+                case oak::ShaderDataType::Float:
+                case oak::ShaderDataType::Float2:
+                case oak::ShaderDataType::Float3:
+                case oak::ShaderDataType::Float4:
                 {
                     glEnableVertexAttribArray(m_VertexBufferIndex);
                     glVertexAttribPointer(m_VertexBufferIndex,
-                        count,
+                        element.getComponentCount(),
                         shaderDataTypeToOpenGLBaseType(element.type),
                         element.normalized ? GL_TRUE : GL_FALSE,
                         layout.getStride(),
-                        (const void*)(element.offset + sizeof(float) * count * i));
-                    glVertexAttribDivisor(m_VertexBufferIndex, 1);
+                        (const void*)element.offset);
                     m_VertexBufferIndex++;
+                    break;
                 }
-                break;
-            }
-            default:
-                OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
+                case oak::ShaderDataType::Int:
+                case oak::ShaderDataType::Int2:
+                case oak::ShaderDataType::Int3:
+                case oak::ShaderDataType::Int4:
+                case oak::ShaderDataType::Bool:
+                {
+                    glEnableVertexAttribArray(m_VertexBufferIndex);
+                    glVertexAttribIPointer(m_VertexBufferIndex,
+                        element.getComponentCount(),
+                        shaderDataTypeToOpenGLBaseType(element.type),
+                        layout.getStride(),
+                        (const void*)element.offset);
+                    m_VertexBufferIndex++;
+                    break;
+                }
+                case oak::ShaderDataType::Mat3:
+                case oak::ShaderDataType::Mat4:
+                {
+                    uint8_t count = element.getComponentCount();
+                    for (uint8_t i = 0; i < count; i++)
+                    {
+                        glEnableVertexAttribArray(m_VertexBufferIndex);
+                        glVertexAttribPointer(m_VertexBufferIndex,
+                            count,
+                            shaderDataTypeToOpenGLBaseType(element.type),
+                            element.normalized ? GL_TRUE : GL_FALSE,
+                            layout.getStride(),
+                            (const void*)(element.offset + sizeof(float) * count * i));
+                        glVertexAttribDivisor(m_VertexBufferIndex, 1);
+                        m_VertexBufferIndex++;
+                    }
+                    break;
+                }
+                default:
+                    OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
             }
         }
 

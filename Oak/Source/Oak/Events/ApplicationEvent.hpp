@@ -2,28 +2,27 @@
 
 #include "Oak/Events/Event.hpp"
 
-namespace oak
-{
+namespace oak {
     class WindowResizeEvent : public Event
     {
     public:
-        WindowResizeEvent(std::pair<uint32_t, uint32_t> t_resolution)
-            : m_Resolution{ t_resolution } {}
+        WindowResizeEvent(unsigned int width, unsigned int height): m_Width(width), m_Height(height) {}
 
-        std::pair<uint32_t, uint32_t> getResolution() const { return m_Resolution; }
+        unsigned int getWidth() const { return m_Width; }
+        unsigned int getHeight() const { return m_Height; }
 
         std::string toString() const override
         {
-            auto [width, height] = m_Resolution;
             std::stringstream ss;
-            ss << "WindowResizeEvent: " << width << ", " << height;
+            ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
             return ss.str();
         }
 
         EVENT_CLASS_TYPE(WindowResize)
         EVENT_CLASS_CATEGORY(EventCategoryApplication)
+
     private:
-        std::pair<uint32_t, uint32_t> m_Resolution;
+        unsigned int m_Width, m_Height;
     };
 
     class WindowCloseEvent : public Event

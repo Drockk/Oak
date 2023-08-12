@@ -1,97 +1,86 @@
 #pragma once
 
-namespace oak
-{
+namespace oak {
     enum class ShaderDataType
     {
         None = 0, Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
     };
 
-    static uint32_t shaderDataTypeSize(ShaderDataType t_type)
+    static uint32_t shaderDataTypeSize(ShaderDataType type)
     {
-        switch (t_type)
-        {
-        case oak::ShaderDataType::None:
-            break;
-        case oak::ShaderDataType::Float:
-            return 4;
-        case oak::ShaderDataType::Float2:
-            return 4 * 2;
-        case oak::ShaderDataType::Float3:
-            return 4 * 3;
-        case oak::ShaderDataType::Float4:
-            return 4 * 4;
-        case oak::ShaderDataType::Mat3:
-            return 4 * 3 * 3;
-        case oak::ShaderDataType::Mat4:
-            return 4 * 4 * 4;
-        case oak::ShaderDataType::Int:
-            return 4;
-        case oak::ShaderDataType::Int2:
-            return 4 * 2;
-        case oak::ShaderDataType::Int3:
-            return 4 * 3;
-        case oak::ShaderDataType::Int4:
-            return 4 * 4;
-        case oak::ShaderDataType::Bool:
-            return 1;
-        default:
-            break;
+        switch (type) {
+            case ShaderDataType::Float:
+                return 4;
+            case ShaderDataType::Float2:
+                return 4 * 2;
+            case ShaderDataType::Float3:
+                return 4 * 3;
+            case ShaderDataType::Float4:
+                return 4 * 4;
+            case ShaderDataType::Mat3:
+                return 4 * 3 * 3;
+            case ShaderDataType::Mat4:
+                return 4 * 4 * 4;
+            case ShaderDataType::Int:
+                return 4;
+            case ShaderDataType::Int2:
+                return 4 * 2;
+            case ShaderDataType::Int3:
+                return 4 * 3;
+            case ShaderDataType::Int4:
+                return 4 * 4;
+            case ShaderDataType::Bool:
+                return 1;
         }
 
         OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
-        return {};
+        return 0;
     }
 
     struct BufferElement
     {
-        std::string name{};
-        ShaderDataType type{};
-        uint32_t size{};
-        size_t offset{};
-        bool normalized{};
+        std::string name;
+        ShaderDataType type;
+        uint32_t size;
+        size_t offset;
+        bool normalized;
 
         BufferElement() = default;
-        BufferElement(ShaderDataType t_type, const std::string& t_name, bool t_normalized = false)
-            : name{ t_name }, type{ t_type }, size{ shaderDataTypeSize(t_type) }, offset{ 0 }, normalized{ t_normalized }
-        {
 
+        BufferElement(ShaderDataType t_type, const std::string& t_name, bool t_normalized = false): name(t_name), type(t_type), size(shaderDataTypeSize(t_type)), offset(0), normalized(t_normalized)
+        {
         }
 
         uint32_t getComponentCount() const
         {
             switch (type)
             {
-            case oak::ShaderDataType::None:
-                break;
-            case oak::ShaderDataType::Float:
-                return 1;
-            case oak::ShaderDataType::Float2:
-                return 2;
-            case oak::ShaderDataType::Float3:
-                return 3;
-            case oak::ShaderDataType::Float4:
-                return 4;
-            case oak::ShaderDataType::Mat3:
-                return 3;
-            case oak::ShaderDataType::Mat4:
-                return 4;
-            case oak::ShaderDataType::Int:
-                return 1;
-            case oak::ShaderDataType::Int2:
-                return 2;
-            case oak::ShaderDataType::Int3:
-                return 3;
-            case oak::ShaderDataType::Int4:
-                return 4;
-            case oak::ShaderDataType::Bool:
-                return 1;
-            default:
-                break;
+                case ShaderDataType::Float:
+                    return 1;
+                case ShaderDataType::Float2:
+                    return 2;
+                case ShaderDataType::Float3:
+                    return 3;
+                case ShaderDataType::Float4:
+                    return 4;
+                case ShaderDataType::Mat3:
+                    return 3; // 3* float3
+                case ShaderDataType::Mat4:
+                    return 4; // 4* float4
+                case ShaderDataType::Int:
+                    return 1;
+                case ShaderDataType::Int2:
+                    return 2;
+                case ShaderDataType::Int3:
+                    return 3;
+                case ShaderDataType::Int4:
+                    return 4;
+                case ShaderDataType::Bool:
+                    return 1;
             }
 
             OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
-            return {};
+            return 0;
         }
     };
 
@@ -99,11 +88,11 @@ namespace oak
     {
     public:
         BufferLayout() = default;
-        BufferLayout(std::initializer_list<BufferElement> t_elements): m_Elements{ t_elements }
+
+        BufferLayout(std::initializer_list<BufferElement> elements): m_Elements(elements)
         {
             calculateOffsetsAndStride();
         }
-        ~BufferLayout() = default;
 
         uint32_t getStride() const { return m_Stride; }
         const std::vector<BufferElement>& getElements() const { return m_Elements; }
@@ -116,9 +105,8 @@ namespace oak
     private:
         void calculateOffsetsAndStride()
         {
-            size_t offset{ 0 };
+            size_t offset = 0;
             m_Stride = 0;
-
             for (auto& element : m_Elements)
             {
                 element.offset = offset;
@@ -128,7 +116,7 @@ namespace oak
         }
 
         std::vector<BufferElement> m_Elements;
-        uint32_t m_Stride{ 0 };
+        uint32_t m_Stride = 0;
     };
 
     class VertexBuffer
@@ -139,15 +127,16 @@ namespace oak
         virtual void bind() const = 0;
         virtual void unbind() const = 0;
 
-        virtual void setData(const void* t_data, uint32_t t_size) = 0;
+        virtual void setData(const void* data, uint32_t size) = 0;
 
         virtual const BufferLayout& getLayout() const = 0;
-        virtual void setLayout(const BufferLayout& t_layout) = 0;
+        virtual void setLayout(const BufferLayout& layout) = 0;
 
         static Ref<VertexBuffer> create(uint32_t size);
-        static Ref<VertexBuffer> create(float* t_vertices, uint32_t t_size);
+        static Ref<VertexBuffer> create(float* vertices, uint32_t size);
     };
 
+    // Currently Oak only supports 32-bit index buffers
     class IndexBuffer
     {
     public:
@@ -158,6 +147,6 @@ namespace oak
 
         virtual uint32_t getCount() const = 0;
 
-        static Ref<IndexBuffer> create(uint32_t* t_indices, uint32_t t_count);
+        static Ref<IndexBuffer> create(uint32_t* indices, uint32_t count);
     };
 }

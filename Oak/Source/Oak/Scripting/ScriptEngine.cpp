@@ -1,7 +1,7 @@
 #include "oakpch.hpp"
-#include "Oak/Scripting/ScriptEngine.hpp"
+#include "ScriptEngine.hpp"
 
-#include "Oak/Scripting/ScriptGlue.hpp"
+#include "ScriptGlue.hpp"
 
 #include "mono/jit/jit.h"
 #include "mono/metadata/assembly.h"
@@ -19,8 +19,7 @@
 
 #include "Oak/Project/Project.hpp"
 
-namespace oak
-{
+namespace oak {
     static std::unordered_map<std::string, ScriptFieldType> s_ScriptFieldTypeMap =
     {
         { "System.Single", ScriptFieldType::Float },
@@ -42,31 +41,27 @@ namespace oak
         { "Oak.Entity", ScriptFieldType::Entity },
     };
 
-    namespace utils
-    {
+    namespace utils {
         static MonoAssembly* loadMonoAssembly(const std::filesystem::path& assemblyPath, bool loadPDB = false)
         {
-            ScopedBuffer fileData = FileSystem::readFileBinary(assemblyPath);
+            ScopedBuffer fileData = oak::FileSystem::readFileBinary(assemblyPath);
 
             // NOTE: We can't use this image for anything other than loading the assembly because this image doesn't have a reference to the assembly
             MonoImageOpenStatus status;
             MonoImage* image = mono_image_open_from_data_full(fileData.as<char>(), fileData.size(), 1, &status, 0);
 
-            if (status != MONO_IMAGE_OK)
-            {
+            if (status != MONO_IMAGE_OK) {
                 const char* errorMessage = mono_image_strerror(status);
                 // Log some error message using the errorMessage data
                 return nullptr;
             }
 
-            if (loadPDB)
-            {
+            if (loadPDB) {
                 std::filesystem::path pdbPath = assemblyPath;
                 pdbPath.replace_extension(".pdb");
 
-                if (std::filesystem::exists(pdbPath))
-                {
-                    ScopedBuffer pdbFileData = FileSystem::readFileBinary(pdbPath);
+                if (std::filesystem::exists(pdbPath)) {
+                    ScopedBuffer pdbFileData = oak::FileSystem::readFileBinary(pdbPath);
                     mono_debug_open_image_from_memory(image, pdbFileData.as<const mono_byte>(), pdbFileData.size());
                     OAK_LOG_CORE_INFO("Loaded PDB {}", pdbPath);
                 }
@@ -85,8 +80,7 @@ namespace oak
             const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
             int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
 
-            for (int32_t i = 0; i < numTypes; i++)
-            {
+            for (int32_t i = 0; i < numTypes; i++) {
                 uint32_t cols[MONO_TYPEDEF_SIZE];
                 mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
@@ -101,15 +95,13 @@ namespace oak
             std::string typeName = mono_type_get_name(monoType);
 
             auto it = s_ScriptFieldTypeMap.find(typeName);
-            if (it == s_ScriptFieldTypeMap.end())
-            {
+            if (it == s_ScriptFieldTypeMap.end()) {
                 OAK_LOG_CORE_ERROR("Unknown type: {}", typeName);
                 return ScriptFieldType::None;
             }
 
             return it->second;
         }
-
     }
 
     struct ScriptEngineData
@@ -126,16 +118,16 @@ namespace oak
         std::filesystem::path coreAssemblyFilepath;
         std::filesystem::path appAssemblyFilepath;
 
-        ScriptClass entityClass;
+        ScriptClass EntityClass;
 
         std::unordered_map<std::string, Ref<ScriptClass>> entityClasses;
-        std::unordered_map<UUID, Ref<ScriptInstance>> entityInstances;
-        std::unordered_map<UUID, ScriptFieldMap> entityScriptFields;
+        std::unordered_map<oak::UUID, Ref<ScriptInstance>> entityInstances;
+        std::unordered_map<oak::UUID, ScriptFieldMap> entityScriptFields;
 
         Scope<filewatch::FileWatch<std::string>> appAssemblyFileWatcher;
         bool assemblyReloadPending = false;
 
-#ifdef OAK_DEBUG
+#ifdef HZ_DEBUG
         bool enableDebugging = true;
 #else
         bool enableDebugging = false;
@@ -149,15 +141,13 @@ namespace oak
 
     static void onAppAssemblyFileSystemEvent(const std::string& path, const filewatch::Event change_type)
     {
-        if (!s_Data->assemblyReloadPending && change_type == filewatch::Event::modified)
-        {
+        if (!s_Data->assemblyReloadPending && change_type == filewatch::Event::modified) {
             s_Data->assemblyReloadPending = true;
 
-            Application::get().submitToMainThread([]()
-                {
-                    s_Data->appAssemblyFileWatcher.reset();
-                    ScriptEngine::reloadAssembly();
-                });
+            oak::Application::get().submitToMainThread([]() {
+                s_Data->appAssemblyFileWatcher.reset();
+                ScriptEngine::reloadAssembly();
+            });
         }
     }
 
@@ -169,16 +159,14 @@ namespace oak
         ScriptGlue::registerFunctions();
 
         bool status = loadAssembly("Resources/Scripts/Oak-ScriptCore.dll");
-        if (!status)
-        {
+        if (!status) {
             OAK_LOG_CORE_ERROR("[ScriptEngine] Could not load Oak-ScriptCore assembly.");
             return;
         }
 
-        auto scriptModulePath = Project::getAssetDirectory() / Project::getActive()->getConfig().scriptModulePath;
+        auto scriptModulePath = oak::Project::getAssetDirectory() / oak::Project::getActive()->getConfig().scriptModulePath;
         status = loadAppAssembly(scriptModulePath);
-        if (!status)
-        {
+        if (!status) {
             OAK_LOG_CORE_ERROR("[ScriptEngine] Could not load app assembly.");
             return;
         }
@@ -188,7 +176,7 @@ namespace oak
         ScriptGlue::registerComponents();
 
         // Retrieve and instantiate class
-        s_Data->entityClass = ScriptClass("Oak", "Entity", true);
+        s_Data->EntityClass = ScriptClass("Oak", "Entity", true);
     }
 
     void ScriptEngine::shutdown()
@@ -201,8 +189,7 @@ namespace oak
     {
         mono_set_assemblies_path("mono/lib");
 
-        if (s_Data->enableDebugging)
-        {
+        if (s_Data->enableDebugging) {
             const char* argv[2] = {
                 "--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=n,loglevel=3,logfile=MonoDebugger.log",
                 "--soft-breakpoints"
@@ -212,14 +199,15 @@ namespace oak
             mono_debug_init(MONO_DEBUG_FORMAT_MONO);
         }
 
-        MonoDomain* rootDomain = mono_jit_init("HazelJITRuntime");
+        MonoDomain* rootDomain = mono_jit_init("OakJITRuntime");
         OAK_CORE_ASSERT(rootDomain);
 
         // Store the root domain pointer
         s_Data->rootDomain = rootDomain;
 
-        if (s_Data->enableDebugging)
+        if (s_Data->enableDebugging) {
             mono_debug_domain_create(s_Data->rootDomain);
+        }
 
         mono_thread_set_main(mono_thread_current());
     }
@@ -238,7 +226,7 @@ namespace oak
     bool ScriptEngine::loadAssembly(const std::filesystem::path& filepath)
     {
         // Create an App Domain
-        s_Data->appDomain = mono_domain_create_appdomain(strdup("OakScriptRuntime"), nullptr);
+        s_Data->appDomain = mono_domain_create_appdomain(const_cast<char*>("OakScriptRuntime"), nullptr);
         mono_domain_set(s_Data->appDomain, true);
 
         s_Data->coreAssemblyFilepath = filepath;
@@ -254,8 +242,9 @@ namespace oak
     {
         s_Data->appAssemblyFilepath = filepath;
         s_Data->appAssembly = utils::loadMonoAssembly(filepath, s_Data->enableDebugging);
-        if (s_Data->appAssembly == nullptr)
+        if (s_Data->appAssembly == nullptr) {
             return false;
+        }
 
         s_Data->appAssemblyImage = mono_assembly_get_image(s_Data->appAssembly);
 
@@ -277,7 +266,7 @@ namespace oak
         ScriptGlue::registerComponents();
 
         // Retrieve and instantiate class
-        s_Data->entityClass = ScriptClass("Oak", "Entity", true);
+        s_Data->EntityClass = ScriptClass("Oak", "Entity", true);
     }
 
     void ScriptEngine::onRuntimeStart(Scene* scene)
@@ -290,52 +279,51 @@ namespace oak
         return s_Data->entityClasses.find(fullClassName) != s_Data->entityClasses.end();
     }
 
-    void ScriptEngine::onCreateEntity(Entity entity)
+    void ScriptEngine::onCreateEntity(oak::Entity entity)
     {
-        const auto& sc = entity.getComponent<ScriptComponent>();
+        const auto& sc = entity.getComponent<oak::ScriptComponent>();
         if (ScriptEngine::entityClassExists(sc.className))
         {
-            UUID entityID = entity.getUUID();
+            auto entityID = entity.getUUID();
 
             Ref<ScriptInstance> instance = createRef<ScriptInstance>(s_Data->entityClasses[sc.className], entity);
             s_Data->entityInstances[entityID] = instance;
 
             // Copy field values
-            if (s_Data->entityScriptFields.find(entityID) != s_Data->entityScriptFields.end())
-            {
+            if (s_Data->entityScriptFields.find(entityID) != s_Data->entityScriptFields.end()) {
                 const ScriptFieldMap& fieldMap = s_Data->entityScriptFields.at(entityID);
-                for (const auto& [name, fieldInstance] : fieldMap)
+                for (const auto& [name, fieldInstance] : fieldMap) {
                     instance->setFieldValueInternal(name, fieldInstance.m_Buffer);
+                }
             }
 
             instance->invokeOnCreate();
         }
     }
 
-    void ScriptEngine::onUpdateEntity(Entity entity, Timestep ts)
+    void ScriptEngine::onUpdateEntity(oak::Entity entity, Timestep ts)
     {
-        UUID entityUUID = entity.getUUID();
-        if (s_Data->entityInstances.find(entityUUID) != s_Data->entityInstances.end())
-        {
+        auto entityUUID = entity.getUUID();
+        if (s_Data->entityInstances.find(entityUUID) != s_Data->entityInstances.end()) {
             Ref<ScriptInstance> instance = s_Data->entityInstances[entityUUID];
             instance->invokeOnUpdate((float)ts);
         }
-        else
-        {
-            OAK_LOG_CORE_ERROR("Could not find ScriptInstance for entity {}", entityUUID);
+        else {
+            OAK_LOG_CORE_ERROR("Could not find ScriptInstance for entity {}",  entityUUID);
         }
     }
 
-    Scene* ScriptEngine::getsceneContext()
+    Scene* ScriptEngine::getSceneContext()
     {
         return s_Data->sceneContext;
     }
 
-    Ref<ScriptInstance> ScriptEngine::getEntityScriptInstance(UUID entityID)
+    Ref<ScriptInstance> ScriptEngine::getEntityScriptInstance(oak::UUID entityID)
     {
         auto it = s_Data->entityInstances.find(entityID);
-        if (it == s_Data->entityInstances.end())
+        if (it == s_Data->entityInstances.end()) {
             return nullptr;
+        }
 
         return it->second;
     }
@@ -343,8 +331,9 @@ namespace oak
 
     Ref<ScriptClass> ScriptEngine::getEntityClass(const std::string& name)
     {
-        if (s_Data->entityClasses.find(name) == s_Data->entityClasses.end())
+        if (s_Data->entityClasses.find(name) == s_Data->entityClasses.end()) {
             return nullptr;
+        }
 
         return s_Data->entityClasses.at(name);
     }
@@ -356,16 +345,16 @@ namespace oak
         s_Data->entityInstances.clear();
     }
 
-    std::unordered_map<std::string, Ref<ScriptClass>> ScriptEngine::getentityClasses()
+    std::unordered_map<std::string, Ref<ScriptClass>> ScriptEngine::getEntityClasses()
     {
         return s_Data->entityClasses;
     }
 
-    ScriptFieldMap& ScriptEngine::getScriptFieldMap(Entity entity)
+    ScriptFieldMap& ScriptEngine::getScriptFieldMap(oak::Entity entity)
     {
         OAK_CORE_ASSERT(entity);
 
-        UUID entityID = entity.getUUID();
+        auto entityID = entity.getUUID();
         return s_Data->entityScriptFields[entityID];
     }
 
@@ -373,35 +362,37 @@ namespace oak
     {
         s_Data->entityClasses.clear();
 
-        const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(s_Data->appAssemblyImage, MONO_TABLE_TYPEDEF);
+        const auto* typeDefinitionsTable = mono_image_get_table_info(s_Data->appAssemblyImage, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(s_Data->coreAssemblyImage, "Oak", "Entity");
+        auto* entityClass = mono_class_from_name(s_Data->coreAssemblyImage, "Oak", "Entity");
 
-        for (int32_t i = 0; i < numTypes; i++)
-        {
+        for (int32_t i = 0; i < numTypes; i++) {
             uint32_t cols[MONO_TYPEDEF_SIZE];
             mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
-            const char* nameSpace = mono_metadata_string_heap(s_Data->appAssemblyImage, cols[MONO_TYPEDEF_NAMESPACE]);
-            const char* className = mono_metadata_string_heap(s_Data->appAssemblyImage, cols[MONO_TYPEDEF_NAME]);
+            auto* nameSpace = mono_metadata_string_heap(s_Data->appAssemblyImage, cols[MONO_TYPEDEF_NAMESPACE]);
+            auto* className = mono_metadata_string_heap(s_Data->appAssemblyImage, cols[MONO_TYPEDEF_NAME]);
             std::string fullName;
-            if (strlen(nameSpace) != 0)
+            if (strlen(nameSpace) != 0) {
                 fullName = fmt::format("{}.{}", nameSpace, className);
-            else
+            }
+            else {
                 fullName = className;
+            }
 
-            MonoClass* monoClass = mono_class_from_name(s_Data->appAssemblyImage, nameSpace, className);
+            auto* monoClass = mono_class_from_name(s_Data->appAssemblyImage, nameSpace, className);
 
-            if (monoClass == entityClass)
+            if (monoClass == entityClass) {
                 continue;
+            }
 
             bool isEntity = mono_class_is_subclass_of(monoClass, entityClass, false);
-            if (!isEntity)
+            if (!isEntity) {
                 continue;
+            }
 
             Ref<ScriptClass> scriptClass = createRef<ScriptClass>(nameSpace, className);
             s_Data->entityClasses[fullName] = scriptClass;
-
 
             // This routine is an iterator routine for retrieving the fields in a class.
             // You must pass a gpointer that points to zero and is treated as an opaque handle
@@ -410,12 +401,10 @@ namespace oak
             int fieldCount = mono_class_num_fields(monoClass);
             OAK_LOG_CORE_WARN("{} has {} fields:", className, fieldCount);
             void* iterator = nullptr;
-            while (MonoClassField* field = mono_class_get_fields(monoClass, &iterator))
-            {
+            while (MonoClassField* field = mono_class_get_fields(monoClass, &iterator)) {
                 const char* fieldName = mono_field_get_name(field);
                 uint32_t flags = mono_field_get_flags(field);
-                if (flags & FIELD_ATTRIBUTE_PUBLIC)
-                {
+                if (flags & FIELD_ATTRIBUTE_PUBLIC) {
                     MonoType* type = mono_field_get_type(field);
                     ScriptFieldType fieldType = utils::monoTypeToScriptFieldType(type);
                     OAK_LOG_CORE_WARN("  {} ({})", fieldName, utils::scriptFieldTypeToString(fieldType));
@@ -427,18 +416,15 @@ namespace oak
         }
 
         auto& entityClasses = s_Data->entityClasses;
-
-        //mono_field_get_value()
-
     }
 
-    MonoImage* ScriptEngine::getcoreAssemblyImage()
+    MonoImage* ScriptEngine::getCoreAssemblyImage()
     {
         return s_Data->coreAssemblyImage;
     }
 
 
-    MonoObject* ScriptEngine::getManagedInstance(UUID uuid)
+    MonoObject* ScriptEngine::getManagedInstance(oak::UUID uuid)
     {
         OAK_CORE_ASSERT(s_Data->entityInstances.find(uuid) != s_Data->entityInstances.end());
         return s_Data->entityInstances.at(uuid)->getManagedObject();
@@ -478,18 +464,17 @@ namespace oak
         return mono_runtime_invoke(method, instance, params, &exception);
     }
 
-    ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, Entity entity)
-        : m_ScriptClass(scriptClass)
+    ScriptInstance::ScriptInstance(Ref<ScriptClass> scriptClass, oak::Entity entity): m_ScriptClass(scriptClass)
     {
         m_Instance = scriptClass->instantiate();
 
-        m_Constructor = s_Data->entityClass.getMethod(".ctor", 1);
+        m_Constructor = s_Data->EntityClass.getMethod(".ctor", 1);
         m_OnCreateMethod = scriptClass->getMethod("OnCreate", 0);
         m_OnUpdateMethod = scriptClass->getMethod("OnUpdate", 1);
 
         // Call Entity constructor
         {
-            UUID entityID = entity.getUUID();
+            auto entityID = entity.getUUID();
             void* param = &entityID;
             m_ScriptClass->invokeMethod(m_Instance, m_Constructor, &param);
         }
@@ -497,14 +482,14 @@ namespace oak
 
     void ScriptInstance::invokeOnCreate()
     {
-        if (m_OnCreateMethod)
+        if (m_OnCreateMethod) {
             m_ScriptClass->invokeMethod(m_Instance, m_OnCreateMethod);
+        }
     }
 
     void ScriptInstance::invokeOnUpdate(float ts)
     {
-        if (m_OnUpdateMethod)
-        {
+        if (m_OnUpdateMethod) {
             void* param = &ts;
             m_ScriptClass->invokeMethod(m_Instance, m_OnUpdateMethod, &param);
         }
@@ -514,8 +499,9 @@ namespace oak
     {
         const auto& fields = m_ScriptClass->getFields();
         auto it = fields.find(name);
-        if (it == fields.end())
+        if (it == fields.end()) {
             return false;
+        }
 
         const ScriptField& field = it->second;
         mono_field_get_value(m_Instance, field.classField, buffer);
@@ -526,12 +512,12 @@ namespace oak
     {
         const auto& fields = m_ScriptClass->getFields();
         auto it = fields.find(name);
-        if (it == fields.end())
+        if (it == fields.end()) {
             return false;
+        }
 
         const ScriptField& field = it->second;
         mono_field_set_value(m_Instance, field.classField, (void*)value);
         return true;
     }
-
 }

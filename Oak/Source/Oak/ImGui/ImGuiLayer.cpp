@@ -1,11 +1,11 @@
 #include "oakpch.hpp"
 #include "Oak/ImGui/ImGuiLayer.hpp"
 
-#include <imgui.h>
-#include <imgui_internal.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "Oak/Core/Application.hpp"
 
@@ -15,8 +15,7 @@
 
 #include "ImGuizmo.h"
 
-namespace oak
-{
+namespace oak {
     ImGuiLayer::ImGuiLayer(): Layer("ImGuiLayer")
     {
     }
@@ -28,7 +27,7 @@ namespace oak
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        auto& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
         //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -46,16 +45,15 @@ namespace oak
 
         // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
         auto& style = ImGui::GetStyle();
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
 
         setDarkThemeColors();
 
-        auto& app = Application::get();
-        GLFWwindow* window = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
+        auto& app = oak::Application::get();
+        auto* window = static_cast<GLFWwindow*>(app.getWindow().getNativeWindow());
 
         // Setup Platform/Renderer bindings
         ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -71,16 +69,15 @@ namespace oak
         ImGui::DestroyContext();
     }
 
-    void ImGuiLayer::onEvent(Event& t_event)
+    void ImGuiLayer::onEvent(Event& e)
     {
-        if (m_BlockEvents)
-        {
+        if (m_BlockEvents) {
             ImGuiIO& io = ImGui::GetIO();
-            t_event.handled |= t_event.isInCategory(EventCategoryMouse) & io.WantCaptureMouse;
-            t_event.handled |= t_event.isInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+            e.Handled |= e.isInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+            e.Handled |= e.isInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
         }
     }
-
+    
     void ImGuiLayer::begin()
     {
         OAK_PROFILE_FUNCTION();
@@ -95,16 +92,15 @@ namespace oak
     {
         OAK_PROFILE_FUNCTION();
 
-        ImGuiIO& io = ImGui::GetIO();
-        auto [width, heigth] = Application::get().getWindow().getResolution();
-        io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(heigth));
+        auto& io = ImGui::GetIO();
+        auto& app = oak::Application::get();
+        io.DisplaySize = ImVec2((float)app.getWindow().getWidth(), (float)app.getWindow().getHeight());
 
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        {
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
             GLFWwindow* backup_current_context = glfwGetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -121,7 +117,7 @@ namespace oak
         colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
         colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
         colors[ImGuiCol_HeaderActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
-
+        
         // Buttons
         colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
         colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };

@@ -2,13 +2,11 @@
 
 #include <chrono>
 
-namespace oak
-{
+namespace oak {
     namespace chrono = std::chrono;
-
     class Timer
     {
-        using Clock = chrono::steady_clock;
+        using Clock = chrono::high_resolution_clock;
 
     public:
         Timer()
@@ -23,7 +21,7 @@ namespace oak
 
         float elapsed()
         {
-            return std::chrono::duration_cast<chrono::nanoseconds>(Clock::now() - m_Start).count() * 0.001f * 0.001f * 0.001f;
+            return chrono::duration_cast<chrono::nanoseconds>(Clock::now() - m_Start).count() * 0.001f * 0.001f * 0.001f;
         }
 
         float elapsedMillis()
@@ -32,6 +30,6 @@ namespace oak
         }
 
     private:
-        chrono::time_point<Clock> m_Start{};
+        chrono::time_point<Clock> m_Start;
     };
 }

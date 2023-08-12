@@ -2,8 +2,7 @@
 #include "Oak/Renderer/Renderer.hpp"
 #include "Oak/Renderer/Renderer2D.hpp"
 
-namespace oak
-{
+namespace oak {
     Scope<Renderer::SceneData> Renderer::s_SceneData = createScope<Renderer::SceneData>();
 
     void Renderer::init()

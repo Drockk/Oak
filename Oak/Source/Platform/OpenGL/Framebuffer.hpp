@@ -2,9 +2,8 @@
 
 #include "Oak/Renderer/Framebuffer.hpp"
 
-namespace openGL
-{
-    class Framebuffer : public oak::Framebuffer
+namespace opengl {
+    class Framebuffer final : public oak::Framebuffer
     {
     public:
         Framebuffer(const oak::FramebufferSpecification& spec);
@@ -20,16 +19,9 @@ namespace openGL
 
         void clearAttachment(uint32_t attachmentIndex, int value) override;
 
-        uint32_t getColorAttachmentRendererID(uint32_t index = 0) const override
-        {
-            OAK_CORE_ASSERT(index < m_ColorAttachments.size());
-            return m_ColorAttachments[index];
-        }
+        uint32_t getColorAttachmentRendererID(uint32_t index = 0) const override { OAK_CORE_ASSERT(index < m_ColorAttachments.size()); return m_ColorAttachments[index]; }
 
-        const oak::FramebufferSpecification& getSpecification() const override
-        {
-            return m_Specification;
-        }
+        const oak::FramebufferSpecification& getSpecification() const override { return m_Specification; }
 
     private:
         uint32_t m_RendererID = 0;

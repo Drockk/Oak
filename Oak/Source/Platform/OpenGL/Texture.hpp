@@ -4,8 +4,7 @@
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
     class Texture2D : public oak::Texture2D
     {
     public:
@@ -13,44 +12,25 @@ namespace openGL
         Texture2D(const std::string& path);
         ~Texture2D() override;
 
-        const oak::TextureSpecification& getSpecification() const override
-        {
-            return m_Specification;
-        }
+        const oak::TextureSpecification& getSpecification() const override { return m_Specification; }
 
-        uint32_t getWidth() const override
-        {
-            return m_Width;
-        }
+        uint32_t getWidth() const override { return m_Width;  }
+        uint32_t getHeight() const override { return m_Height; }
+        uint32_t getRendererID() const override { return m_RendererID; }
 
-        uint32_t getHeight() const override
-        {
-            return m_Height;
-        }
-
-        uint32_t getRendererID() const override
-        {
-            return m_RendererID;
-        }
-
-        const std::string& getPath() const override
-        {
-            return m_Path;
-        }
-
+        const std::string& getPath() const override { return m_Path; }
+        
         void setData(void* data, uint32_t size) override;
 
         void bind(uint32_t slot = 0) const override;
 
-        bool isLoaded() const override
-        {
-            return m_IsLoaded;
-        }
+        bool isLoaded() const override { return m_IsLoaded; }
 
         bool operator==(const Texture& other) const override
         {
             return m_RendererID == other.getRendererID();
         }
+
     private:
         oak::TextureSpecification m_Specification;
 

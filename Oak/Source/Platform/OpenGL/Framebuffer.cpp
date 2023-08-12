@@ -3,12 +3,10 @@
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
     static const uint32_t s_MaxFramebufferSize = 8192;
 
-    namespace utils
-    {
+    namespace utils {
         static GLenum textureTarget(bool multisampled)
         {
             return multisampled ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
@@ -27,12 +25,10 @@ namespace openGL
         static void attachColorTexture(uint32_t id, int samples, GLenum internalFormat, GLenum format, uint32_t width, uint32_t height, int index)
         {
             bool multisampled = samples > 1;
-            if (multisampled)
-            {
+            if (multisampled) {
                 glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internalFormat, width, height, GL_FALSE);
             }
-            else
-            {
+            else {
                 glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -48,12 +44,10 @@ namespace openGL
         static void attachDepthTexture(uint32_t id, int samples, GLenum format, GLenum attachmentType, uint32_t width, uint32_t height)
         {
             bool multisampled = samples > 1;
-            if (multisampled)
-            {
+            if (multisampled) {
                 glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
             }
-            else
-            {
+            else {
                 glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
 
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -68,9 +62,9 @@ namespace openGL
 
         static bool isDepthFormat(oak::FramebufferTextureFormat format)
         {
-            switch (format)
-            {
-            case oak::FramebufferTextureFormat::DEPTH24STENCIL8:  return true;
+            switch (format) {
+            case oak::FramebufferTextureFormat::DEPTH24STENCIL8:
+                return true;
             }
 
             return false;
@@ -78,10 +72,11 @@ namespace openGL
 
         static GLenum oakFBTextureFormatToGL(oak::FramebufferTextureFormat format)
         {
-            switch (format)
-            {
-            case oak::FramebufferTextureFormat::RGBA8:       return GL_RGBA8;
-            case oak::FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
+            switch (format) {
+            case oak::FramebufferTextureFormat::RGBA8:
+                return GL_RGBA8;
+            case oak::FramebufferTextureFormat::RED_INTEGER:
+                return GL_RED_INTEGER;
             }
 
             OAK_CORE_ASSERT(false);
@@ -92,12 +87,13 @@ namespace openGL
 
     Framebuffer::Framebuffer(const oak::FramebufferSpecification& spec): m_Specification(spec)
     {
-        for (auto spec : m_Specification.attachments.attachments)
-        {
-            if (!utils::isDepthFormat(spec.textureFormat))
+        for (auto spec : m_Specification.attachments.attachments) {
+            if (!utils::isDepthFormat(spec.textureFormat)) {
                 m_ColorAttachmentSpecifications.emplace_back(spec);
-            else
+            }
+            else {
                 m_DepthAttachmentSpecification = spec;
+            }
         }
 
         invalidate();
@@ -112,8 +108,7 @@ namespace openGL
 
     void Framebuffer::invalidate()
     {
-        if (m_RendererID)
-        {
+        if (m_RendererID) {
             glDeleteFramebuffers(1, &m_RendererID);
             glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
             glDeleteTextures(1, &m_DepthAttachment);
@@ -128,16 +123,13 @@ namespace openGL
         bool multisample = m_Specification.samples > 1;
 
         // Attachments
-        if (m_ColorAttachmentSpecifications.size())
-        {
+        if (m_ColorAttachmentSpecifications.size()) {
             m_ColorAttachments.resize(m_ColorAttachmentSpecifications.size());
             utils::createTextures(multisample, m_ColorAttachments.data(), m_ColorAttachments.size());
 
-            for (size_t i = 0; i < m_ColorAttachments.size(); i++)
-            {
+            for (size_t i = 0; i < m_ColorAttachments.size(); i++) {
                 utils::bindTexture(multisample, m_ColorAttachments[i]);
-                switch (m_ColorAttachmentSpecifications[i].textureFormat)
-                {
+                switch (m_ColorAttachmentSpecifications[i].textureFormat) {
                 case oak::FramebufferTextureFormat::RGBA8:
                     utils::attachColorTexture(m_ColorAttachments[i], m_Specification.samples, GL_RGBA8, GL_RGBA, m_Specification.width, m_Specification.height, i);
                     break;
@@ -148,26 +140,22 @@ namespace openGL
             }
         }
 
-        if (m_DepthAttachmentSpecification.textureFormat != oak::FramebufferTextureFormat::None)
-        {
+        if (m_DepthAttachmentSpecification.textureFormat != oak::FramebufferTextureFormat::None) {
             utils::createTextures(multisample, &m_DepthAttachment, 1);
             utils::bindTexture(multisample, m_DepthAttachment);
-            switch (m_DepthAttachmentSpecification.textureFormat)
-            {
+            switch (m_DepthAttachmentSpecification.textureFormat) {
             case oak::FramebufferTextureFormat::DEPTH24STENCIL8:
                 utils::attachDepthTexture(m_DepthAttachment, m_Specification.samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.width, m_Specification.height);
                 break;
             }
         }
 
-        if (m_ColorAttachments.size() > 1)
-        {
+        if (m_ColorAttachments.size() > 1) {
             OAK_CORE_ASSERT(m_ColorAttachments.size() <= 4);
             GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
             glDrawBuffers(m_ColorAttachments.size(), buffers);
         }
-        else if (m_ColorAttachments.empty())
-        {
+        else if (m_ColorAttachments.empty()) {
             // Only depth-pass
             glDrawBuffer(GL_NONE);
         }
@@ -190,8 +178,7 @@ namespace openGL
 
     void Framebuffer::resize(uint32_t width, uint32_t height)
     {
-        if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
-        {
+        if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize) {
             OAK_LOG_CORE_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
             return;
         }
@@ -217,7 +204,6 @@ namespace openGL
         OAK_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
 
         auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
-        glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
-            utils::oakFBTextureFormatToGL(spec.textureFormat), GL_INT, &value);
+        glClearTexImage(m_ColorAttachments[attachmentIndex], 0, utils::oakFBTextureFormatToGL(spec.textureFormat), GL_INT, &value);
     }
 }

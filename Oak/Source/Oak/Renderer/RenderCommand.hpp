@@ -1,9 +1,8 @@
 #pragma once
-#include "Oak/Core/Base.hpp"
+
 #include "Oak/Renderer/RendererAPI.hpp"
 
-namespace oak
-{
+namespace oak {
     class RenderCommand
     {
     public:
@@ -27,12 +26,12 @@ namespace oak
             s_RendererAPI->clear();
         }
 
-        static void drawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0)
+        static void drawIndexed(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t indexCount = 0)
         {
             s_RendererAPI->drawIndexed(vertexArray, indexCount);
         }
 
-        static void drawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
+        static void drawLines(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t vertexCount)
         {
             s_RendererAPI->drawLines(vertexArray, vertexCount);
         }
@@ -41,7 +40,8 @@ namespace oak
         {
             s_RendererAPI->setLineWidth(width);
         }
+
     private:
-        inline static Scope<RendererAPI> s_RendererAPI{ RendererAPI::create() };
+        static Scope<RendererAPI> s_RendererAPI;
     };
 }

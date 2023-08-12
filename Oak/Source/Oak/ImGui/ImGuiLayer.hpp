@@ -6,26 +6,26 @@
 #include "Oak/Events/KeyEvent.hpp"
 #include "Oak/Events/MouseEvent.hpp"
 
-namespace oak
-{
+namespace oak {
     class ImGuiLayer : public Layer
     {
     public:
         ImGuiLayer();
         ~ImGuiLayer() = default;
 
-        virtual void onAttach() override;
-        virtual void onDetach() override;
-        virtual void onEvent(Event& t_event) override;
+        void onAttach() override;
+        void onDetach() override;
+        void onEvent(Event& e) override;
 
         void begin();
         void end();
 
-        void blockEvents(bool t_block) { m_BlockEvents = t_block; }
-
+        void blockEvents(bool block) { m_BlockEvents = block; }
+        
         void setDarkThemeColors();
 
         uint32_t getActiveWidgetID() const;
+
     private:
         bool m_BlockEvents{ true };
     };

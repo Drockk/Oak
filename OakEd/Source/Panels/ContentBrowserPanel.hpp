@@ -1,6 +1,5 @@
 #pragma once
-
-#include "Oak/Renderer/Texture.hpp"
+#include <Oak/Renderer/Texture.hpp>
 
 #include <filesystem>
 

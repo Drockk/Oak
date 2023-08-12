@@ -1,6 +1,7 @@
 #Dirs
 .idea/
 .vs/
+.vscode/
 bin/
 __pycache__/
 
@@ -10,6 +11,11 @@ __pycache__/
 *.exe
 *.log
 *.sln
+OakProfile-*
 
+#Scripts
 OakEd/Resources/Scripts/
-.vscode/
+
+#Sandbox project
+OakEd/SandboxProject/Assets/Scripts/Binaries
+OakEd/SandboxProject/Assets/Scripts/Intermediates

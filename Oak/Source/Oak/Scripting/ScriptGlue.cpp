@@ -1,6 +1,6 @@
 #include "oakpch.hpp"
-#include "Oak/Scripting/ScriptGlue.hpp"
-#include "Oak/Scripting/ScriptEngine.hpp"
+#include "ScriptGlue.hpp"
+#include "ScriptEngine.hpp"
 
 #include "Oak/Core/UUID.hpp"
 #include "Oak/Core/KeyCodes.hpp"
@@ -16,10 +16,8 @@
 
 #include "box2d/b2_body.h"
 
-namespace oak
-{
-    namespace utils
-    {
+namespace oak {
+    namespace utils {
         std::string monoStringToString(MonoString* string)
         {
             char* cStr = mono_string_to_utf8(string);
@@ -27,40 +25,41 @@ namespace oak
             mono_free(cStr);
             return str;
         }
+
     }
 
     static std::unordered_map<MonoType*, std::function<bool(Entity)>> s_EntityHasComponentFuncs;
 
-#define OAK_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Oak.InternalCalls::" #Name, Name)
+#define HZ_ADD_INTERNAL_CALL(Name) mono_add_internal_call("Oak.InternalCalls::" #Name, Name)
 
-    static void nativeLog(MonoString* string, int parameter)
+    static void NativeLog(MonoString* string, int parameter)
     {
         std::string str = utils::monoStringToString(string);
         std::cout << str << ", " << parameter << std::endl;
     }
 
-    static void nativeLog_Vector(glm::vec3* parameter, glm::vec3* outResult)
+    static void NativeLog_Vector(glm::vec3* parameter, glm::vec3* outResult)
     {
         OAK_LOG_CORE_WARN("Value: {0}", *parameter);
         *outResult = glm::normalize(*parameter);
     }
 
-    static float nativeLog_VectorDot(glm::vec3* parameter)
+    static float NativeLog_VectorDot(glm::vec3* parameter)
     {
         OAK_LOG_CORE_WARN("Value: {0}", *parameter);
         return glm::dot(*parameter, *parameter);
     }
 
-    static MonoObject* getScriptInstance(UUID entityID)
+    static MonoObject* GetScriptInstance(UUID entityID)
     {
         return ScriptEngine::getManagedInstance(entityID);
     }
 
-    static bool entity_HasComponent(UUID entityID, MonoReflectionType* componentType)
+    static bool Entity_HasComponent(UUID entityID, MonoReflectionType* componentType)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         MonoType* managedType = mono_reflection_type_get_type(componentType);
@@ -68,13 +67,13 @@ namespace oak
         return s_EntityHasComponentFuncs.at(managedType)(entity);
     }
 
-    static uint64_t entity_FindEntityByName(MonoString* name)
+    static uint64_t Entity_FindEntityByName(MonoString* name)
     {
         char* nameCStr = mono_string_to_utf8(name);
 
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->findEntityByName(nameCStr);
+        auto entity = scene->findEntityByName(nameCStr);
         mono_free(nameCStr);
 
         if (!entity)
@@ -83,31 +82,31 @@ namespace oak
         return entity.getUUID();
     }
 
-    static void transformComponent_GetTranslation(UUID entityID, glm::vec3* outTranslation)
+    static void TransformComponent_GetTranslation(UUID entityID, glm::vec3* outTranslation)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         *outTranslation = entity.getComponent<TransformComponent>().translation;
     }
 
-    static void transformComponent_SetTranslation(UUID entityID, glm::vec3* translation)
+    static void TransformComponent_SetTranslation(UUID entityID, glm::vec3* translation)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         entity.getComponent<TransformComponent>().translation = *translation;
     }
 
-    static void rigidbody2DComponent_ApplyLinearImpulse(UUID entityID, glm::vec2* impulse, glm::vec2* point, bool wake)
+    static void Rigidbody2DComponent_ApplyLinearImpulse(UUID entityID, glm::vec2* impulse, glm::vec2* point, bool wake)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -115,11 +114,11 @@ namespace oak
         body->ApplyLinearImpulse(b2Vec2(impulse->x, impulse->y), b2Vec2(point->x, point->y), wake);
     }
 
-    static void rigidbody2DComponent_ApplyLinearImpulseToCenter(UUID entityID, glm::vec2* impulse, bool wake)
+    static void Rigidbody2DComponent_ApplyLinearImpulseToCenter(UUID entityID, glm::vec2* impulse, bool wake)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -127,11 +126,11 @@ namespace oak
         body->ApplyLinearImpulseToCenter(b2Vec2(impulse->x, impulse->y), wake);
     }
 
-    static void rigidbody2DComponent_GetLinearVelocity(UUID entityID, glm::vec2* outLinearVelocity)
+    static void Rigidbody2DComponent_GetLinearVelocity(UUID entityID, glm::vec2* outLinearVelocity)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -140,11 +139,11 @@ namespace oak
         *outLinearVelocity = glm::vec2(linearVelocity.x, linearVelocity.y);
     }
 
-    static Rigidbody2DComponent::BodyType rigidbody2DComponent_GetType(UUID entityID)
+    static Rigidbody2DComponent::BodyType Rigidbody2DComponent_GetType(UUID entityID)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -152,11 +151,11 @@ namespace oak
         return utils::rigidbody2DTypeFromBox2DBody(body->GetType());
     }
 
-    static void rigidbody2DComponent_SetType(UUID entityID, Rigidbody2DComponent::BodyType bodyType)
+    static void Rigidbody2DComponent_SetType(UUID entityID, Rigidbody2DComponent::BodyType bodyType)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
 
         auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -164,11 +163,11 @@ namespace oak
         body->SetType(utils::rigidbody2DTypeToBox2DBody(bodyType));
     }
 
-    static MonoString* textComponent_GetText(UUID entityID)
+    static MonoString* TextComponent_GetText(UUID entityID)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -176,11 +175,11 @@ namespace oak
         return ScriptEngine::createString(tc.textString.c_str());
     }
 
-    static void textComponent_SetText(UUID entityID, MonoString* textString)
+    static void TextComponent_SetText(UUID entityID, MonoString* textString)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -188,11 +187,11 @@ namespace oak
         tc.textString = utils::monoStringToString(textString);
     }
 
-    static void textComponent_GetColor(UUID entityID, glm::vec4* color)
+    static void TextComponent_GetColor(UUID entityID, glm::vec4* color)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -200,11 +199,11 @@ namespace oak
         *color = tc.color;
     }
 
-    static void textComponent_SetColor(UUID entityID, glm::vec4* color)
+    static void TextComponent_SetColor(UUID entityID, glm::vec4* color)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -212,11 +211,11 @@ namespace oak
         tc.color = *color;
     }
 
-    static float textComponent_GetKerning(UUID entityID)
+    static float TextComponent_GetKerning(UUID entityID)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -224,11 +223,11 @@ namespace oak
         return tc.kerning;
     }
 
-    static void textComponent_SetKerning(UUID entityID, float kerning)
+    static void TextComponent_SetKerning(UUID entityID, float kerning)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -236,11 +235,11 @@ namespace oak
         tc.kerning = kerning;
     }
 
-    static float textComponent_GetLineSpacing(UUID entityID)
+    static float TextComponent_GetLineSpacing(UUID entityID)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -248,11 +247,11 @@ namespace oak
         return tc.lineSpacing;
     }
 
-    static void textComponent_SetLineSpacing(UUID entityID, float lineSpacing)
+    static void TextComponent_SetLineSpacing(UUID entityID, float lineSpacing)
     {
-        Scene* scene = ScriptEngine::getsceneContext();
+        auto* scene = ScriptEngine::getSceneContext();
         OAK_CORE_ASSERT(scene);
-        Entity entity = scene->getEntityByUUID(entityID);
+        auto entity = scene->getEntityByUUID(entityID);
         OAK_CORE_ASSERT(entity);
         OAK_CORE_ASSERT(entity.hasComponent<TextComponent>());
 
@@ -260,72 +259,70 @@ namespace oak
         tc.lineSpacing = lineSpacing;
     }
 
-    static bool input_IsKeyDown(KeyCode keycode)
+    static bool Input_IsKeyDown(KeyCode keycode)
     {
         return Input::isKeyPressed(keycode);
     }
 
     template<typename... Component>
-    static void registerComponent()
+    static void RegisterComponent()
     {
-        ([]()
-            {
-                std::string_view typeName = typeid(Component).name();
-                size_t pos = typeName.find_last_of(':');
-                std::string_view structName = typeName.substr(pos + 1);
-                std::string managedTypename = fmt::format("Oak.{}", structName);
+        ([]() {
+            std::string_view typeName = typeid(Component).name();
+            auto pos = typeName.find_last_of(':');
+            auto structName = typeName.substr(pos + 1);
+            auto managedTypename = fmt::format("Oak.{}", structName);
 
-                MonoType* managedType = mono_reflection_type_from_name(managedTypename.data(), ScriptEngine::getcoreAssemblyImage());
-                if (!managedType)
-                {
-                    OAK_LOG_CORE_ERROR("Could not find component type {}", managedTypename);
-                    return;
-                }
-                s_EntityHasComponentFuncs[managedType] = [](Entity entity) { return entity.hasComponent<Component>(); };
-            }(), ...);
+            auto* managedType = mono_reflection_type_from_name(managedTypename.data(), ScriptEngine::getCoreAssemblyImage());
+            if (!managedType) {
+                OAK_LOG_CORE_ERROR("Could not find component type {}", managedTypename);
+                return;
+            }
+            s_EntityHasComponentFuncs[managedType] = [](Entity entity) { return entity.hasComponent<Component>(); };
+        }(), ...);
     }
 
     template<typename... Component>
-    static void registerComponent(ComponentGroup<Component...>)
+    static void RegisterComponent(ComponentGroup<Component...>)
     {
-        registerComponent<Component...>();
+        RegisterComponent<Component...>();
     }
 
     void ScriptGlue::registerComponents()
     {
         s_EntityHasComponentFuncs.clear();
-        registerComponent(AllComponents{});
+        RegisterComponent(AllComponents{});
     }
 
     void ScriptGlue::registerFunctions()
     {
-        OAK_ADD_INTERNAL_CALL(nativeLog);
-        OAK_ADD_INTERNAL_CALL(nativeLog_Vector);
-        OAK_ADD_INTERNAL_CALL(nativeLog_VectorDot);
+        HZ_ADD_INTERNAL_CALL(NativeLog);
+        HZ_ADD_INTERNAL_CALL(NativeLog_Vector);
+        HZ_ADD_INTERNAL_CALL(NativeLog_VectorDot);
 
-        OAK_ADD_INTERNAL_CALL(getScriptInstance);
+        HZ_ADD_INTERNAL_CALL(GetScriptInstance);
 
-        OAK_ADD_INTERNAL_CALL(entity_HasComponent);
-        OAK_ADD_INTERNAL_CALL(entity_FindEntityByName);
+        HZ_ADD_INTERNAL_CALL(Entity_HasComponent);
+        HZ_ADD_INTERNAL_CALL(Entity_FindEntityByName);
 
-        OAK_ADD_INTERNAL_CALL(transformComponent_GetTranslation);
-        OAK_ADD_INTERNAL_CALL(transformComponent_SetTranslation);
+        HZ_ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
+        HZ_ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 
-        OAK_ADD_INTERNAL_CALL(rigidbody2DComponent_ApplyLinearImpulse);
-        OAK_ADD_INTERNAL_CALL(rigidbody2DComponent_ApplyLinearImpulseToCenter);
-        OAK_ADD_INTERNAL_CALL(rigidbody2DComponent_GetLinearVelocity);
-        OAK_ADD_INTERNAL_CALL(rigidbody2DComponent_GetType);
-        OAK_ADD_INTERNAL_CALL(rigidbody2DComponent_SetType);
+        HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulse);
+        HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_ApplyLinearImpulseToCenter);
+        HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_GetLinearVelocity);
+        HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_GetType);
+        HZ_ADD_INTERNAL_CALL(Rigidbody2DComponent_SetType);
 
-        OAK_ADD_INTERNAL_CALL(textComponent_GetText);
-        OAK_ADD_INTERNAL_CALL(textComponent_SetText);
-        OAK_ADD_INTERNAL_CALL(textComponent_GetColor);
-        OAK_ADD_INTERNAL_CALL(textComponent_SetColor);
-        OAK_ADD_INTERNAL_CALL(textComponent_GetKerning);
-        OAK_ADD_INTERNAL_CALL(textComponent_SetKerning);
-        OAK_ADD_INTERNAL_CALL(textComponent_GetLineSpacing);
-        OAK_ADD_INTERNAL_CALL(textComponent_SetLineSpacing);
+        HZ_ADD_INTERNAL_CALL(TextComponent_GetText);
+        HZ_ADD_INTERNAL_CALL(TextComponent_SetText);
+        HZ_ADD_INTERNAL_CALL(TextComponent_GetColor);
+        HZ_ADD_INTERNAL_CALL(TextComponent_SetColor);
+        HZ_ADD_INTERNAL_CALL(TextComponent_GetKerning);
+        HZ_ADD_INTERNAL_CALL(TextComponent_SetKerning);
+        HZ_ADD_INTERNAL_CALL(TextComponent_GetLineSpacing);
+        HZ_ADD_INTERNAL_CALL(TextComponent_SetLineSpacing);
 
-        OAK_ADD_INTERNAL_CALL(input_IsKeyDown);
+        HZ_ADD_INTERNAL_CALL(Input_IsKeyDown);
     }
 }

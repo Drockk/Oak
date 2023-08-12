@@ -2,9 +2,8 @@
 
 #include "Oak/Renderer/VertexArray.hpp"
 
-namespace openGL
-{
-    class VertexArray : public oak::VertexArray
+namespace opengl {
+    class VertexArray final : public oak::VertexArray
     {
     public:
         VertexArray();
@@ -14,17 +13,10 @@ namespace openGL
         void unbind() const override;
 
         void addVertexBuffer(const oak::Ref<oak::VertexBuffer>& vertexBuffer) override;
-        virtual void setIndexBuffer(const oak::Ref<oak::IndexBuffer>& indexBuffer) override;
+        void setIndexBuffer(const oak::Ref<oak::IndexBuffer>& indexBuffer) override;
 
-        const std::vector<oak::Ref<oak::VertexBuffer>>& getVertexBuffers() const
-        {
-            return m_VertexBuffers;
-        }
-
-        const oak::Ref<oak::IndexBuffer>& getIndexBuffer() const
-        {
-            return m_IndexBuffer;
-        }
+        const std::vector<oak::Ref<oak::VertexBuffer>>& getVertexBuffers() const { return m_VertexBuffers; }
+        const oak::Ref<oak::IndexBuffer>& getIndexBuffer() const { return m_IndexBuffer; }
 
     private:
         uint32_t m_RendererID;

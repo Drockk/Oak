@@ -3,56 +3,50 @@
 #include "Oak/Events/Event.hpp"
 #include "Oak/Core/MouseCodes.hpp"
 
-namespace oak
-{
+namespace oak {
     class MouseMovedEvent : public Event
     {
     public:
-        MouseMovedEvent(std::pair<float, float> t_position)
-            : m_Position{ t_position } {}
+        MouseMovedEvent(const float x, const float y)
+            : m_MouseX(x), m_MouseY(y) {}
 
-        std::pair<float, float> getPosition() const
-        {
-            return m_Position;
-        }
+        float getX() const { return m_MouseX; }
+        float getY() const { return m_MouseY; }
 
         std::string toString() const override
         {
-            auto [x, y] = m_Position;
             std::stringstream ss;
-            ss << "MouseMovedEvent: " << x << ", " << y;
+            ss << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
             return ss.str();
         }
 
         EVENT_CLASS_TYPE(MouseMoved)
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+
     private:
-        std::pair<float, float> m_Position{};
+        float m_MouseX, m_MouseY;
     };
 
     class MouseScrolledEvent : public Event
     {
     public:
-        MouseScrolledEvent(std::pair<float, float> t_offset)
-            : m_Offset{ t_offset } {}
+        MouseScrolledEvent(const float xOffset, const float yOffset): m_XOffset(xOffset), m_YOffset(yOffset) {}
 
-        std::pair<float, float> getOffset() const
-        {
-            return m_Offset;
-        }
+        float getXOffset() const { return m_XOffset; }
+        float getYOffset() const { return m_YOffset; }
 
         std::string toString() const override
         {
             std::stringstream ss;
-            auto [x, y] = m_Offset;
-            ss << "MouseScrolledEvent: " << x << ", " << y;
+            ss << "MouseScrolledEvent: " << getXOffset() << ", " << getYOffset();
             return ss.str();
         }
 
         EVENT_CLASS_TYPE(MouseScrolled)
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+
     private:
-        std::pair<float, float> m_Offset{};
+        float m_XOffset, m_YOffset;
     };
 
     class MouseButtonEvent : public Event
@@ -62,8 +56,7 @@ namespace oak
 
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
     protected:
-        MouseButtonEvent(const MouseCode t_button)
-            : m_Button(t_button) {}
+        MouseButtonEvent(const MouseCode button): m_Button(button) {}
 
         MouseCode m_Button;
     };
@@ -71,8 +64,7 @@ namespace oak
     class MouseButtonPressedEvent : public MouseButtonEvent
     {
     public:
-        MouseButtonPressedEvent(MouseCode t_button)
-            : MouseButtonEvent(t_button) {}
+        MouseButtonPressedEvent(const MouseCode button): MouseButtonEvent(button) {}
 
         std::string toString() const override
         {
@@ -87,8 +79,8 @@ namespace oak
     class MouseButtonReleasedEvent : public MouseButtonEvent
     {
     public:
-        MouseButtonReleasedEvent(MouseCode t_button)
-            : MouseButtonEvent(t_button) {}
+        MouseButtonReleasedEvent(const MouseCode button)
+            : MouseButtonEvent(button) {}
 
         std::string toString() const override
         {

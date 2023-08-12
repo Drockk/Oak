@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Oak/Core/Timestep.hpp"
-#include "Oak/Scene/Entity.hpp"
+#include "Entity.hpp"
 
-namespace oak
-{
+namespace oak {
     class ScriptableEntity
     {
     public:
@@ -15,10 +13,12 @@ namespace oak
         {
             return m_Entity.getComponent<T>();
         }
+
     protected:
         virtual void onCreate() {}
         virtual void onDestroy() {}
         virtual void onUpdate(Timestep ts) {}
+
     private:
         Entity m_Entity;
         friend class Scene;

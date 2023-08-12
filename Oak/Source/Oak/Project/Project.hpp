@@ -5,35 +5,36 @@
 
 #include "Oak/Core/Base.hpp"
 
-namespace oak
-{
+namespace oak {
+    namespace fs = std::filesystem;
+
     struct ProjectConfig
     {
         std::string name = "Untitled";
 
-        std::filesystem::path startScene;
+        fs::path startScene;
 
-        std::filesystem::path assetDirectory;
-        std::filesystem::path scriptModulePath;
+        fs::path assetDirectory;
+        fs::path scriptModulePath;
     };
 
     class Project
     {
     public:
-        static const std::filesystem::path& getProjectDirectory()
+        static const fs::path& getProjectDirectory()
         {
             OAK_CORE_ASSERT(s_ActiveProject);
             return s_ActiveProject->m_ProjectDirectory;
         }
 
-        static std::filesystem::path getAssetDirectory()
+        static fs::path getAssetDirectory()
         {
             OAK_CORE_ASSERT(s_ActiveProject);
             return getProjectDirectory() / s_ActiveProject->m_Config.assetDirectory;
         }
 
         // TODO: move to asset manager when we have one
-        static std::filesystem::path getAssetFileSystemPath(const std::filesystem::path& path)
+        static fs::path getAssetFileSystemPath(const fs::path& path)
         {
             OAK_CORE_ASSERT(s_ActiveProject);
             return getAssetDirectory() / path;
@@ -41,15 +42,15 @@ namespace oak
 
         ProjectConfig& getConfig() { return m_Config; }
 
-        static Ref<Project> getActive() { return s_ActiveProject; }
+        static oak::Ref<Project> getActive() { return s_ActiveProject; }
 
-        static Ref<Project> newProject();
-        static Ref<Project> load(const std::filesystem::path& path);
-        static bool saveActive(const std::filesystem::path& path);
+        static oak::Ref<Project> newProject();
+        static oak::Ref<Project> load(const fs::path& path);
+        static bool saveActive(const fs::path& path);
     private:
         ProjectConfig m_Config;
-        std::filesystem::path m_ProjectDirectory;
+        fs::path m_ProjectDirectory;
 
-        inline static Ref<Project> s_ActiveProject;
+        inline static oak::Ref<Project> s_ActiveProject;
     };
 }

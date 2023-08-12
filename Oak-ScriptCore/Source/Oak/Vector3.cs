@@ -2,50 +2,49 @@ namespace Oak
 {
     public struct Vector3
     {
-        public float x, y, z;
+        public float X, Y, Z;
 
         public static Vector3 Zero => new Vector3(0.0f);
 
         public Vector3(float scalar)
         {
-            x = scalar;
-            y = scalar;
-            z = scalar;
+            X = scalar;
+            Y = scalar;
+            Z = scalar;
         }
 
-        public Vector3(float t_x, float t_y, float t_z)
+        public Vector3(float x, float y, float z)
         {
-            x = t_x;
-            y = t_y;
-            z = t_z;
+            X = x;
+            Y = y;
+            Z = z;
         }
 
-        public Vector3(Vector2 t_xy, float t_z)
+        public Vector3(Vector2 xy, float z)
         {
-            x = t_xy.x;
-            y = t_xy.y;
-            z = t_z;
+            X = xy.X;
+            Y = xy.Y;
+            Z = z;
         }
 
-        public Vector2 Xy
+        public Vector2 XY
         {
-            get => new Vector2(x, y);
+            get => new Vector2(X, Y);
             set
             {
-                x = value.x;
-                y = value.y;
+                X = value.X;
+                Y = value.Y;
             }
         }
 
-        public static Vector3 operator +(Vector3 v1, Vector3 v2)
+        public static Vector3 operator +(Vector3 a, Vector3 b)
         {
-            return new Vector3(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
         public static Vector3 operator *(Vector3 vector, float scalar)
         {
-            return new Vector3(vector.x * scalar, vector.y * scalar, vector.z * scalar);
+            return new Vector3(vector.X * scalar, vector.Y * scalar, vector.Z * scalar);
         }
-
     }
 }

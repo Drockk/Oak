@@ -9,14 +9,13 @@
 class b2World;
 class SceneHierarchyPanel;
 
-namespace oak
-{
+namespace oak {
     class Entity;
 
     class Scene
     {
     public:
-        Scene() = default;
+        Scene();
         ~Scene();
 
         static Ref<Scene> copy(Ref<Scene> other);
@@ -55,6 +54,7 @@ namespace oak
         {
             return m_Registry.view<Components...>();
         }
+
     private:
         template<typename T>
         void onComponentAdded(Entity entity, T& component);
@@ -62,8 +62,8 @@ namespace oak
         void onPhysics2DStart();
         void onPhysics2DStop();
 
-        void renderScene(EditorCamera& camera);
-    private:
+        void renderScene(oak::EditorCamera& camera);
+
         entt::registry m_Registry;
         uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
         bool m_IsRunning = false;

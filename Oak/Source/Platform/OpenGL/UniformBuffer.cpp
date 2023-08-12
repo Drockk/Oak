@@ -1,10 +1,9 @@
 #include "oakpch.hpp"
-#include "Platform/OpenGL/UniformBuffer.hpp"
+#include "UniformBuffer.hpp"
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
     UniformBuffer::UniformBuffer(uint32_t size, uint32_t binding)
     {
         glCreateBuffers(1, &m_RendererID);

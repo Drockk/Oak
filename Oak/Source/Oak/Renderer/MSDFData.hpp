@@ -1,11 +1,11 @@
 #pragma once
+
 #include <vector>
 
 #undef INFINITE
 #include "msdf-atlas-gen.h"
 
-namespace oak
-{
+namespace oak {
     struct MSDFData
     {
         std::vector<msdf_atlas::GlyphGeometry> glyphs;

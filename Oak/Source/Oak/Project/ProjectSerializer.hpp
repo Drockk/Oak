@@ -1,17 +1,19 @@
 #pragma once
 
-#include "Oak/Project/Project.hpp"
+#include "Project.hpp"
 
-namespace oak
-{
+namespace oak {
+    namespace fs = std::filesystem;
+
     class ProjectSerializer
     {
     public:
         ProjectSerializer(Ref<Project> project);
 
-        bool serialize(const std::filesystem::path& filepath);
-        bool deserialize(const std::filesystem::path& filepath);
+        bool serialize(const fs::path& filepath);
+        bool deserialize(const fs::path& filepath);
+
     private:
-        Ref<Project> m_Project;
+        Ref<oak::Project> m_Project;
     };
 }

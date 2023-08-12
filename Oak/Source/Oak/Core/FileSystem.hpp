@@ -2,11 +2,11 @@
 
 #include "Oak/Core/Buffer.hpp"
 
-namespace oak
-{
+namespace oak {
     class FileSystem
     {
     public:
-        static Buffer readFileBinary(const std::filesystem::path& t_filepath);
+        // TODO: move to FileSystem class
+        static Buffer readFileBinary(const std::filesystem::path& filepath);
     };
 }

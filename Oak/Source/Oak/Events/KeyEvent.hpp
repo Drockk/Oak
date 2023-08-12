@@ -3,17 +3,16 @@
 #include "Oak/Events/Event.hpp"
 #include "Oak/Core/KeyCodes.hpp"
 
-namespace oak
-{
+namespace oak {
     class KeyEvent : public Event
     {
     public:
         KeyCode getKeyCode() const { return m_KeyCode; }
 
         EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
+
     protected:
-        KeyEvent(KeyCode t_keycode)
-            : m_KeyCode(t_keycode) {}
+        KeyEvent(const KeyCode keycode): m_KeyCode(keycode) {}
 
         KeyCode m_KeyCode;
     };
@@ -21,8 +20,7 @@ namespace oak
     class KeyPressedEvent : public KeyEvent
     {
     public:
-        KeyPressedEvent(KeyCode t_keycode, bool t_isRepeat = false)
-            : KeyEvent(t_keycode), m_IsRepeat(t_isRepeat) {}
+        KeyPressedEvent(const KeyCode keycode, bool isRepeat = false): KeyEvent(keycode), m_IsRepeat(isRepeat) {}
 
         bool isRepeat() const { return m_IsRepeat; }
 
@@ -34,15 +32,16 @@ namespace oak
         }
 
         EVENT_CLASS_TYPE(KeyPressed)
+
     private:
+
         bool m_IsRepeat;
     };
 
     class KeyReleasedEvent : public KeyEvent
     {
     public:
-        KeyReleasedEvent(KeyCode t_keycode)
-            : KeyEvent(t_keycode) {}
+        KeyReleasedEvent(const KeyCode keycode): KeyEvent(keycode) {}
 
         std::string toString() const override
         {
@@ -57,8 +56,8 @@ namespace oak
     class KeyTypedEvent : public KeyEvent
     {
     public:
-        KeyTypedEvent(KeyCode t_keycode)
-            : KeyEvent(t_keycode) {}
+        KeyTypedEvent(const KeyCode keycode)
+            : KeyEvent(keycode) {}
 
         std::string toString() const override
         {

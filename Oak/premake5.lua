@@ -13,6 +13,7 @@ project "Oak"
     files
     {
         "Source/**.hpp",
+        "Source/**.h",
         "Source/**.cpp",
         "%{Thirdparty}/stb_image/**.h",
         "%{Thirdparty}/stb_image/**.cpp",
@@ -40,6 +41,7 @@ project "Oak"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
+        "%{IncludeDir.ImGui}/imgui",
         "%{IncludeDir.glm}",
         "%{IncludeDir.msdfgen}",
         "%{IncludeDir.msdf_atlas_gen}",

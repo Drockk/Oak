@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace Oak
 {
     public abstract class Component
@@ -11,12 +17,12 @@ namespace Oak
         {
             get
             {
-                InternalCalls.transformComponent_GetTranslation(Entity.ID, out Vector3 translation);
+                InternalCalls.TransformComponent_GetTranslation(Entity.ID, out Vector3 translation);
                 return translation;
             }
             set
             {
-                InternalCalls.transformComponent_SetTranslation(Entity.ID, ref value);
+                InternalCalls.TransformComponent_SetTranslation(Entity.ID, ref value);
             }
         }
     }
@@ -29,27 +35,26 @@ namespace Oak
         {
             get
             {
-                InternalCalls.rigidbody2DComponent_GetLinearVelocity(Entity.ID, out Vector2 velocity);
+                InternalCalls.Rigidbody2DComponent_GetLinearVelocity(Entity.ID, out Vector2 velocity);
                 return velocity;
             }
         }
 
         public BodyType Type
         {
-            get => InternalCalls.rigidbody2DComponent_GetType(Entity.ID);
-            set => InternalCalls.rigidbody2DComponent_SetType(Entity.ID, value);
+            get => InternalCalls.Rigidbody2DComponent_GetType(Entity.ID);
+            set => InternalCalls.Rigidbody2DComponent_SetType(Entity.ID, value);
         }
 
         public void ApplyLinearImpulse(Vector2 impulse, Vector2 worldPosition, bool wake)
         {
-            InternalCalls.rigidbody2DComponent_ApplyLinearImpulse(Entity.ID, ref impulse, ref worldPosition, wake);
+            InternalCalls.Rigidbody2DComponent_ApplyLinearImpulse(Entity.ID, ref impulse, ref worldPosition, wake);
         }
 
         public void ApplyLinearImpulse(Vector2 impulse, bool wake)
         {
-            InternalCalls.rigidbody2DComponent_ApplyLinearImpulseToCenter(Entity.ID, ref impulse, wake);
+            InternalCalls.Rigidbody2DComponent_ApplyLinearImpulseToCenter(Entity.ID, ref impulse, wake);
         }
-
     }
 
     public class TextComponent : Component
@@ -57,36 +62,34 @@ namespace Oak
 
         public string Text
         {
-            get => InternalCalls.textComponent_GetText(Entity.ID);
-            set => InternalCalls.textComponent_SetText(Entity.ID, value);
+            get => InternalCalls.TextComponent_GetText(Entity.ID);
+            set => InternalCalls.TextComponent_SetText(Entity.ID, value);
         }
 
         public Vector4 Color
         {
             get
             {
-                InternalCalls.textComponent_GetColor(Entity.ID, out Vector4 color);
+                InternalCalls.TextComponent_GetColor(Entity.ID, out Vector4 color);
                 return color;
             }
 
             set
             {
-                InternalCalls.textComponent_SetColor(Entity.ID, ref value);
+                InternalCalls.TextComponent_SetColor(Entity.ID, ref value);
             }
         }
 
         public float Kerning
         {
-            get => InternalCalls.textComponent_GetKerning(Entity.ID);
-            set => InternalCalls.textComponent_SetKerning(Entity.ID, value);
+            get => InternalCalls.TextComponent_GetKerning(Entity.ID);
+            set => InternalCalls.TextComponent_SetKerning(Entity.ID, value);
         }
 
         public float LineSpacing
         {
-            get => InternalCalls.textComponent_GetLineSpacing(Entity.ID);
-            set => InternalCalls.textComponent_SetLineSpacing(Entity.ID, value);
+            get => InternalCalls.TextComponent_GetLineSpacing(Entity.ID);
+            set => InternalCalls.TextComponent_SetLineSpacing(Entity.ID, value);
         }
-
     }
-
 }

@@ -1,10 +1,11 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Oak
 {
     public class Entity
     {
-        protected Entity() { ID = 0; }
+        protected Entity() { ID = 0; } 
 
         internal Entity(ulong id)
         {
@@ -17,19 +18,19 @@ namespace Oak
         {
             get
             {
-                InternalCalls.transformComponent_GetTranslation(ID, out Vector3 result);
+                InternalCalls.TransformComponent_GetTranslation(ID, out Vector3 result);
                 return result;
             }
             set
             {
-                InternalCalls.transformComponent_SetTranslation(ID, ref value);
+                InternalCalls.TransformComponent_SetTranslation(ID, ref value);
             }
         }
 
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
-            return InternalCalls.entity_HasComponent(ID, componentType);
+            return InternalCalls.Entity_HasComponent(ID, componentType);
         }
 
         public T GetComponent<T>() where T : Component, new()
@@ -40,10 +41,10 @@ namespace Oak
             T component = new T() { Entity = this };
             return component;
         }
-
+        
         public Entity FindEntityByName(string name)
         {
-            ulong entityID = InternalCalls.entity_FindEntityByName(name);
+            ulong entityID = InternalCalls.Entity_FindEntityByName(name);
             if (entityID == 0)
                 return null;
 
@@ -52,10 +53,8 @@ namespace Oak
 
         public T As<T>() where T : Entity, new()
         {
-            object instance = InternalCalls.getScriptInstance(ID);
+            object instance = InternalCalls.GetScriptInstance(ID);
             return instance as T;
         }
-
     }
-
 }

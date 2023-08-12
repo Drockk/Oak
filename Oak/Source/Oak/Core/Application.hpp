@@ -11,17 +11,18 @@
 
 #include "Oak/ImGui/ImGuiLayer.hpp"
 
-namespace oak
-{
+int main(int argc, char** argv);
+
+namespace oak {
     struct ApplicationCommandLineArgs
     {
         int count = 0;
         char** args = nullptr;
 
-        const char* operator[](int t_index) const
+        const char* operator[](int index) const
         {
-            OAK_CORE_ASSERT(t_index < count);
-            return args[t_index];
+            OAK_CORE_ASSERT(index < count);
+            return args[index];
         }
     };
 
@@ -35,48 +36,48 @@ namespace oak
     class Application
     {
     public:
-        Application(const ApplicationSpecification& t_specification);
-        virtual ~Application() = default;
+        Application(const ApplicationSpecification& specification);
+        virtual ~Application();
 
-        void onEvent(Event& t_event);
+        void onEvent(oak::Event& e);
 
-        void pushLayer(Layer* t_layer);
-        void pushOverlay(Layer* t_layer);
+        void pushLayer(oak::Layer* layer);
+        void pushOverlay(oak::Layer* layer);
 
-        Window& getWindow() { return *m_Window; }
-
-        void run();
-        void shutdown();
+        oak::Window& getWindow() { return *m_Window; }
 
         void close();
 
-        ImGuiLayer* getImGuiLayer() { return m_ImGuiLayer; }
+        oak::ImGuiLayer* getImGuiLayer() { return m_ImGuiLayer; }
 
         static Application& get() { return *s_Instance; }
 
         const ApplicationSpecification& getSpecification() const { return m_Specification; }
 
-        void submitToMainThread(const std::function<void()>& t_function);
+        void submitToMainThread(const std::function<void()>& function);
+
     private:
-        bool onWindowClose(WindowCloseEvent& t_event);
-        bool onWindowResize(WindowResizeEvent& t_event);
+        void run();
+        bool onWindowClose(oak::WindowCloseEvent& e);
+        bool onWindowResize(oak::WindowResizeEvent& e);
 
         void executeMainThreadQueue();
-    private:
+
         ApplicationSpecification m_Specification;
-        Scope<Window> m_Window;
-        ImGuiLayer* m_ImGuiLayer;
-        bool m_Running{true};
-        bool m_Minimized{false};
-        LayerStack m_LayerStack;
-        float m_LastFrameTime{0.0f};
+        oak::Scope<oak::Window> m_Window;
+        oak::ImGuiLayer* m_ImGuiLayer;
+        bool m_Running = true;
+        bool m_Minimized = false;
+        oak::LayerStack m_LayerStack;
+        float m_LastFrameTime = 0.0f;
 
         std::vector<std::function<void()>> m_MainThreadQueue;
         std::mutex m_MainThreadQueueMutex;
-    private:
-        inline static Application* s_Instance{nullptr};
+
+        static Application* s_Instance;
+        friend int ::main(int argc, char** argv);
     };
 }
 
 // To be defined in CLIENT
-oak::Scope<oak::Application> createApplication(oak::ApplicationCommandLineArgs args);
+oak::Application* createApplication(oak::ApplicationCommandLineArgs args);

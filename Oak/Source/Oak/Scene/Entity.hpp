@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Oak/Core/UUID.hpp"
-#include "Oak/Scene/Scene.hpp"
-#include "Oak/Scene/Components.hpp"
+#include "Scene.hpp"
+#include "Components.hpp"
 
 #include "entt.hpp"
 
-namespace oak
-{
+namespace oak {
     class Entity
     {
     public:
@@ -57,7 +56,7 @@ namespace oak
         operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
         UUID getUUID() { return getComponent<IDComponent>().id; }
-        const std::string& getName() { return getComponent<TagComponent>().tag; }
+        const std::string& GetName() { return getComponent<TagComponent>().tag; }
 
         bool operator==(const Entity& other) const
         {
@@ -68,6 +67,7 @@ namespace oak
         {
             return !(*this == other);
         }
+
     private:
         entt::entity m_EntityHandle{ entt::null };
         Scene* m_Scene = nullptr;

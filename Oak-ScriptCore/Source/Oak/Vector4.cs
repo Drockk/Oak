@@ -2,63 +2,63 @@ namespace Oak
 {
     public struct Vector4
     {
-        public float x, y, z, w;
+        public float X, Y, Z, W;
 
         public static Vector4 Zero => new Vector4(0.0f);
 
         public Vector4(float scalar)
         {
-            x = scalar;
-            y = scalar;
-            z = scalar;
-            w = scalar;
+            X = scalar;
+            Y = scalar;
+            Z = scalar;
+            W = scalar;
         }
 
-        public Vector4(float t_x, float t_y, float t_z, float t_w)
+        public Vector4(float x, float y, float z, float w)
         {
-            x = t_x;
-            y = t_y;
-            z = t_z;
-            w = t_w;
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
         }
 
-        public Vector4(Vector3 t_xyz, float t_w)
+        public Vector4(Vector3 xyz, float w)
         {
-            x = t_xyz.x;
-            y = t_xyz.y;
-            z = t_xyz.z;
-            w = t_w;
+            X = xyz.X;
+            Y = xyz.Y;
+            Z = xyz.Z;
+            W = w;
         }
 
         public Vector2 XY
         {
-            get => new Vector2(x, y);
+            get => new Vector2(X, Y);
             set
             {
-                x = value.x;
-                y = value.y;
+                X = value.X;
+                Y = value.Y;
             }
         }
 
         public Vector3 XYZ
         {
-            get => new Vector3(x, y, z);
+            get => new Vector3(X, Y, Z);
             set
             {
-                x = value.x;
-                y = value.y;
-                z = value.z;
+                X = value.X;
+                Y = value.Y;
+                Z = value.Z;
             }
         }
 
-        public static Vector4 operator +(Vector4 v1, Vector4 v2)
+        public static Vector4 operator +(Vector4 a, Vector4 b)
         {
-            return new Vector4(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
+            return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, a.W + b.W);
         }
 
         public static Vector4 operator *(Vector4 vector, float scalar)
         {
-            return new Vector4(vector.x * scalar, vector.y * scalar, vector.z * scalar, vector.w * scalar);
+            return new Vector4(vector.X * scalar, vector.Y * scalar, vector.Z * scalar, vector.W * scalar);
         }
 
     }

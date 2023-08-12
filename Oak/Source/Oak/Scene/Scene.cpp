@@ -1,14 +1,16 @@
 #include "oakpch.hpp"
-#include "Oak/Scene/Scene.hpp"
-#include "Oak/Scene/Entity.hpp"
+#include "Scene.hpp"
+#include "Entity.hpp"
 
-#include "Oak/Scene/Components.hpp"
-#include "Oak/Scene/ScriptableEntity.hpp"
+#include "Components.hpp"
+#include "ScriptableEntity.hpp"
 #include "Oak/Scripting/ScriptEngine.hpp"
 #include "Oak/Renderer/Renderer2D.hpp"
 #include "Oak/Physics/Physics2D.hpp"
 
 #include <glm/glm.hpp>
+
+#include "Entity.hpp"
 
 // Box2D
 #include "box2d/b2_world.h"
@@ -17,8 +19,11 @@
 #include "box2d/b2_polygon_shape.h"
 #include "box2d/b2_circle_shape.h"
 
-namespace oak
-{
+namespace oak {
+    Scene::Scene()
+    {
+    }
+
     Scene::~Scene()
     {
         delete m_PhysicsWorld;
@@ -27,17 +32,15 @@ namespace oak
     template<typename... Component>
     static void copyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttMap)
     {
-        ([&]()
-            {
-                auto view = src.view<Component>();
-                for (auto srcEntity : view)
-                {
-                    entt::entity dstEntity = enttMap.at(src.get<IDComponent>(srcEntity).id);
+        ([&]() {
+            auto view = src.view<Component>();
+            for (auto srcEntity : view) {
+                auto dstEntity = enttMap.at(src.get<IDComponent>(srcEntity).id);
 
-                    auto& srcComponent = src.get<Component>(srcEntity);
-                    dst.emplace_or_replace<Component>(dstEntity, srcComponent);
-                }
-            }(), ...);
+                auto& srcComponent = src.get<Component>(srcEntity);
+                dst.emplace_or_replace<Component>(dstEntity, srcComponent);
+            }
+        }(), ...);
     }
 
     template<typename... Component>
@@ -49,11 +52,11 @@ namespace oak
     template<typename... Component>
     static void copyComponentIfExists(Entity dst, Entity src)
     {
-        ([&]()
-            {
-                if (src.hasComponent<Component>())
-                    dst.addOrReplaceComponent<Component>(src.getComponent<Component>());
-            }(), ...);
+        ([&]() {
+            if (src.hasComponent<Component>()) {
+                dst.addOrReplaceComponent<Component>(src.getComponent<Component>());
+            }
+        }(), ...);
     }
 
     template<typename... Component>
@@ -64,7 +67,7 @@ namespace oak
 
     Ref<Scene> Scene::copy(Ref<Scene> other)
     {
-        Ref<Scene> newScene = createRef<Scene>();
+        auto newScene = createRef<Scene>();
 
         newScene->m_ViewportWidth = other->m_ViewportWidth;
         newScene->m_ViewportHeight = other->m_ViewportHeight;
@@ -75,11 +78,10 @@ namespace oak
 
         // Create entities in new scene
         auto idView = srcSceneRegistry.view<IDComponent>();
-        for (auto e : idView)
-        {
-            UUID uuid = srcSceneRegistry.get<IDComponent>(e).id;
+        for (auto e : idView) {
+            auto uuid = srcSceneRegistry.get<IDComponent>(e).id;
             const auto& name = srcSceneRegistry.get<TagComponent>(e).tag;
-            Entity newEntity = newScene->createEntityWithUUID(uuid, name);
+            auto newEntity = newScene->createEntityWithUUID(uuid, name);
             enttMap[uuid] = (entt::entity)newEntity;
         }
 
@@ -125,8 +127,7 @@ namespace oak
             // Instantiate all script entities
 
             auto view = m_Registry.view<ScriptComponent>();
-            for (auto e : view)
-            {
+            for (auto e : view) {
                 Entity entity = { e, this };
                 ScriptEngine::onCreateEntity(entity);
             }
@@ -154,30 +155,26 @@ namespace oak
 
     void Scene::onUpdateRuntime(Timestep ts)
     {
-        if (!m_IsPaused || m_StepFrames-- > 0)
-        {
+        if (!m_IsPaused || m_StepFrames-- > 0) {
             // Update scripts
             {
                 // C# Entity OnUpdate
                 auto view = m_Registry.view<ScriptComponent>();
-                for (auto e : view)
-                {
+                for (auto e : view) {
                     Entity entity = { e, this };
                     ScriptEngine::onUpdateEntity(entity, ts);
                 }
 
-                m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-                    {
-                        // TODO: Move to Scene::OnScenePlay
-                        if (!nsc.instance)
-                        {
-                            nsc.instance = nsc.instantiateScript();
-                            nsc.instance->m_Entity = Entity{ entity, this };
-                            nsc.instance->onCreate();
-                        }
+                m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc) {
+                    // TODO: Move to Scene::OnScenePlay
+                    if (!nsc.instance) {
+                        nsc.instance = nsc.instantiateScript();
+                        nsc.instance->m_Entity = Entity{ entity, this };
+                        nsc.instance->onCreate();
+                    }
 
-                        nsc.instance->onUpdate(ts);
-                    });
+                    nsc.instance->onUpdate(ts);
+                });
             }
 
             // Physics
@@ -188,8 +185,7 @@ namespace oak
 
                 // Retrieve transform from Box2D
                 auto view = m_Registry.view<Rigidbody2DComponent>();
-                for (auto e : view)
-                {
+                for (auto e : view) {
                     Entity entity = { e, this };
                     auto& transform = entity.getComponent<TransformComponent>();
                     auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -209,12 +205,10 @@ namespace oak
         glm::mat4 cameraTransform;
         {
             auto view = m_Registry.view<TransformComponent, CameraComponent>();
-            for (auto entity : view)
-            {
+            for (auto entity : view) {
                 auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-                if (camera.primary)
-                {
+                
+                if (camera.primary) {
                     mainCamera = &camera.camera;
                     cameraTransform = transform.getTransform();
                     break;
@@ -229,8 +223,7 @@ namespace oak
             // Draw sprites
             {
                 auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-                for (auto entity : group)
-                {
+                for (auto entity : group) {
                     auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
                     Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
@@ -240,8 +233,7 @@ namespace oak
             // Draw circles
             {
                 auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
-                for (auto entity : view)
-                {
+                for (auto entity : view) {
                     auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
 
                     Renderer2D::drawCircle(transform.getTransform(), circle.color, circle.thickness, circle.fade, (int)entity);
@@ -251,8 +243,7 @@ namespace oak
             // Draw text
             {
                 auto view = m_Registry.view<TransformComponent, TextComponent>();
-                for (auto entity : view)
-                {
+                for (auto entity : view) {
                     auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
 
                     Renderer2D::drawString(text.textString, transform.getTransform(), text, (int)entity);
@@ -266,8 +257,7 @@ namespace oak
 
     void Scene::onUpdateSimulation(Timestep ts, EditorCamera& camera)
     {
-        if (!m_IsPaused || m_StepFrames-- > 0)
-        {
+        if (!m_IsPaused || m_StepFrames-- > 0) {
             // Physics
             {
                 const int32_t velocityIterations = 6;
@@ -276,8 +266,7 @@ namespace oak
 
                 // Retrieve transform from Box2D
                 auto view = m_Registry.view<Rigidbody2DComponent>();
-                for (auto e : view)
-                {
+                for (auto e : view) {
                     Entity entity = { e, this };
                     auto& transform = entity.getComponent<TransformComponent>();
                     auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -303,30 +292,31 @@ namespace oak
 
     void Scene::onViewportResize(uint32_t width, uint32_t height)
     {
-        if (m_ViewportWidth == width && m_ViewportHeight == height)
+        if (m_ViewportWidth == width && m_ViewportHeight == height) {
             return;
+        }
 
         m_ViewportWidth = width;
         m_ViewportHeight = height;
 
         // Resize our non-FixedAspectRatio cameras
         auto view = m_Registry.view<CameraComponent>();
-        for (auto entity : view)
-        {
+        for (auto entity : view) {
             auto& cameraComponent = view.get<CameraComponent>(entity);
-            if (!cameraComponent.fixedAspectRatio)
+            if (!cameraComponent.fixedAspectRatio) {
                 cameraComponent.camera.setViewportSize(width, height);
+            }
         }
     }
 
     Entity Scene::getPrimaryCameraEntity()
     {
         auto view = m_Registry.view<CameraComponent>();
-        for (auto entity : view)
-        {
+        for (auto entity : view) {
             const auto& camera = view.get<CameraComponent>(entity);
-            if (camera.primary)
+            if (camera.primary) {
                 return Entity{ entity, this };
+            }
         }
         return {};
     }
@@ -339,7 +329,7 @@ namespace oak
     Entity Scene::duplicateEntity(Entity entity)
     {
         // Copy name because we're going to modify component data structure
-        std::string name = entity.getName();
+        std::string name = entity.GetName();
         Entity newEntity = createEntity(name);
         copyComponentIfExists(AllComponents{}, newEntity, entity);
         return newEntity;
@@ -348,20 +338,21 @@ namespace oak
     Entity Scene::findEntityByName(std::string_view name)
     {
         auto view = m_Registry.view<TagComponent>();
-        for (auto entity : view)
-        {
+        for (auto entity : view) {
             const TagComponent& tc = view.get<TagComponent>(entity);
-            if (tc.tag == name)
+            if (tc.tag == name) {
                 return Entity{ entity, this };
+            }
         }
         return {};
     }
 
     Entity Scene::getEntityByUUID(UUID uuid)
     {
-        // TODO(Yan): Maybe should be assert
-        if (m_EntityMap.find(uuid) != m_EntityMap.end())
+        // TODO: Maybe should be assert
+        if (m_EntityMap.find(uuid) != m_EntityMap.end()) {
             return { m_EntityMap.at(uuid), this };
+        }
 
         return {};
     }
@@ -371,8 +362,7 @@ namespace oak
         m_PhysicsWorld = new b2World({ 0.0f, -9.8f });
 
         auto view = m_Registry.view<Rigidbody2DComponent>();
-        for (auto e : view)
-        {
+        for (auto e : view) {
             Entity entity = { e, this };
             auto& transform = entity.getComponent<TransformComponent>();
             auto& rb2d = entity.getComponent<Rigidbody2DComponent>();
@@ -386,8 +376,7 @@ namespace oak
             body->SetFixedRotation(rb2d.fixedRotation);
             rb2d.runtimeBody = body;
 
-            if (entity.hasComponent<BoxCollider2DComponent>())
-            {
+            if (entity.hasComponent<BoxCollider2DComponent>()) {
                 auto& bc2d = entity.getComponent<BoxCollider2DComponent>();
 
                 b2PolygonShape boxShape;
@@ -402,8 +391,7 @@ namespace oak
                 body->CreateFixture(&fixtureDef);
             }
 
-            if (entity.hasComponent<CircleCollider2DComponent>())
-            {
+            if (entity.hasComponent<CircleCollider2DComponent>()) {
                 auto& cc2d = entity.getComponent<CircleCollider2DComponent>();
 
                 b2CircleShape circleShape;
@@ -434,8 +422,7 @@ namespace oak
         // Draw sprites
         {
             auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-            for (auto entity : group)
-            {
+            for (auto entity : group) {
                 auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
                 Renderer2D::drawSprite(transform.getTransform(), sprite, (int)entity);
@@ -445,8 +432,7 @@ namespace oak
         // Draw circles
         {
             auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
-            for (auto entity : view)
-            {
+            for (auto entity : view) {
                 auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
 
                 Renderer2D::drawCircle(transform.getTransform(), circle.color, circle.thickness, circle.fade, (int)entity);
@@ -456,8 +442,7 @@ namespace oak
         // Draw text
         {
             auto view = m_Registry.view<TransformComponent, TextComponent>();
-            for (auto entity : view)
-            {
+            for (auto entity : view) {
                 auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
 
                 Renderer2D::drawString(text.textString, transform.getTransform(), text, (int)entity);
@@ -466,8 +451,8 @@ namespace oak
 
         Renderer2D::endScene();
     }
-
-    template<typename T>
+  
+  template<typename T>
     void Scene::onComponentAdded(Entity entity, T& component)
     {
         static_assert(sizeof(T) == 0);
@@ -486,8 +471,9 @@ namespace oak
     template<>
     void Scene::onComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
     {
-        if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
+        if (m_ViewportWidth > 0 && m_ViewportHeight > 0) {
             component.camera.setViewportSize(m_ViewportWidth, m_ViewportHeight);
+        }
     }
 
     template<>

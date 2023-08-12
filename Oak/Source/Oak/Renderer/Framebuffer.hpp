@@ -2,8 +2,7 @@
 
 #include "Oak/Core/Base.hpp"
 
-namespace oak
-{
+namespace oak {
     enum class FramebufferTextureFormat
     {
         None = 0,
@@ -22,7 +21,7 @@ namespace oak
     struct FramebufferTextureSpecification
     {
         FramebufferTextureSpecification() = default;
-        FramebufferTextureSpecification(FramebufferTextureFormat t_format): textureFormat(t_format) {}
+        FramebufferTextureSpecification(FramebufferTextureFormat format): textureFormat(format) {}
 
         FramebufferTextureFormat textureFormat = FramebufferTextureFormat::None;
         // TODO: filtering/wrap
@@ -31,7 +30,7 @@ namespace oak
     struct FramebufferAttachmentSpecification
     {
         FramebufferAttachmentSpecification() = default;
-        FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> t_attachments): attachments(t_attachments) {}
+        FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments): attachments(attachments) {}
 
         std::vector<FramebufferTextureSpecification> attachments;
     };
@@ -53,15 +52,15 @@ namespace oak
         virtual void bind() = 0;
         virtual void unbind() = 0;
 
-        virtual void resize(uint32_t t_width, uint32_t t_height) = 0;
-        virtual int readPixel(uint32_t t_attachmentIndex, int t_x, int t_y) = 0;
+        virtual void resize(uint32_t width, uint32_t height) = 0;
+        virtual int readPixel(uint32_t attachmentIndex, int x, int y) = 0;
 
-        virtual void clearAttachment(uint32_t t_attachmentIndex, int t_value) = 0;
+        virtual void clearAttachment(uint32_t attachmentIndex, int value) = 0;
 
-        virtual uint32_t getColorAttachmentRendererID(uint32_t t_index = 0) const = 0;
+        virtual uint32_t getColorAttachmentRendererID(uint32_t index = 0) const = 0;
 
         virtual const FramebufferSpecification& getSpecification() const = 0;
 
-        static Ref<Framebuffer> create(const FramebufferSpecification& t_spec);
+        static Ref<Framebuffer> create(const FramebufferSpecification& spec);
     };
 }

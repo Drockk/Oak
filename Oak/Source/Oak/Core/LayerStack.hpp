@@ -5,8 +5,7 @@
 
 #include <vector>
 
-namespace oak
-{
+namespace oak {
     class LayerStack
     {
     public:
@@ -29,6 +28,6 @@ namespace oak
         std::vector<Layer*>::const_reverse_iterator rend() const { return m_Layers.rend(); }
     private:
         std::vector<Layer*> m_Layers;
-        uint32_t m_LayerInsertIndex{ 0 };
+        unsigned int m_LayerInsertIndex = 0;
     };
 }

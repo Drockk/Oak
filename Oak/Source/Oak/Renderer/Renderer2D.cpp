@@ -11,8 +11,7 @@
 
 #include "MSDFData.hpp"
 
-namespace oak
-{
+namespace oak {
     struct QuadVertex
     {
         glm::vec3 position;
@@ -133,7 +132,7 @@ namespace oak
             { ShaderDataType::Float,  "a_TexIndex"     },
             { ShaderDataType::Float,  "a_TilingFactor" },
             { ShaderDataType::Int,    "a_EntityID"     }
-            });
+        });
         s_Data.quadVertexArray->addVertexBuffer(s_Data.quadVertexBuffer);
 
         s_Data.quadVertexBufferBase = new QuadVertex[s_Data.maxVertices];
@@ -169,7 +168,7 @@ namespace oak
             { ShaderDataType::Float,  "a_Thickness"     },
             { ShaderDataType::Float,  "a_Fade"          },
             { ShaderDataType::Int,    "a_EntityID"      }
-            });
+        });
         s_Data.circleVertexArray->addVertexBuffer(s_Data.circleVertexBuffer);
         s_Data.circleVertexArray->setIndexBuffer(quadIB); // Use quad IB
         s_Data.circleVertexBufferBase = new CircleVertex[s_Data.maxVertices];
@@ -182,7 +181,7 @@ namespace oak
             { ShaderDataType::Float3, "a_Position" },
             { ShaderDataType::Float4, "a_Color"    },
             { ShaderDataType::Int,    "a_EntityID" }
-            });
+        });
         s_Data.lineVertexArray->addVertexBuffer(s_Data.lineVertexBuffer);
         s_Data.lineVertexBufferBase = new LineVertex[s_Data.maxVertices];
 
@@ -195,7 +194,7 @@ namespace oak
             { ShaderDataType::Float4, "a_Color"        },
             { ShaderDataType::Float2, "a_TexCoord"     },
             { ShaderDataType::Int,    "a_EntityID"     }
-            });
+        });
         s_Data.textVertexArray->addVertexBuffer(s_Data.textVertexBuffer);
         s_Data.textVertexArray->setIndexBuffer(quadIB);
         s_Data.textVertexBufferBase = new TextVertex[s_Data.maxVertices];
@@ -205,8 +204,9 @@ namespace oak
         s_Data.whiteTexture->setData(&whiteTextureData, sizeof(uint32_t));
 
         int32_t samplers[s_Data.maxTextureSlots];
-        for (uint32_t i = 0; i < s_Data.maxTextureSlots; i++)
+        for (uint32_t i = 0; i < s_Data.maxTextureSlots; i++) {
             samplers[i] = i;
+        }
 
         s_Data.quadShader = Shader::create("assets/shaders/Renderer2D_Quad.glsl");
         s_Data.circleShader = Shader::create("assets/shaders/Renderer2D_Circle.glsl");
@@ -217,8 +217,8 @@ namespace oak
         s_Data.textureSlots[0] = s_Data.whiteTexture;
 
         s_Data.quadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-        s_Data.quadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
-        s_Data.quadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+        s_Data.quadVertexPositions[1] = {  0.5f, -0.5f, 0.0f, 1.0f };
+        s_Data.quadVertexPositions[2] = {  0.5f,  0.5f, 0.0f, 1.0f };
         s_Data.quadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 
         s_Data.cameraUniformBuffer = UniformBuffer::create(sizeof(Renderer2DData::CameraData), 0);
@@ -241,7 +241,7 @@ namespace oak
         startBatch();
     }
 
-    void Renderer2D::beginScene(const Camera& camera, const glm::mat4& transform)
+    void Renderer2D::beginScene(const oak::Camera& camera, const glm::mat4& transform)
     {
         OAK_PROFILE_FUNCTION();
 
@@ -251,7 +251,7 @@ namespace oak
         startBatch();
     }
 
-    void Renderer2D::beginScene(const EditorCamera& camera)
+    void Renderer2D::beginScene(const oak::EditorCamera& camera)
     {
         OAK_PROFILE_FUNCTION();
 
@@ -287,23 +287,22 @@ namespace oak
 
     void Renderer2D::flush()
     {
-        if (s_Data.quadIndexCount)
-        {
-            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferBase);
+        if (s_Data.quadIndexCount) {
+            auto dataSize = (uint32_t)((uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferBase);
             s_Data.quadVertexBuffer->setData(s_Data.quadVertexBufferBase, dataSize);
 
             // Bind textures
-            for (uint32_t i = 0; i < s_Data.textureSlotIndex; i++)
+            for (uint32_t i = 0; i < s_Data.textureSlotIndex; i++) {
                 s_Data.textureSlots[i]->bind(i);
+            }
 
             s_Data.quadShader->bind();
             RenderCommand::drawIndexed(s_Data.quadVertexArray, s_Data.quadIndexCount);
             s_Data.stats.drawCalls++;
         }
 
-        if (s_Data.circleIndexCount)
-        {
-            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.circleVertexBufferPtr - (uint8_t*)s_Data.circleVertexBufferBase);
+        if (s_Data.circleIndexCount) {
+            auto dataSize = (uint32_t)((uint8_t*)s_Data.circleVertexBufferPtr - (uint8_t*)s_Data.circleVertexBufferBase);
             s_Data.circleVertexBuffer->setData(s_Data.circleVertexBufferBase, dataSize);
 
             s_Data.circleShader->bind();
@@ -311,9 +310,8 @@ namespace oak
             s_Data.stats.drawCalls++;
         }
 
-        if (s_Data.lineVertexCount)
-        {
-            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.lineVertexBufferPtr - (uint8_t*)s_Data.lineVertexBufferBase);
+        if (s_Data.lineVertexCount) {
+            auto dataSize = (uint32_t)((uint8_t*)s_Data.lineVertexBufferPtr - (uint8_t*)s_Data.lineVertexBufferBase);
             s_Data.lineVertexBuffer->setData(s_Data.lineVertexBufferBase, dataSize);
 
             s_Data.lineShader->bind();
@@ -322,9 +320,8 @@ namespace oak
             s_Data.stats.drawCalls++;
         }
 
-        if (s_Data.textIndexCount)
-        {
-            uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.textVertexBufferPtr - (uint8_t*)s_Data.textVertexBufferBase);
+        if (s_Data.textIndexCount) {
+            auto dataSize = (uint32_t)((uint8_t*)s_Data.textVertexBufferPtr - (uint8_t*)s_Data.textVertexBufferBase);
             s_Data.textVertexBuffer->setData(s_Data.textVertexBufferBase, dataSize);
 
             auto buf = s_Data.textVertexBufferBase;
@@ -351,23 +348,21 @@ namespace oak
     {
         OAK_PROFILE_FUNCTION();
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        auto transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
         drawQuad(transform, color);
     }
 
-    void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const oak::Ref<oak::Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         drawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
     }
 
-    void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const oak::Ref<oak::Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         OAK_PROFILE_FUNCTION();
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        auto transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
         drawQuad(transform, texture, tilingFactor, tintColor);
     }
@@ -377,15 +372,15 @@ namespace oak
         OAK_PROFILE_FUNCTION();
 
         constexpr size_t quadVertexCount = 4;
-        const float textureIndex = 0.0f; // White Texture
+        const auto textureIndex = 0.0f; // White Texture
         constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
-        const float tilingFactor = 1.0f;
+        const auto tilingFactor = 1.0f;
 
-        if (s_Data.quadIndexCount >= Renderer2DData::maxIndices)
+        if (s_Data.quadIndexCount >= Renderer2DData::maxIndices) {
             nextBatch();
+        }
 
-        for (size_t i = 0; i < quadVertexCount; i++)
-        {
+        for (size_t i = 0; i < quadVertexCount; i++) {
             s_Data.quadVertexBufferPtr->position = transform * s_Data.quadVertexPositions[i];
             s_Data.quadVertexBufferPtr->color = color;
             s_Data.quadVertexBufferPtr->texCoord = textureCoords[i];
@@ -400,38 +395,36 @@ namespace oak
         s_Data.stats.quadCount++;
     }
 
-    void Renderer2D::drawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+    void Renderer2D::drawQuad(const glm::mat4& transform, const oak::Ref<oak::Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
     {
         OAK_PROFILE_FUNCTION();
 
         constexpr size_t quadVertexCount = 4;
         constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
 
-        if (s_Data.quadIndexCount >= Renderer2DData::maxIndices)
+        if (s_Data.quadIndexCount >= Renderer2DData::maxIndices) {
             nextBatch();
+        }
 
         float textureIndex = 0.0f;
-        for (uint32_t i = 1; i < s_Data.textureSlotIndex; i++)
-        {
-            if (*s_Data.textureSlots[i] == *texture)
-            {
+        for (uint32_t i = 1; i < s_Data.textureSlotIndex; i++) {
+            if (*s_Data.textureSlots[i] == *texture) {
                 textureIndex = (float)i;
                 break;
             }
         }
 
-        if (textureIndex == 0.0f)
-        {
-            if (s_Data.textureSlotIndex >= Renderer2DData::maxTextureSlots)
+        if (textureIndex == 0.0f) {
+            if (s_Data.textureSlotIndex >= Renderer2DData::maxTextureSlots) {
                 nextBatch();
+            }
 
             textureIndex = (float)s_Data.textureSlotIndex;
             s_Data.textureSlots[s_Data.textureSlotIndex] = texture;
             s_Data.textureSlotIndex++;
         }
 
-        for (size_t i = 0; i < quadVertexCount; i++)
-        {
+        for (size_t i = 0; i < quadVertexCount; i++) {
             s_Data.quadVertexBufferPtr->position = transform * s_Data.quadVertexPositions[i];
             s_Data.quadVertexBufferPtr->color = tintColor;
             s_Data.quadVertexBufferPtr->texCoord = textureCoords[i];
@@ -455,25 +448,21 @@ namespace oak
     {
         OAK_PROFILE_FUNCTION();
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        auto transform = glm::translate(glm::mat4(1.0f), position) * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
         drawQuad(transform, color);
     }
 
-    void Renderer2D::drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    void Renderer2D::drawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const oak::Ref<oak::Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         drawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, tintColor);
     }
 
-    void Renderer2D::drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    void Renderer2D::drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const oak::Ref<oak::Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         OAK_PROFILE_FUNCTION();
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f })
-            * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+        auto transform = glm::translate(glm::mat4(1.0f), position) * glm::rotate(glm::mat4(1.0f), glm::radians(rotation), { 0.0f, 0.0f, 1.0f }) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
         drawQuad(transform, texture, tilingFactor, tintColor);
     }
@@ -483,7 +472,7 @@ namespace oak
         OAK_PROFILE_FUNCTION();
 
         // TODO: implement for circles
-        // if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
+        // if (s_Data.QuadIndexCount >= Renderer2DData::maxIndices)
         // 	NextBatch();
 
         for (size_t i = 0; i < 4; i++)
@@ -519,10 +508,10 @@ namespace oak
 
     void Renderer2D::drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID)
     {
-        glm::vec3 p0 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
-        glm::vec3 p1 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
-        glm::vec3 p2 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
-        glm::vec3 p3 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+        auto p0 = glm::vec3(position.x - size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+        auto p1 = glm::vec3(position.x + size.x * 0.5f, position.y - size.y * 0.5f, position.z);
+        auto p2 = glm::vec3(position.x + size.x * 0.5f, position.y + size.y * 0.5f, position.z);
+        auto p3 = glm::vec3(position.x - size.x * 0.5f, position.y + size.y * 0.5f, position.z);
 
         drawLine(p0, p1, color, entityID);
         drawLine(p1, p2, color, entityID);
@@ -533,8 +522,9 @@ namespace oak
     void Renderer2D::drawRect(const glm::mat4& transform, const glm::vec4& color, int entityID)
     {
         glm::vec3 lineVertices[4];
-        for (size_t i = 0; i < 4; i++)
+        for (size_t i = 0; i < 4; i++) {
             lineVertices[i] = transform * s_Data.quadVertexPositions[i];
+        }
 
         drawLine(lineVertices[0], lineVertices[1], color, entityID);
         drawLine(lineVertices[1], lineVertices[2], color, entityID);
@@ -544,66 +534,66 @@ namespace oak
 
     void Renderer2D::drawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
     {
-        if (src.texture)
+        if (src.texture) {
             drawQuad(transform, src.texture, src.tilingFactor, src.color, entityID);
-        else
+        }
+        else {
             drawQuad(transform, src.color, entityID);
+        }
     }
 
-    void Renderer2D::drawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
+    void Renderer2D::drawString(const std::string& string, oak::Ref<oak::Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID)
     {
         const auto& fontGeometry = font->getMSDFData()->fontGeometry;
         const auto& metrics = fontGeometry.getMetrics();
-        Ref<Texture2D> fontAtlas = font->getAtlasTexture();
+        auto fontAtlas = font->getAtlasTexture();
 
         s_Data.fontAtlasTexture = fontAtlas;
 
-        double x = 0.0;
-        double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
-        double y = 0.0;
+        auto x = 0.0;
+        auto fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
+        auto y = 0.0;
 
-        const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+        const auto spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
 
-        for (size_t i = 0; i < string.size(); i++)
-        {
-            char character = string[i];
-            if (character == '\r')
-                continue;
-
-            if (character == '\n')
-            {
-                x = 0;
-                y -= fsScale * metrics.lineHeight + textParams.LineSpacing;
+        for (size_t i = 0; i < string.size(); i++) {
+            auto character = string[i];
+            if (character == '\r') {
                 continue;
             }
 
-            if (character == ' ')
-            {
-                float advance = spaceGlyphAdvance;
-                if (i < string.size() - 1)
-                {
-                    char nextCharacter = string[i + 1];
+            if (character == '\n') {
+                x = 0;
+                y -= fsScale * metrics.lineHeight + textParams.lineSpacing;
+                continue;
+            }
+
+            if (character == ' ') {
+                auto advance = spaceGlyphAdvance;
+                if (i < string.size() - 1) {
+                    auto nextCharacter = string[i + 1];
                     double dAdvance;
                     fontGeometry.getAdvance(dAdvance, character, nextCharacter);
                     advance = (float)dAdvance;
                 }
 
-                x += fsScale * advance + textParams.Kerning;
+                x += fsScale * advance + textParams.kerning;
                 continue;
             }
 
-            if (character == '\t')
-            {
-                // NOTE(Yan): is this right?
-                x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
+            if (character == '\t') {
+                // NOTE: is this right?
+                x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.kerning);
                 continue;
             }
 
             auto glyph = fontGeometry.getGlyph(character);
-            if (!glyph)
+            if (!glyph) {
                 glyph = fontGeometry.getGlyph('?');
-            if (!glyph)
+            }
+            if (!glyph) {
                 return;
+            }
 
             double al, ab, ar, at;
             glyph->getQuadAtlasBounds(al, ab, ar, at);
@@ -619,32 +609,32 @@ namespace oak
             quadMin += glm::vec2(x, y);
             quadMax += glm::vec2(x, y);
 
-            float texelWidth = 1.0f / fontAtlas->getWidth();
-            float texelHeight = 1.0f / fontAtlas->getHeight();
+            auto texelWidth = 1.0f / fontAtlas->getWidth();
+            auto texelHeight = 1.0f / fontAtlas->getHeight();
             texCoordMin *= glm::vec2(texelWidth, texelHeight);
             texCoordMax *= glm::vec2(texelWidth, texelHeight);
 
             // render here
             s_Data.textVertexBufferPtr->position = transform * glm::vec4(quadMin, 0.0f, 1.0f);
-            s_Data.textVertexBufferPtr->color = textParams.Color;
+            s_Data.textVertexBufferPtr->color = textParams.color;
             s_Data.textVertexBufferPtr->texCoord = texCoordMin;
             s_Data.textVertexBufferPtr->entityID = entityID;
             s_Data.textVertexBufferPtr++;
 
             s_Data.textVertexBufferPtr->position = transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f);
-            s_Data.textVertexBufferPtr->color = textParams.Color;
+            s_Data.textVertexBufferPtr->color = textParams.color;
             s_Data.textVertexBufferPtr->texCoord = { texCoordMin.x, texCoordMax.y };
             s_Data.textVertexBufferPtr->entityID = entityID;
             s_Data.textVertexBufferPtr++;
 
             s_Data.textVertexBufferPtr->position = transform * glm::vec4(quadMax, 0.0f, 1.0f);
-            s_Data.textVertexBufferPtr->color = textParams.Color;
+            s_Data.textVertexBufferPtr->color = textParams.color;
             s_Data.textVertexBufferPtr->texCoord = texCoordMax;
             s_Data.textVertexBufferPtr->entityID = entityID;
             s_Data.textVertexBufferPtr++;
 
             s_Data.textVertexBufferPtr->position = transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f);
-            s_Data.textVertexBufferPtr->color = textParams.Color;
+            s_Data.textVertexBufferPtr->color = textParams.color;
             s_Data.textVertexBufferPtr->texCoord = { texCoordMax.x, texCoordMin.y };
             s_Data.textVertexBufferPtr->entityID = entityID;
             s_Data.textVertexBufferPtr++;
@@ -652,13 +642,12 @@ namespace oak
             s_Data.textIndexCount += 6;
             s_Data.stats.quadCount++;
 
-            if (i < string.size() - 1)
-            {
-                double advance = glyph->getAdvance();
-                char nextCharacter = string[i + 1];
+            if (i < string.size() - 1) {
+                auto advance = glyph->getAdvance();
+                auto nextCharacter = string[i + 1];
                 fontGeometry.getAdvance(advance, character, nextCharacter);
 
-                x += fsScale * advance + textParams.Kerning;
+                x += fsScale * advance + textParams.kerning;
             }
         }
     }
@@ -687,5 +676,4 @@ namespace oak
     {
         return s_Data.stats;
     }
-
 }

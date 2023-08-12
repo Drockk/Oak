@@ -1,11 +1,10 @@
 #include "oakpch.hpp"
 #include "Oak/Core/LayerStack.hpp"
 
-namespace oak
-{
+namespace oak {
     LayerStack::~LayerStack()
     {
-        for (Layer* layer : m_Layers)
+        for (auto* layer : m_Layers)
         {
             layer->onDetach();
             delete layer;

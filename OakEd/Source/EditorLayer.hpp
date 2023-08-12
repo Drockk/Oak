@@ -1,12 +1,11 @@
 #pragma once
-
 #include <Oak.hpp>
 #include "Panels/SceneHierarchyPanel.hpp"
 #include "Panels/ContentBrowserPanel.hpp"
 
-#include "Oak/Renderer/EditorCamera.hpp"
+#include <Oak/Renderer/EditorCamera.hpp>
 
-class EditorLayer : public oak::Layer
+class EditorLayer final : public oak::Layer
 {
 public:
     EditorLayer();
@@ -15,27 +14,28 @@ public:
     void onAttach() override;
     void onDetach() override;
 
-    void onUpdate(oak::Timestep t_ts) override;
+    void onUpdate(oak::Timestep ts) override;
     void onImGuiRender() override;
-    void onEvent(oak::Event& t_e) override;
+    void onEvent(oak::Event& e) override;
+
 private:
-    bool onKeyPressed(oak::KeyPressedEvent& t_e);
-    bool onMouseButtonPressed(oak::MouseButtonPressedEvent& t_e);
+    bool onKeyPressed(oak::KeyPressedEvent& e);
+    bool onMouseButtonPressed(oak::MouseButtonPressedEvent& e);
 
     void onOverlayRender();
 
     void newProject();
     bool openProject();
-    void openProject(const std::filesystem::path& t_path);
+    void openProject(const std::filesystem::path& path);
     void saveProject();
 
     void newScene();
     void openScene();
-    void openScene(const std::filesystem::path& t_path);
+    void openScene(const std::filesystem::path& path);
     void saveScene();
     void saveSceneAs();
 
-    void serializeScene(oak::Ref<oak::Scene> t_scene, const std::filesystem::path& t_path);
+    void serializeScene(oak::Ref<oak::Scene> scene, const std::filesystem::path& path);
 
     void onScenePlay();
     void onSceneSimulate();
@@ -45,8 +45,8 @@ private:
     void onDuplicateEntity();
 
     // UI Panels
-    void uiToolbar();
-private:
+    void UI_Toolbar();
+
     oak::OrthographicCameraController m_CameraController;
 
     // Temp

@@ -1,13 +1,14 @@
 #pragma once
 
-namespace oak
-{
+#include "Oak/Core/Base.hpp"
+
+namespace oak {
     class UniformBuffer
     {
     public:
-        virtual ~UniformBuffer() = default;
-        virtual void setData(const void* t_data, uint32_t t_size, uint32_t t_offset = 0) = 0;
+        virtual ~UniformBuffer() {}
+        virtual void setData(const void* data, uint32_t size, uint32_t offset = 0) = 0;
 
-        static Ref<UniformBuffer> create(uint32_t t_size, uint32_t t_binding);
+        static Ref<UniformBuffer> create(uint32_t size, uint32_t binding);
     };
 }

@@ -3,8 +3,7 @@
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
     void openGLMessageCallback(
         unsigned source,
         unsigned type,
@@ -37,13 +36,13 @@ namespace openGL
     {
         OAK_PROFILE_FUNCTION();
 
-#ifdef OAK_DEBUG
+    #ifdef OAK_DEBUG
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(openGLMessageCallback, nullptr);
 
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
-#endif
+    #endif
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

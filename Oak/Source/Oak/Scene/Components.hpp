@@ -1,9 +1,9 @@
 #pragma once
 
+#include "SceneCamera.hpp"
 #include "Oak/Core/UUID.hpp"
-#include "Oak/Renderer/Font.hpp"
 #include "Oak/Renderer/Texture.hpp"
-#include "Oak/Scene/SceneCamera.hpp"
+#include "Oak/Renderer/Font.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,14 +11,16 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-namespace oak
-{
+namespace oak {
+    // Forward declaration
+    class ScriptableEntity;
+
     struct IDComponent
     {
         UUID id;
 
         IDComponent() = default;
-        IDComponent(UUID t_id): id{ t_id } {};
+        IDComponent(UUID t_id): id{ t_id } {}
         IDComponent(const IDComponent&) = default;
     };
 
@@ -28,8 +30,7 @@ namespace oak
 
         TagComponent() = default;
         TagComponent(const TagComponent&) = default;
-        TagComponent(const std::string& t_tag)
-            : tag(t_tag) {}
+        TagComponent(const std::string& t_tag): tag(t_tag) {}
     };
 
     struct TransformComponent
@@ -40,16 +41,13 @@ namespace oak
 
         TransformComponent() = default;
         TransformComponent(const TransformComponent&) = default;
-        TransformComponent(const glm::vec3& t_translation)
-            : translation(t_translation) {}
+        TransformComponent(const glm::vec3& t_translation): translation(t_translation) {}
 
         glm::mat4 getTransform() const
         {
-            glm::mat4 rotation = glm::toMat4(glm::quat(rotation));
+            glm::mat4 rotationTemp = glm::toMat4(glm::quat(rotation));
 
-            return glm::translate(glm::mat4(1.0f), translation)
-                * rotation
-                * glm::scale(glm::mat4(1.0f), scale);
+            return glm::translate(glm::mat4(1.0f), translation) * rotationTemp * glm::scale(glm::mat4(1.0f), scale);
         }
     };
 
@@ -61,8 +59,7 @@ namespace oak
 
         SpriteRendererComponent() = default;
         SpriteRendererComponent(const SpriteRendererComponent&) = default;
-        SpriteRendererComponent(const glm::vec4& t_color)
-            : color(t_color) {}
+        SpriteRendererComponent(const glm::vec4& t_color): color(t_color) {}
     };
 
     struct CircleRendererComponent
@@ -93,18 +90,15 @@ namespace oak
         ScriptComponent(const ScriptComponent&) = default;
     };
 
-    // Forward declaration
-    class ScriptableEntity;
-
     struct NativeScriptComponent
     {
         ScriptableEntity* instance = nullptr;
 
-        ScriptableEntity* (*instantiateScript)();
+        ScriptableEntity*(*instantiateScript)();
         void (*destroyScript)(NativeScriptComponent*);
 
         template<typename T>
-        void Bind()
+        void bind()
         {
             instantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
             destroyScript = [](NativeScriptComponent* nsc) { delete nsc->instance; nsc->instance = nullptr; };
@@ -112,7 +106,6 @@ namespace oak
     };
 
     // Physics
-
     struct Rigidbody2DComponent
     {
         enum class BodyType { Static = 0, Dynamic, Kinematic };
@@ -176,9 +169,9 @@ namespace oak
     {
     };
 
-    using AllComponents =
+    using AllComponents = 
         ComponentGroup<TransformComponent, SpriteRendererComponent,
-        CircleRendererComponent, CameraComponent, ScriptComponent,
-        NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
-        CircleCollider2DComponent, TextComponent>;
+            CircleRendererComponent, CameraComponent, ScriptComponent,
+            NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent,
+            CircleCollider2DComponent, TextComponent>;
 }

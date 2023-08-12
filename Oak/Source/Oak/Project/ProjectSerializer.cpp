@@ -1,13 +1,11 @@
 #include "oakpch.hpp"
-#include "Oak/Project/ProjectSerializer.hpp"
+#include "ProjectSerializer.hpp"
 
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 
-namespace oak
-{
-    ProjectSerializer::ProjectSerializer(Ref<Project> project)
-        : m_Project(project)
+namespace oak {
+    ProjectSerializer::ProjectSerializer(Ref<oak::Project> project): m_Project(project)
     {
     }
 
@@ -41,19 +39,18 @@ namespace oak
         auto& config = m_Project->getConfig();
 
         YAML::Node data;
-        try
-        {
+        try {
             data = YAML::LoadFile(filepath.string());
         }
-        catch (YAML::ParserException e)
-        {
+        catch (YAML::ParserException e) {
             OAK_LOG_CORE_ERROR("Failed to load project file '{0}'\n     {1}", filepath, e.what());
             return false;
         }
 
         auto projectNode = data["Project"];
-        if (!projectNode)
+        if (!projectNode) {
             return false;
+        }
 
         config.name = projectNode["Name"].as<std::string>();
         config.startScene = projectNode["StartScene"].as<std::string>();

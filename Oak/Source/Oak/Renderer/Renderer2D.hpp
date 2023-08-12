@@ -10,8 +10,7 @@
 
 #include "Oak/Scene/Components.hpp"
 
-namespace oak
-{
+namespace oak {
     class Renderer2D
     {
     public:
@@ -39,7 +38,7 @@ namespace oak
         static void drawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
         static void drawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness = 1.0f, float fade = 0.005f, int entityID = -1);
-
+        
         static void drawLine(const glm::vec3& p0, glm::vec3& p1, const glm::vec4& color, int entityID = -1);
 
         static void drawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, int entityID = -1);
@@ -49,9 +48,9 @@ namespace oak
 
         struct TextParams
         {
-            glm::vec4 Color{ 1.0f };
-            float Kerning = 0.0f;
-            float LineSpacing = 0.0f;
+            glm::vec4 color{ 1.0f };
+            float kerning = 0.0f;
+            float lineSpacing = 0.0f;
         };
         static void drawString(const std::string& string, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, int entityID = -1);
         static void drawString(const std::string& string, const glm::mat4& transform, const TextComponent& component, int entityID = -1);

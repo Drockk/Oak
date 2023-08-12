@@ -5,8 +5,7 @@
 
 #include <functional>
 
-namespace oak
-{
+namespace oak {
     // Events in Oak are currently blocking, meaning when an event occurs it
     // immediately gets dispatched and must be dealt with right then an there.
     // For the future, a better strategy might be to buffer events in an event
@@ -24,11 +23,11 @@ namespace oak
     enum EventCategory
     {
         None = 0,
-        EventCategoryApplication = BIT(0),
-        EventCategoryInput = BIT(1),
-        EventCategoryKeyboard = BIT(2),
-        EventCategoryMouse = BIT(3),
-        EventCategoryMouseButton = BIT(4)
+        EventCategoryApplication    = BIT(0),
+        EventCategoryInput          = BIT(1),
+        EventCategoryKeyboard       = BIT(2),
+        EventCategoryMouse          = BIT(3),
+        EventCategoryMouseButton    = BIT(4)
     };
 
 #define EVENT_CLASS_TYPE(type) static EventType getStaticType() { return EventType::type; }\
@@ -42,7 +41,7 @@ namespace oak
     public:
         virtual ~Event() = default;
 
-        bool handled = false;
+        bool Handled = false;
 
         virtual EventType getEventType() const = 0;
         virtual const char* getName() const = 0;
@@ -58,8 +57,7 @@ namespace oak
     class EventDispatcher
     {
     public:
-        EventDispatcher(Event& event)
-            : m_Event(event)
+        EventDispatcher(Event& event): m_Event(event)
         {
         }
 
@@ -69,7 +67,7 @@ namespace oak
         {
             if (m_Event.getEventType() == T::getStaticType())
             {
-                m_Event.handled |= func(static_cast<T&>(m_Event));
+                m_Event.Handled |= func(static_cast<T&>(m_Event));
                 return true;
             }
             return false;
@@ -83,3 +81,4 @@ namespace oak
         return os << e.toString();
     }
 }
+

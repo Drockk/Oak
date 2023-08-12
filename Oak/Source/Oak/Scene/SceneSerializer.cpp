@@ -1,8 +1,8 @@
 #include "oakpch.hpp"
-#include "Oak/Scene/SceneSerializer.hpp"
+#include "SceneSerializer.hpp"
 
-#include "Oak/Scene/Entity.hpp"
-#include "Oak/Scene/Components.hpp"
+#include "Entity.hpp"
+#include "Components.hpp"
 #include "Oak/Scripting/ScriptEngine.hpp"
 #include "Oak/Core/UUID.hpp"
 
@@ -27,8 +27,9 @@ namespace YAML {
 
         static bool decode(const Node& node, glm::vec2& rhs)
         {
-            if (!node.IsSequence() || node.size() != 2)
+            if (!node.IsSequence() || node.size() != 2) {
                 return false;
+            }
 
             rhs.x = node[0].as<float>();
             rhs.y = node[1].as<float>();
@@ -51,8 +52,9 @@ namespace YAML {
 
         static bool decode(const Node& node, glm::vec3& rhs)
         {
-            if (!node.IsSequence() || node.size() != 3)
+            if (!node.IsSequence() || node.size() != 3) {
                 return false;
+            }
 
             rhs.x = node[0].as<float>();
             rhs.y = node[1].as<float>();
@@ -77,8 +79,9 @@ namespace YAML {
 
         static bool decode(const Node& node, glm::vec4& rhs)
         {
-            if (!node.IsSequence() || node.size() != 4)
+            if (!node.IsSequence() || node.size() != 4) {
                 return false;
+            }
 
             rhs.x = node[0].as<float>();
             rhs.y = node[1].as<float>();
@@ -104,10 +107,10 @@ namespace YAML {
             return true;
         }
     };
+
 }
 
-namespace oak
-{
+namespace oak {
 #define WRITE_SCRIPT_FIELD(FieldType, Type)           \
             case ScriptFieldType::FieldType:          \
                 out << scriptField.getValue<Type>();  \
@@ -142,13 +145,15 @@ namespace oak
         return out;
     }
 
-    static std::string rigidBody2DBodyTypeToString(Rigidbody2DComponent::BodyType bodyType)
+    static std::string RigidBody2DBodyTypeToString(Rigidbody2DComponent::BodyType bodyType)
     {
-        switch (bodyType)
-        {
-        case Rigidbody2DComponent::BodyType::Static:    return "Static";
-        case Rigidbody2DComponent::BodyType::Dynamic:   return "Dynamic";
-        case Rigidbody2DComponent::BodyType::Kinematic: return "Kinematic";
+        switch (bodyType) {
+            case Rigidbody2DComponent::BodyType::Static:
+                return "Static";
+            case Rigidbody2DComponent::BodyType::Dynamic:
+                return "Dynamic";
+            case Rigidbody2DComponent::BodyType::Kinematic:
+                return "Kinematic";
         }
 
         OAK_CORE_ASSERT(false, "Unknown body type");
@@ -157,16 +162,21 @@ namespace oak
 
     static Rigidbody2DComponent::BodyType RigidBody2DBodyTypeFromString(const std::string& bodyTypeString)
     {
-        if (bodyTypeString == "Static")    return Rigidbody2DComponent::BodyType::Static;
-        if (bodyTypeString == "Dynamic")   return Rigidbody2DComponent::BodyType::Dynamic;
-        if (bodyTypeString == "Kinematic") return Rigidbody2DComponent::BodyType::Kinematic;
+        if (bodyTypeString == "Static") {
+            return Rigidbody2DComponent::BodyType::Static;
+        }
+        if (bodyTypeString == "Dynamic") {
+            return Rigidbody2DComponent::BodyType::Dynamic;
+        }
+        if (bodyTypeString == "Kinematic") {
+            return Rigidbody2DComponent::BodyType::Kinematic;
+        }
 
         OAK_CORE_ASSERT(false, "Unknown body type");
         return Rigidbody2DComponent::BodyType::Static;
     }
 
-    SceneSerializer::SceneSerializer(const Ref<Scene>& scene)
-        : m_Scene(scene)
+    SceneSerializer::SceneSerializer(const Ref<Scene>& scene): m_Scene(scene)
     {
     }
 
@@ -177,8 +187,7 @@ namespace oak
         out << YAML::BeginMap; // Entity
         out << YAML::Key << "Entity" << YAML::Value << entity.getUUID();
 
-        if (entity.hasComponent<TagComponent>())
-        {
+        if (entity.hasComponent<TagComponent>()) {
             out << YAML::Key << "TagComponent";
             out << YAML::BeginMap; // TagComponent
 
@@ -188,8 +197,7 @@ namespace oak
             out << YAML::EndMap; // TagComponent
         }
 
-        if (entity.hasComponent<TransformComponent>())
-        {
+        if (entity.hasComponent<TransformComponent>()) {
             out << YAML::Key << "TransformComponent";
             out << YAML::BeginMap; // TransformComponent
 
@@ -201,8 +209,7 @@ namespace oak
             out << YAML::EndMap; // TransformComponent
         }
 
-        if (entity.hasComponent<CameraComponent>())
-        {
+        if (entity.hasComponent<CameraComponent>()) {
             out << YAML::Key << "CameraComponent";
             out << YAML::BeginMap; // CameraComponent
 
@@ -226,8 +233,7 @@ namespace oak
             out << YAML::EndMap; // CameraComponent
         }
 
-        if (entity.hasComponent<ScriptComponent>())
-        {
+        if (entity.hasComponent<ScriptComponent>()) {
             auto& scriptComponent = entity.getComponent<ScriptComponent>();
 
             out << YAML::Key << "ScriptComponent";
@@ -237,15 +243,14 @@ namespace oak
             // Fields
             Ref<ScriptClass> entityClass = ScriptEngine::getEntityClass(scriptComponent.className);
             const auto& fields = entityClass->getFields();
-            if (fields.size() > 0)
-            {
+            if (fields.size() > 0) {
                 out << YAML::Key << "ScriptFields" << YAML::Value;
                 auto& entityFields = ScriptEngine::getScriptFieldMap(entity);
                 out << YAML::BeginSeq;
-                for (const auto& [name, field] : fields)
-                {
-                    if (entityFields.find(name) == entityFields.end())
+                for (const auto& [name, field] : fields) {
+                    if (entityFields.find(name) == entityFields.end()) {
                         continue;
+                    }
 
                     out << YAML::BeginMap; // ScriptField
                     out << YAML::Key << "Name" << YAML::Value << name;
@@ -254,24 +259,23 @@ namespace oak
                     out << YAML::Key << "Data" << YAML::Value;
                     ScriptFieldInstance& scriptField = entityFields.at(name);
 
-                    switch (field.type)
-                    {
-                        WRITE_SCRIPT_FIELD(Float, float);
-                        WRITE_SCRIPT_FIELD(Double, double);
-                        WRITE_SCRIPT_FIELD(Bool, bool);
-                        WRITE_SCRIPT_FIELD(Char, char);
-                        WRITE_SCRIPT_FIELD(Byte, int8_t);
-                        WRITE_SCRIPT_FIELD(Short, int16_t);
-                        WRITE_SCRIPT_FIELD(Int, int32_t);
-                        WRITE_SCRIPT_FIELD(Long, int64_t);
-                        WRITE_SCRIPT_FIELD(UByte, uint8_t);
-                        WRITE_SCRIPT_FIELD(UShort, uint16_t);
-                        WRITE_SCRIPT_FIELD(UInt, uint32_t);
-                        WRITE_SCRIPT_FIELD(ULong, uint64_t);
-                        WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
-                        WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
-                        WRITE_SCRIPT_FIELD(Vector4, glm::vec4);
-                        WRITE_SCRIPT_FIELD(Entity, UUID);
+                    switch (field.type) {
+                        WRITE_SCRIPT_FIELD(Float,   float     );
+                        WRITE_SCRIPT_FIELD(Double,  double    );
+                        WRITE_SCRIPT_FIELD(Bool,    bool      );
+                        WRITE_SCRIPT_FIELD(Char,    char      );
+                        WRITE_SCRIPT_FIELD(Byte,    int8_t    );
+                        WRITE_SCRIPT_FIELD(Short,   int16_t   );
+                        WRITE_SCRIPT_FIELD(Int,     int32_t   );
+                        WRITE_SCRIPT_FIELD(Long,    int64_t   );
+                        WRITE_SCRIPT_FIELD(UByte,   uint8_t   );
+                        WRITE_SCRIPT_FIELD(UShort,  uint16_t  );
+                        WRITE_SCRIPT_FIELD(UInt,    uint32_t  );
+                        WRITE_SCRIPT_FIELD(ULong,   uint64_t  );
+                        WRITE_SCRIPT_FIELD(Vector2, glm::vec2 );
+                        WRITE_SCRIPT_FIELD(Vector3, glm::vec3 );
+                        WRITE_SCRIPT_FIELD(Vector4, glm::vec4 );
+                        WRITE_SCRIPT_FIELD(Entity, UUID      );
                     }
                     out << YAML::EndMap; // ScriptFields
                 }
@@ -281,23 +285,22 @@ namespace oak
             out << YAML::EndMap; // ScriptComponent
         }
 
-        if (entity.hasComponent<SpriteRendererComponent>())
-        {
+        if (entity.hasComponent<SpriteRendererComponent>()) {
             out << YAML::Key << "SpriteRendererComponent";
             out << YAML::BeginMap; // SpriteRendererComponent
 
             auto& spriteRendererComponent = entity.getComponent<SpriteRendererComponent>();
             out << YAML::Key << "Color" << YAML::Value << spriteRendererComponent.color;
-            if (spriteRendererComponent.texture)
+            if (spriteRendererComponent.texture) {
                 out << YAML::Key << "TexturePath" << YAML::Value << spriteRendererComponent.texture->getPath();
+            }
 
             out << YAML::Key << "TilingFactor" << YAML::Value << spriteRendererComponent.tilingFactor;
 
             out << YAML::EndMap; // SpriteRendererComponent
         }
 
-        if (entity.hasComponent<CircleRendererComponent>())
-        {
+        if (entity.hasComponent<CircleRendererComponent>()) {
             out << YAML::Key << "CircleRendererComponent";
             out << YAML::BeginMap; // CircleRendererComponent
 
@@ -309,20 +312,18 @@ namespace oak
             out << YAML::EndMap; // CircleRendererComponent
         }
 
-        if (entity.hasComponent<Rigidbody2DComponent>())
-        {
+        if (entity.hasComponent<Rigidbody2DComponent>()) {
             out << YAML::Key << "Rigidbody2DComponent";
             out << YAML::BeginMap; // Rigidbody2DComponent
 
             auto& rb2dComponent = entity.getComponent<Rigidbody2DComponent>();
-            out << YAML::Key << "BodyType" << YAML::Value << rigidBody2DBodyTypeToString(rb2dComponent.type);
+            out << YAML::Key << "BodyType" << YAML::Value << RigidBody2DBodyTypeToString(rb2dComponent.type);
             out << YAML::Key << "FixedRotation" << YAML::Value << rb2dComponent.fixedRotation;
 
             out << YAML::EndMap; // Rigidbody2DComponent
         }
 
-        if (entity.hasComponent<BoxCollider2DComponent>())
-        {
+        if (entity.hasComponent<BoxCollider2DComponent>()) {
             out << YAML::Key << "BoxCollider2DComponent";
             out << YAML::BeginMap; // BoxCollider2DComponent
 
@@ -337,8 +338,7 @@ namespace oak
             out << YAML::EndMap; // BoxCollider2DComponent
         }
 
-        if (entity.hasComponent<CircleCollider2DComponent>())
-        {
+        if (entity.hasComponent<CircleCollider2DComponent>()) {
             out << YAML::Key << "CircleCollider2DComponent";
             out << YAML::BeginMap; // CircleCollider2DComponent
 
@@ -353,8 +353,7 @@ namespace oak
             out << YAML::EndMap; // CircleCollider2DComponent
         }
 
-        if (entity.hasComponent<TextComponent>())
-        {
+        if (entity.hasComponent<TextComponent>()) {
             out << YAML::Key << "TextComponent";
             out << YAML::BeginMap; // TextComponent
 
@@ -377,14 +376,14 @@ namespace oak
         out << YAML::BeginMap;
         out << YAML::Key << "Scene" << YAML::Value << "Untitled";
         out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-        m_Scene->m_Registry.each([&](auto entityID)
-            {
+        m_Scene->m_Registry.each([&](auto entityID) {
                 Entity entity = { entityID, m_Scene.get() };
-                if (!entity)
+                if (!entity) {
                     return;
+                }
 
-                SerializeEntity(out, entity);
-            });
+            SerializeEntity(out, entity);
+        });
         out << YAML::EndSeq;
         out << YAML::EndMap;
 
@@ -401,41 +400,38 @@ namespace oak
     bool SceneSerializer::deserialize(const std::string& filepath)
     {
         YAML::Node data;
-        try
-        {
+        try {
             data = YAML::LoadFile(filepath);
         }
-        catch (YAML::ParserException e)
-        {
+        catch (YAML::ParserException e) {
             OAK_LOG_CORE_ERROR("Failed to load .oak file '{0}'\n     {1}", filepath, e.what());
             return false;
         }
 
-        if (!data["Scene"])
+        if (!data["Scene"]) {
             return false;
+        }
 
         std::string sceneName = data["Scene"].as<std::string>();
         OAK_LOG_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
         auto entities = data["Entities"];
-        if (entities)
-        {
-            for (auto entity : entities)
-            {
+        if (entities) {
+            for (auto entity : entities) {
                 uint64_t uuid = entity["Entity"].as<uint64_t>();
 
                 std::string name;
                 auto tagComponent = entity["TagComponent"];
-                if (tagComponent)
+                if (tagComponent) {
                     name = tagComponent["Tag"].as<std::string>();
+                }
 
                 OAK_LOG_CORE_TRACE("Deserialized entity with ID = {0}, name = {1}", uuid, name);
 
-                Entity deserializedEntity = m_Scene->createEntityWithUUID(uuid, name);
+                auto deserializedEntity = m_Scene->createEntityWithUUID(uuid, name);
 
                 auto transformComponent = entity["TransformComponent"];
-                if (transformComponent)
-                {
+                if (transformComponent) {
                     // Entities always have transforms
                     auto& tc = deserializedEntity.getComponent<TransformComponent>();
                     tc.translation = transformComponent["Translation"].as<glm::vec3>();
@@ -444,8 +440,7 @@ namespace oak
                 }
 
                 auto cameraComponent = entity["CameraComponent"];
-                if (cameraComponent)
-                {
+                if (cameraComponent) {
                     auto& cc = deserializedEntity.addComponent<CameraComponent>();
 
                     auto cameraProps = cameraComponent["Camera"];
@@ -464,80 +459,73 @@ namespace oak
                 }
 
                 auto scriptComponent = entity["ScriptComponent"];
-                if (scriptComponent)
-                {
+                if (scriptComponent) {
                     auto& sc = deserializedEntity.addComponent<ScriptComponent>();
                     sc.className = scriptComponent["ClassName"].as<std::string>();
 
                     auto scriptFields = scriptComponent["ScriptFields"];
-                    if (scriptFields)
-                    {
+                    if (scriptFields) {
                         Ref<ScriptClass> entityClass = ScriptEngine::getEntityClass(sc.className);
-                        if (entityClass)
-                        {
+                        if (entityClass) {
                             const auto& fields = entityClass->getFields();
                             auto& entityFields = ScriptEngine::getScriptFieldMap(deserializedEntity);
 
-                            for (auto scriptField : scriptFields)
-                            {
+                            for (auto scriptField : scriptFields) {
                                 std::string name = scriptField["Name"].as<std::string>();
                                 std::string typeString = scriptField["Type"].as<std::string>();
                                 ScriptFieldType type = utils::scriptFieldTypeFromString(typeString);
 
                                 ScriptFieldInstance& fieldInstance = entityFields[name];
 
-                                // TODO: turn this assert into Hazelnut log warning
+                                // TODO: turn this assert into OakEd log warning
                                 OAK_CORE_ASSERT(fields.find(name) != fields.end());
 
-                                if (fields.find(name) == fields.end())
+                                if (fields.find(name) == fields.end()) {
                                     continue;
+                                }
 
                                 fieldInstance.field = fields.at(name);
 
-                                switch (type)
-                                {
-                                    READ_SCRIPT_FIELD(Float, float);
-                                    READ_SCRIPT_FIELD(Double, double);
-                                    READ_SCRIPT_FIELD(Bool, bool);
-                                    READ_SCRIPT_FIELD(Char, char);
-                                    READ_SCRIPT_FIELD(Byte, int8_t);
-                                    READ_SCRIPT_FIELD(Short, int16_t);
-                                    READ_SCRIPT_FIELD(Int, int32_t);
-                                    READ_SCRIPT_FIELD(Long, int64_t);
-                                    READ_SCRIPT_FIELD(UByte, uint8_t);
-                                    READ_SCRIPT_FIELD(UShort, uint16_t);
-                                    READ_SCRIPT_FIELD(UInt, uint32_t);
-                                    READ_SCRIPT_FIELD(ULong, uint64_t);
-                                    READ_SCRIPT_FIELD(Vector2, glm::vec2);
-                                    READ_SCRIPT_FIELD(Vector3, glm::vec3);
-                                    READ_SCRIPT_FIELD(Vector4, glm::vec4);
-                                    READ_SCRIPT_FIELD(Entity, UUID);
+                                switch (type) {
+                                    READ_SCRIPT_FIELD(Float,    float);
+                                    READ_SCRIPT_FIELD(Double,   double);
+                                    READ_SCRIPT_FIELD(Bool,     bool);
+                                    READ_SCRIPT_FIELD(Char,     char);
+                                    READ_SCRIPT_FIELD(Byte,     int8_t);
+                                    READ_SCRIPT_FIELD(Short,    int16_t);
+                                    READ_SCRIPT_FIELD(Int,      int32_t);
+                                    READ_SCRIPT_FIELD(Long,     int64_t);
+                                    READ_SCRIPT_FIELD(UByte,    uint8_t);
+                                    READ_SCRIPT_FIELD(UShort,   uint16_t);
+                                    READ_SCRIPT_FIELD(UInt,     uint32_t);
+                                    READ_SCRIPT_FIELD(ULong,    uint64_t);
+                                    READ_SCRIPT_FIELD(Vector2,  glm::vec2);
+                                    READ_SCRIPT_FIELD(Vector3,  glm::vec3);
+                                    READ_SCRIPT_FIELD(Vector4,  glm::vec4);
+                                    READ_SCRIPT_FIELD(Entity,   UUID);
                                 }
                             }
                         }
                     }
-
                 }
 
                 auto spriteRendererComponent = entity["SpriteRendererComponent"];
-                if (spriteRendererComponent)
-                {
+                if (spriteRendererComponent) {
                     auto& src = deserializedEntity.addComponent<SpriteRendererComponent>();
                     src.color = spriteRendererComponent["Color"].as<glm::vec4>();
-                    if (spriteRendererComponent["TexturePath"])
-                    {
+                    if (spriteRendererComponent["TexturePath"]) {
                         std::string texturePath = spriteRendererComponent["TexturePath"].as<std::string>();
                         auto path = Project::getAssetFileSystemPath(texturePath);
                         src.texture = Texture2D::create(path.string());
                     }
 
-                    if (spriteRendererComponent["TilingFactor"])
+                    if (spriteRendererComponent["TilingFactor"]) {
                         src.tilingFactor = spriteRendererComponent["TilingFactor"].as<float>();
+                    }
                 }
 
                 auto circleRendererComponent = entity["CircleRendererComponent"];
-                if (circleRendererComponent)
-                {
+                if (circleRendererComponent) {
                     auto& crc = deserializedEntity.addComponent<CircleRendererComponent>();
                     crc.color = circleRendererComponent["Color"].as<glm::vec4>();
                     crc.thickness = circleRendererComponent["Thickness"].as<float>();
@@ -545,16 +533,14 @@ namespace oak
                 }
 
                 auto rigidbody2DComponent = entity["Rigidbody2DComponent"];
-                if (rigidbody2DComponent)
-                {
+                if (rigidbody2DComponent) {
                     auto& rb2d = deserializedEntity.addComponent<Rigidbody2DComponent>();
                     rb2d.type = RigidBody2DBodyTypeFromString(rigidbody2DComponent["BodyType"].as<std::string>());
                     rb2d.fixedRotation = rigidbody2DComponent["FixedRotation"].as<bool>();
                 }
 
                 auto boxCollider2DComponent = entity["BoxCollider2DComponent"];
-                if (boxCollider2DComponent)
-                {
+                if (boxCollider2DComponent) {
                     auto& bc2d = deserializedEntity.addComponent<BoxCollider2DComponent>();
                     bc2d.offset = boxCollider2DComponent["Offset"].as<glm::vec2>();
                     bc2d.size = boxCollider2DComponent["Size"].as<glm::vec2>();
@@ -565,8 +551,7 @@ namespace oak
                 }
 
                 auto circleCollider2DComponent = entity["CircleCollider2DComponent"];
-                if (circleCollider2DComponent)
-                {
+                if (circleCollider2DComponent) {
                     auto& cc2d = deserializedEntity.addComponent<CircleCollider2DComponent>();
                     cc2d.offset = circleCollider2DComponent["Offset"].as<glm::vec2>();
                     cc2d.radius = circleCollider2DComponent["Radius"].as<float>();
@@ -577,8 +562,7 @@ namespace oak
                 }
 
                 auto textComponent = entity["TextComponent"];
-                if (textComponent)
-                {
+                if (textComponent) {
                     auto& tc = deserializedEntity.addComponent<TextComponent>();
                     tc.textString = textComponent["TextString"].as<std::string>();
                     // tc.FontAsset // TODO

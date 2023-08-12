@@ -4,8 +4,7 @@
 
 #include <string>
 
-namespace oak
-{
+namespace oak {
     enum class ImageFormat
     {
         None = 0,
@@ -51,5 +50,4 @@ namespace oak
         static Ref<Texture2D> create(const TextureSpecification& specification);
         static Ref<Texture2D> create(const std::string& path);
     };
-
 }

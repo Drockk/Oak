@@ -2,13 +2,13 @@
 
 #include <string>
 
-namespace oak
-{
+namespace oak {
     class FileDialogs
     {
     public:
-        static std::string openFile(const char* t_filter);
-        static std::string saveFile(const char* t_filter);
+        // These return empty strings if cancelled
+        static std::string openFile(const char* filter);
+        static std::string saveFile(const char* filter);
     };
 
     class Time

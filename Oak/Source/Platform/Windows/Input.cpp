@@ -1,42 +1,38 @@
 #include "oakpch.hpp"
-#include "Oak/Core/Application.hpp"
 #include "Oak/Core/Input.hpp"
 
+#include "Oak/Core/Application.hpp"
 #include <GLFW/glfw3.h>
 
-namespace oak
+bool oak::Input::isKeyPressed(const oak::KeyCode key)
 {
-    bool Input::isKeyPressed(const KeyCode t_key)
-    {
-        auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
-        auto state = glfwGetKey(window, static_cast<int32_t>(t_key));
+    auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
+    auto state = glfwGetKey(window, static_cast<int32_t>(key));
+    return state == GLFW_PRESS;
+}
 
-        return state == GLFW_PRESS;
-    }
+bool oak::Input::isMouseButtonPressed(const oak::MouseCode button)
+{
+    auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
+    auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
+    return state == GLFW_PRESS;
+}
 
-    bool Input::isMouseButtonPressed(const MouseCode t_button)
-    {
-        auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
-        auto state = glfwGetMouseButton(window, static_cast<int32_t>(t_button));
-        return state == GLFW_PRESS;
-    }
+glm::vec2 oak::Input::getMousePosition()
+{
+    auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
 
-    glm::vec2 Input::getMousePosition()
-    {
-        auto* window = static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+    return { static_cast<float>(xpos), static_cast<float>(ypos) };
+}
 
-        return { static_cast<float>(xpos), static_cast<float>(ypos) };
-    }
+float oak::Input::getMouseX()
+{
+    return getMousePosition().x;
+}
 
-    float Input::getMouseX()
-    {
-        return getMousePosition().x;
-    }
-
-    float Input::getMouseY()
-    {
-        return getMousePosition().y;
-    }
+float oak::Input::getMouseY()
+{
+    return getMousePosition().y;
 }

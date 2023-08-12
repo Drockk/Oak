@@ -17,13 +17,13 @@ namespace oak {
     public:
         static void init();
 
-        static Ref<spdlog::logger>& getCoreLogger() { return s_CoreLogger; }
-        static Ref<spdlog::logger>& getClientLogger() { return s_ClientLogger; }
-    private:
-        static Ref<spdlog::logger> s_CoreLogger;
-        static Ref<spdlog::logger> s_ClientLogger;
-    };
+        static oak::Ref<spdlog::logger>& getCoreLogger() { return s_CoreLogger; }
+        static oak::Ref<spdlog::logger>& getClientLogger() { return s_ClientLogger; }
 
+    private:
+        static oak::Ref<spdlog::logger> s_CoreLogger;
+        static oak::Ref<spdlog::logger> s_ClientLogger;
+    };
 }
 
 template<typename OStream, glm::length_t L, typename T, glm::qualifier Q>

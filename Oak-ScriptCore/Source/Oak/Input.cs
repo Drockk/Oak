@@ -4,7 +4,7 @@ namespace Oak
     {
         public static bool IsKeyDown(KeyCode keycode)
         {
-            return InternalCalls.input_IsKeyDown(keycode);
+            return InternalCalls.Input_IsKeyDown(keycode);
         }
     }
 }

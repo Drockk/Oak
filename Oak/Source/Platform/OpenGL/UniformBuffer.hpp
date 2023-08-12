@@ -2,8 +2,7 @@
 
 #include "Oak/Renderer/UniformBuffer.hpp"
 
-namespace openGL
-{
+namespace opengl {
     class UniformBuffer : public oak::UniformBuffer
     {
     public:
@@ -11,7 +10,6 @@ namespace openGL
         ~UniformBuffer() override;
 
         void setData(const void* data, uint32_t size, uint32_t offset = 0) override;
-
     private:
         uint32_t m_RendererID = 0;
     };

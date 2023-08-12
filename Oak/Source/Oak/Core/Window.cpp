@@ -5,12 +5,11 @@
     #include "Platform/Windows/Window.hpp"
 #endif
 
-namespace oak
-{
-    Scope<Window> Window::create(const WindowProps& t_props)
+namespace oak {
+    Scope<Window> Window::create(const WindowProps& props)
     {
     #ifdef OAK_PLATFORM_WINDOWS
-        return createScope<windows::Window>(t_props);
+        return createScope<windows::Window>(props);
     #else
         OAK_CORE_ASSERT(false, "Unknown platform!");
         return nullptr;

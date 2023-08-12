@@ -1,13 +1,13 @@
 #pragma once
+
 #include "Oak/Core/PlatformDetection.hpp"
 
 #ifdef OAK_PLATFORM_WINDOWS
-#ifndef NOMINMAX
-// See github.com/skypjack/entt/wiki/Frequently-Asked-Questions#warning-c4003-the-min-the-max-and-the-macro
-#define NOMINMAX
-#endif // !NOMINMAX
-
-#endif // OAK_PLATFORM_WINDOWS
+    #ifndef NOMINMAX
+        // See github.com/skypjack/entt/wiki/Frequently-Asked-Questions#warning-c4003-the-min-the-max-and-the-macro
+        #define NOMINMAX
+    #endif
+#endif
 
 #include <iostream>
 #include <memory>
@@ -29,5 +29,5 @@
 #include "Oak/Debug/Instrumentor.hpp"
 
 #ifdef OAK_PLATFORM_WINDOWS
-#include <Windows.h>
-#endif // OAK_PLATFORM_WINDOWS
+    #include <Windows.h>
+#endif

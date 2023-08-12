@@ -6,9 +6,8 @@
 // TODO: REMOVE!
 typedef unsigned int GLenum;
 
-namespace openGL
-{
-    class Shader : public oak::Shader
+namespace opengl {
+    class Shader final : public oak::Shader
     {
     public:
         Shader(const std::string& filepath);
@@ -26,10 +25,7 @@ namespace openGL
         void setFloat4(const std::string& name, const glm::vec4& value) override;
         void setMat4(const std::string& name, const glm::mat4& value) override;
 
-        const std::string& getName() const override
-        {
-            return m_Name;
-        }
+        const std::string& getName() const override { return m_Name; }
 
         void uploadUniformInt(const std::string& name, int value);
         void uploadUniformIntArray(const std::string& name, int* values, uint32_t count);

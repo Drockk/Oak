@@ -1,11 +1,10 @@
 #include "oakpch.hpp"
-#include "Math.hpp"
+#include "Math.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
-namespace oak::math
-{
+namespace oak::math {
     bool decomposeTransform(const glm::mat4& transform, glm::vec3& translation, glm::vec3& rotation, glm::vec3& scale)
     {
         // From glm::decompose in matrix_decompose.inl
@@ -16,8 +15,7 @@ namespace oak::math
         mat4 LocalMatrix(transform);
 
         // Normalize the matrix.
-        if (epsilonEqual(LocalMatrix[3][3], static_cast<float>(0), epsilon<T>()))
-        {
+        if (epsilonEqual(LocalMatrix[3][3], static_cast<float>(0), epsilon<T>())) {
             return false;
         }
 
@@ -25,8 +23,7 @@ namespace oak::math
         if (
             epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) ||
             epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) ||
-            epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
-        {
+            epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>())) {
             // Clear the perspective partition
             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
             LocalMatrix[3][3] = static_cast<T>(1);
@@ -39,10 +36,8 @@ namespace oak::math
         vec3 Row[3], Pdum3;
 
         // Now get scale and shear.
-        for (length_t i = 0; i < 3; ++i)
-        {
-            for (length_t j = 0; j < 3; ++j)
-            {
+        for (length_t i = 0; i < 3; ++i) {
+            for (length_t j = 0; j < 3; ++j) {
                 Row[i][j] = LocalMatrix[i][j];
             }
         }

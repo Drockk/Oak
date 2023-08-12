@@ -13,18 +13,18 @@
 
 namespace windows
 {
-    static uint8_t s_GLFWWindowCount{ 0 };
+    static uint8_t s_GLFWWindowCount = 0;
 
-    static void GLFWErrorCallback(int t_error, const char* t_description)
+    static void glfwErrorCallback(int error, const char* description)
     {
-        OAK_LOG_CORE_ERROR("GLFW Error ({0}): {1}", t_error, t_description);
+        OAK_LOG_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
     }
 
-    Window::Window(const oak::WindowProps& t_props)
+    Window::Window(const oak::WindowProps& props)
     {
         OAK_PROFILE_FUNCTION();
 
-        init(t_props);
+        init(props);
     }
 
     Window::~Window()
@@ -34,33 +34,31 @@ namespace windows
         shutdown();
     }
 
-    void Window::init(const oak::WindowProps& t_props)
+    void Window::init(const oak::WindowProps& props)
     {
         OAK_PROFILE_FUNCTION();
 
-        m_Data.title = t_props.title;
-        m_Data.resolution = t_props.resolution;
+        m_Data.title = props.title;
+        m_Data.width = props.width;
+        m_Data.height = props.height;
 
-        auto [width, height] = t_props.resolution;
-        OAK_LOG_CORE_INFO("Creating window {0} ({1}, {2})", t_props.title, width, height);
+        OAK_LOG_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 
-        if (s_GLFWWindowCount == 0)
-        {
+        if (s_GLFWWindowCount == 0) {
             OAK_PROFILE_SCOPE("glfwInit");
             auto success = glfwInit();
             OAK_CORE_ASSERT(success, "Could not initialize GLFW!");
-            glfwSetErrorCallback(GLFWErrorCallback);
+            glfwSetErrorCallback(glfwErrorCallback);
         }
 
         {
             OAK_PROFILE_SCOPE("glfwCreateWindow");
-#if defined(OAK_DEBUG)
-            if (oak::Renderer::getAPI() == oak::RendererAPI::API::OpenGL)
-            {
+        #if defined(OAK_DEBUG)
+            if (oak::Renderer::getAPI() == oak::RendererAPI::API::OpenGL) {
                 glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
             }
-#endif
-            m_Window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), m_Data.title.c_str(), nullptr, nullptr);
+        #endif
+            m_Window = glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height), m_Data.title.c_str(), nullptr, nullptr);
             ++s_GLFWWindowCount;
         }
 
@@ -71,93 +69,86 @@ namespace windows
         setVSync(true);
 
         // Set GLFW callbacks
-        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* t_window, int t_width, int t_height)
-            {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-                data.resolution = { t_width, t_height };
+        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+            auto& data = * reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            data.width = width;
+            data.height = height;
 
-                oak::WindowResizeEvent event({ t_width, t_height });
+            oak::WindowResizeEvent event(width, height);
+            data.eventCallback(event);
+        });
+
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+            oak::WindowCloseEvent event;
+            data.eventCallback(event);
+        });
+
+        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+            switch (action) {
+            case GLFW_PRESS:
+            {
+                oak::KeyPressedEvent event(key, 0);
                 data.eventCallback(event);
-            });
-
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* t_window)
+                break;
+            }
+            case GLFW_RELEASE:
             {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-                oak::WindowCloseEvent event;
+                oak::KeyReleasedEvent event(key);
                 data.eventCallback(event);
-            });
-
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* t_window, int t_key, int, int t_action, int)
+                break;
+            }
+            case GLFW_REPEAT:
             {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-
-                switch (t_action)
-                {
-                case GLFW_PRESS:
-                {
-                    oak::KeyPressedEvent event(t_key, 0);
-                    data.eventCallback(event);
-                    break;
-                }
-                case GLFW_RELEASE:
-                {
-                    oak::KeyReleasedEvent event(t_key);
-                    data.eventCallback(event);
-                    break;
-                }
-                case GLFW_REPEAT:
-                {
-                    oak::KeyPressedEvent event(t_key, true);
-                    data.eventCallback(event);
-                    break;
-                }
-                }
-            });
-
-        glfwSetCharCallback(m_Window, [](GLFWwindow* t_window, unsigned int t_keycode)
-            {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-
-                oak::KeyTypedEvent event(t_keycode);
+                oak::KeyPressedEvent event(key, true);
                 data.eventCallback(event);
-            });
+                break;
+            }
+            }
+        });
 
-        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* t_window, int t_button, int t_action, int)
+        glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+            oak::KeyTypedEvent event(keycode);
+            data.eventCallback(event);
+        });
+
+        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+            switch (action)
             {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-
-                switch (t_action)
-                {
-                case GLFW_PRESS:
-                {
-                    oak::MouseButtonPressedEvent event(t_button);
-                    data.eventCallback(event);
-                    break;
-                }
-                case GLFW_RELEASE:
-                {
-                    oak::MouseButtonReleasedEvent event(t_button);
-                    data.eventCallback(event);
-                    break;
-                }
-                }
-            });
-
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* t_window, double t_xOffset, double t_yOffset)
+            case GLFW_PRESS:
             {
-                auto& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(t_window));
-
-                oak::MouseScrolledEvent event({ static_cast<float>(t_xOffset), static_cast<float>(t_yOffset) });
+                oak::MouseButtonPressedEvent event(button);
                 data.eventCallback(event);
-            });
-
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* t_window, double t_xPos, double t_yPos)
+                    break;
+            }
+            case GLFW_RELEASE:
             {
-                WindowData& data = *(WindowData*)glfwGetWindowUserPointer(t_window);
-
-                oak::MouseMovedEvent event({ static_cast<float>(t_xPos), static_cast<float>(t_yPos) });
+                oak::MouseButtonReleasedEvent event(button);
                 data.eventCallback(event);
-            });
+                break;
+            }
+            }
+        });
+
+        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+            oak::MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
+            data.eventCallback(event);
+        });
+
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
+            auto& data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
+
+            oak::MouseMovedEvent event(static_cast<float>(xPos), static_cast<float>(yPos));
+            data.eventCallback(event);
+        });
     }
 
     void Window::shutdown()
@@ -167,8 +158,7 @@ namespace windows
         glfwDestroyWindow(m_Window);
         --s_GLFWWindowCount;
 
-        if (s_GLFWWindowCount == 0)
-        {
+        if (s_GLFWWindowCount == 0) {
             glfwTerminate();
         }
     }
@@ -185,12 +175,10 @@ namespace windows
     {
         OAK_PROFILE_FUNCTION();
 
-        if (enabled)
-        {
+        if (enabled) {
             glfwSwapInterval(1);
         }
-        else
-        {
+        else {
             glfwSwapInterval(0);
         }
 

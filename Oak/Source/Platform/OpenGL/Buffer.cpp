@@ -3,8 +3,8 @@
 
 #include <glad/gl.h>
 
-namespace openGL
-{
+namespace opengl {
+
     /////////////////////////////////////////////////////////////////////////////
     // VertexBuffer /////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
@@ -50,8 +50,6 @@ namespace openGL
 
     void VertexBuffer::setData(const void* data, uint32_t size)
     {
-        OAK_PROFILE_FUNCTION();
-
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
     }
@@ -67,7 +65,7 @@ namespace openGL
         glCreateBuffers(1, &m_RendererID);
 
         // GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
-        // Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state. 
+        // Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
         glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
     }
