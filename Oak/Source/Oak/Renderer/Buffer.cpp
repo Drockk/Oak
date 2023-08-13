@@ -25,7 +25,7 @@ namespace oak {
             case RendererAPI::API::None:
                 OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
             case RendererAPI::API::OpenGL:
-                return createRef<opengl::VertexBuffer>(vertices, size);
+                return createRef<opengl::VertexBuffer>(std::span<float>(vertices, size));
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -38,7 +38,7 @@ namespace oak {
             case RendererAPI::API::None:
                 OAK_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
             case RendererAPI::API::OpenGL:
-                return createRef<opengl::IndexBuffer>(indices, size);
+                return createRef<opengl::IndexBuffer>(std::span<uint32_t>(indices, size));
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");

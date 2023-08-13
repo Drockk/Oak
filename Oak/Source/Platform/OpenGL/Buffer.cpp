@@ -9,22 +9,22 @@ namespace opengl {
     // VertexBuffer /////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
 
-    VertexBuffer::VertexBuffer(uint32_t size)
+    VertexBuffer::VertexBuffer(uint32_t t_size)
     {
         OAK_PROFILE_FUNCTION();
 
         glCreateBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, t_size, nullptr, GL_DYNAMIC_DRAW);
     }
 
-    VertexBuffer::VertexBuffer(float* vertices, uint32_t size)
+    VertexBuffer::VertexBuffer(std::span<float> t_indicies)
     {
         OAK_PROFILE_FUNCTION();
 
         glCreateBuffers(1, &m_RendererID);
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, t_indicies.size(), t_indicies.data(), GL_STATIC_DRAW);
     }
 
     VertexBuffer::~VertexBuffer()
@@ -34,31 +34,31 @@ namespace opengl {
         glDeleteBuffers(1, &m_RendererID);
     }
 
-    void VertexBuffer::bind() const
+    constexpr auto VertexBuffer::bind() -> void const
     {
         OAK_PROFILE_FUNCTION();
 
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
     }
 
-    void VertexBuffer::unbind() const
+    constexpr auto VertexBuffer::unbind() -> void const
     {
         OAK_PROFILE_FUNCTION();
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void VertexBuffer::setData(const void* data, uint32_t size)
+    constexpr auto VertexBuffer::setData(std::span<std::byte> t_indicies) -> void
     {
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, t_indicies.size(), t_indicies.data());
     }
 
     /////////////////////////////////////////////////////////////////////////////
     // IndexBuffer //////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
 
-    IndexBuffer::IndexBuffer(uint32_t* indices, uint32_t count): m_Count(count)
+    IndexBuffer::IndexBuffer(std::span<uint32_t> t_indicies) : m_Count(t_indicies.size())
     {
         OAK_PROFILE_FUNCTION();
 
@@ -67,7 +67,7 @@ namespace opengl {
         // GL_ELEMENT_ARRAY_BUFFER is not valid without an actively bound VAO
         // Binding with GL_ARRAY_BUFFER allows the data to be loaded regardless of VAO state.
         glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-        glBufferData(GL_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, t_indicies.size_bytes(), t_indicies.data(), GL_STATIC_DRAW);
     }
 
     IndexBuffer::~IndexBuffer()
@@ -77,14 +77,14 @@ namespace opengl {
         glDeleteBuffers(1, &m_RendererID);
     }
 
-    void IndexBuffer::bind() const
+    constexpr auto IndexBuffer::bind() -> void const
     {
         OAK_PROFILE_FUNCTION();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
     }
 
-    void IndexBuffer::unbind() const
+    constexpr auto IndexBuffer::unbind() -> void const
     {
         OAK_PROFILE_FUNCTION();
 
