@@ -10,9 +10,10 @@ namespace opengl {
     public:
         Context(GLFWwindow* windowHandle);
 
-        void init() override;
-        void swapBuffers() override;
+        auto init() -> void override;
+        auto swapBuffers() -> void override;
+
     private:
-        GLFWwindow* m_WindowHandle;
+        GLFWwindow* m_WindowHandle{ nullptr };
     };
 }
