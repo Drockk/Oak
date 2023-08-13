@@ -73,7 +73,7 @@ void EditorLayer::onUpdate(oak::Timestep ts)
 
     // Resize
     if (oak::FramebufferSpecification spec = m_Framebuffer->getSpecification(); m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y)) {
-        m_Framebuffer->resize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
+        m_Framebuffer->resize({ static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y) });
         m_CameraController.onResize(m_ViewportSize.x, m_ViewportSize.y);
         m_EditorCamera.setViewportSize(m_ViewportSize.x, m_ViewportSize.y);
     }
@@ -122,7 +122,7 @@ void EditorLayer::onUpdate(oak::Timestep ts)
     auto mouseY = static_cast<int>(my);
 
     if (mouseX >= 0 && mouseY >= 0 && mouseX < static_cast<int>(viewportSize.x) && mouseY < static_cast<int>(viewportSize.y)) {
-        auto pixelData = m_Framebuffer->readPixel(1, mouseX, mouseY);
+        auto pixelData = m_Framebuffer->readPixel(1, { mouseX, mouseY });
         m_HoveredEntity = pixelData == -1 ? oak::Entity() : oak::Entity((entt::entity)pixelData, m_ActiveScene.get());
     }
 
