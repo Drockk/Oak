@@ -51,14 +51,16 @@ namespace opengl {
         glEnable(GL_LINE_SMOOTH);
     }
 
-    void RendererAPI::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+    void RendererAPI::setViewport(std::pair<uint32_t, uint32_t> t_position, std::pair<uint32_t, uint32_t> t_resolution)
     {
+        auto [x, y] = t_position;
+        auto [width, height] = t_resolution;
         glViewport(x, y, width, height);
     }
 
-    void RendererAPI::setClearColor(const glm::vec4& color)
+    void RendererAPI::setClearColor(const glm::vec4& t_color)
     {
-        glClearColor(color.r, color.g, color.b, color.a);
+        glClearColor(t_color.r, t_color.g, t_color.b, t_color.a);
     }
 
     void RendererAPI::clear()
@@ -66,21 +68,21 @@ namespace opengl {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void RendererAPI::drawIndexed(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t indexCount)
+    void RendererAPI::drawIndexed(const oak::Ref<oak::VertexArray>& t_vertexArray, uint32_t t_indexCount)
     {
-        vertexArray->bind();
-        uint32_t count = indexCount ? indexCount : vertexArray->getIndexBuffer()->getCount();
+        t_vertexArray->bind();
+        auto count = t_indexCount ? t_indexCount : t_vertexArray->getIndexBuffer()->getCount();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
-    void RendererAPI::drawLines(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t vertexCount)
+    void RendererAPI::drawLines(const oak::Ref<oak::VertexArray>& t_vertexArray, uint32_t t_vertexCount)
     {
-        vertexArray->bind();
-        glDrawArrays(GL_LINES, 0, vertexCount);
+        t_vertexArray->bind();
+        glDrawArrays(GL_LINES, 0, t_vertexCount);
     }
 
-    void RendererAPI::setLineWidth(float width)
+    void RendererAPI::setLineWidth(float t_width)
     {
-        glLineWidth(width);
+        glLineWidth(t_width);
     }
 }

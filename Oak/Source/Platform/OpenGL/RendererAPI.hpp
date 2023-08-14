@@ -7,13 +7,13 @@ namespace opengl {
     {
     public:
         void init() override;
-        void setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;
+        void setViewport(std::pair<uint32_t, uint32_t> t_position, std::pair<uint32_t, uint32_t> t_resolution) override;
 
-        void setClearColor(const glm::vec4& color) override;
+        void setClearColor(const glm::vec4& t_color) override;
         void clear() override;
 
-        void drawIndexed(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t indexCount = 0) override;
-        void drawLines(const oak::Ref<oak::VertexArray>& vertexArray, uint32_t vertexCount) override;
+        void drawIndexed(const oak::Ref<oak::VertexArray>& t_vertexArray, uint32_t t_indexCount = 0) override;
+        void drawLines(const oak::Ref<oak::VertexArray>& t_vertexArray, uint32_t t_vertexCount) override;
 
         void setLineWidth(float width) override;
     };
