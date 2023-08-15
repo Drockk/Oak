@@ -41,8 +41,8 @@ namespace oak {
 
     void ShaderLibrary::add(const Ref<Shader>& shader)
     {
-        auto& name = shader->getName();
-        add(name, shader);
+        auto name = shader->getName();
+        add(std::string(name), shader);
     }
 
     Ref<Shader> ShaderLibrary::load(const std::string& filepath)
