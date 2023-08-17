@@ -25,7 +25,10 @@ namespace opengl {
         void setFloat4(const std::string& name, const glm::vec4& value) override;
         void setMat4(const std::string& name, const glm::mat4& value) override;
 
-        const std::string& getName() const override { return m_Name; }
+        std::string_view getName() const override
+        {
+            return m_Name;
+        }
 
         void uploadUniformInt(const std::string& name, int value);
         void uploadUniformIntArray(const std::string& name, int* values, uint32_t count);
@@ -47,9 +50,9 @@ namespace opengl {
         void createProgram();
         void reflect(GLenum stage, const std::vector<uint32_t>& shaderData);
 
-        uint32_t m_RendererID;
-        std::string m_FilePath;
-        std::string m_Name;
+        uint32_t m_RendererID{};
+        std::string m_FilePath{};
+        std::string m_Name{};
 
         std::unordered_map<GLenum, std::vector<uint32_t>> m_VulkanSPIRV;
         std::unordered_map<GLenum, std::vector<uint32_t>> m_OpenGLSPIRV;

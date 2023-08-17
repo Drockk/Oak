@@ -12,13 +12,30 @@ namespace opengl {
         Texture2D(const std::string& path);
         ~Texture2D() override;
 
-        const oak::TextureSpecification& getSpecification() const override { return m_Specification; }
+        const oak::TextureSpecification& getSpecification() const override
+        {
+            return m_Specification;
+        }
 
-        uint32_t getWidth() const override { return m_Width;  }
-        uint32_t getHeight() const override { return m_Height; }
-        uint32_t getRendererID() const override { return m_RendererID; }
+        uint32_t getWidth() const override
+        {
+            return m_Resolution.first;
+        }
 
-        const std::string& getPath() const override { return m_Path; }
+        uint32_t getHeight() const override
+        {
+            return m_Resolution.second;
+        }
+
+        uint32_t getRendererID() const override
+        {
+            return m_RendererID;
+        }
+
+        const std::string& getPath() const override
+        {
+            return m_Path;
+        }
         
         void setData(void* data, uint32_t size) override;
 
@@ -34,10 +51,10 @@ namespace opengl {
     private:
         oak::TextureSpecification m_Specification;
 
-        std::string m_Path;
-        bool m_IsLoaded = false;
-        uint32_t m_Width, m_Height;
-        uint32_t m_RendererID;
+        std::string m_Path{};
+        bool m_IsLoaded{ false };
+        std::pair<uint32_t, uint32_t> m_Resolution{};
+        uint32_t m_RendererID{};
         GLenum m_InternalFormat, m_DataFormat;
     };
 }

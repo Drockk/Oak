@@ -19,8 +19,8 @@ namespace opengl {
         const oak::Ref<oak::IndexBuffer>& getIndexBuffer() const { return m_IndexBuffer; }
 
     private:
-        uint32_t m_RendererID;
-        uint32_t m_VertexBufferIndex = 0;
+        uint32_t m_RendererID{};
+        uint32_t m_VertexBufferIndex{ 0 };
         std::vector<oak::Ref<oak::VertexBuffer>> m_VertexBuffers;
         oak::Ref<oak::IndexBuffer> m_IndexBuffer;
     };

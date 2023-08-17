@@ -52,8 +52,8 @@ namespace oak {
         virtual void bind() = 0;
         virtual void unbind() = 0;
 
-        virtual void resize(uint32_t width, uint32_t height) = 0;
-        virtual int readPixel(uint32_t attachmentIndex, int x, int y) = 0;
+        virtual void resize(std::pair<uint32_t, uint32_t> t_pair) = 0;
+        virtual int readPixel(uint32_t t_attachmentIndex, std::pair<int, int> t_pos) = 0;
 
         virtual void clearAttachment(uint32_t attachmentIndex, int value) = 0;
 

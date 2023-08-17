@@ -6,31 +6,41 @@ namespace opengl {
     class Framebuffer final : public oak::Framebuffer
     {
     public:
-        Framebuffer(const oak::FramebufferSpecification& spec);
+        Framebuffer(const oak::FramebufferSpecification& t_spec);
         ~Framebuffer() override;
 
-        void invalidate();
+        constexpr auto invalidate() -> void;
 
-        void bind() override;
-        void unbind() override;
+        constexpr auto bind() -> void override;
+        constexpr auto unbind() -> void override;
 
-        void resize(uint32_t width, uint32_t height) override;
-        int readPixel(uint32_t attachmentIndex, int x, int y) override;
+        constexpr auto resize(std::pair<uint32_t, uint32_t> t_pair) -> void override;
+        constexpr auto readPixel(uint32_t t_attachmentIndex, std::pair<int, int> t_pos) -> int override;
 
-        void clearAttachment(uint32_t attachmentIndex, int value) override;
+        constexpr auto clearAttachment(uint32_t t_attachmentIndex, int t_value) -> void override;
 
-        uint32_t getColorAttachmentRendererID(uint32_t index = 0) const override { OAK_CORE_ASSERT(index < m_ColorAttachments.size()); return m_ColorAttachments[index]; }
+        constexpr auto getColorAttachmentRendererID(uint32_t t_index = 0) const -> uint32_t override
+        {
+            if (t_index >= m_ColorAttachments.size()) {
+                throw std::invalid_argument("attachment index is to big");
+            }
 
-        const oak::FramebufferSpecification& getSpecification() const override { return m_Specification; }
+            return m_ColorAttachments[t_index];
+        }
+
+        auto getSpecification() const -> const oak::FramebufferSpecification& override
+        {
+            return m_Specification;
+        }
 
     private:
-        uint32_t m_RendererID = 0;
+        uint32_t m_RendererID{ 0 };
         oak::FramebufferSpecification m_Specification;
 
         std::vector<oak::FramebufferTextureSpecification> m_ColorAttachmentSpecifications;
-        oak::FramebufferTextureSpecification m_DepthAttachmentSpecification = oak::FramebufferTextureFormat::None;
+        oak::FramebufferTextureSpecification m_DepthAttachmentSpecification{ oak::FramebufferTextureFormat::None };
 
         std::vector<uint32_t> m_ColorAttachments;
-        uint32_t m_DepthAttachment = 0;
+        uint32_t m_DepthAttachment{ 0 };
     };
 }

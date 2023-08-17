@@ -7,8 +7,7 @@ namespace opengl {
     namespace utils {
         static GLenum oakImageFormatToGLDataFormat(oak::ImageFormat format)
         {
-            switch (format)
-            {
+            switch (format) {
             case oak::ImageFormat::RGB8:
                 return GL_RGB;
             case oak::ImageFormat::RGBA8:
@@ -21,8 +20,7 @@ namespace opengl {
 
         static GLenum oakImageFormatToGLInternalFormat(oak::ImageFormat format)
         {
-            switch (format)
-            {
+            switch (format) {
             case oak::ImageFormat::RGB8:
                 return GL_RGB8;
             case oak::ImageFormat::RGBA8:
@@ -34,15 +32,15 @@ namespace opengl {
         }
     }
 
-    Texture2D::Texture2D(const oak::TextureSpecification& specification): m_Specification(specification), m_Width(m_Specification.width), m_Height(m_Specification.height)
+    Texture2D::Texture2D(const oak::TextureSpecification& specification) : m_Specification{ specification }, m_Resolution{ specification.width, specification.height }
     {
         OAK_PROFILE_FUNCTION();
 
-        m_InternalFormat = utils::oakImageFormatToGLInternalFormat(m_Specification.format);
-        m_DataFormat = utils::oakImageFormatToGLDataFormat(m_Specification.format);
+        m_InternalFormat = utils::oakImageFormatToGLInternalFormat(specification.format);
+        m_DataFormat = utils::oakImageFormatToGLDataFormat(specification.format);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-        glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);
+        glTextureStorage2D(m_RendererID, 1, m_InternalFormat, specification.width, specification.height);
 
         glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -55,9 +53,9 @@ namespace opengl {
     {
         OAK_PROFILE_FUNCTION();
 
-        int width, height, channels;
+        int width{}, height{}, channels{};
         stbi_set_flip_vertically_on_load(1);
-        stbi_uc* data = nullptr;
+        stbi_uc* data{ nullptr };
 
         {
             OAK_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string&)");
@@ -66,9 +64,7 @@ namespace opengl {
 
         if (data) {
             m_IsLoaded = true;
-
-            m_Width = width;
-            m_Height = height;
+            m_Resolution = { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
             GLenum internalFormat = 0, dataFormat = 0;
             if (channels == 4) {
@@ -86,7 +82,7 @@ namespace opengl {
             OAK_CORE_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
             glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-            glTextureStorage2D(m_RendererID, 1, internalFormat, m_Width, m_Height);
+            glTextureStorage2D(m_RendererID, 1, internalFormat, width, height);
 
             glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -94,7 +90,7 @@ namespace opengl {
             glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-            glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
+            glTextureSubImage2D(m_RendererID, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, data);
 
             stbi_image_free(data);
         }
@@ -112,8 +108,12 @@ namespace opengl {
         OAK_PROFILE_FUNCTION();
 
         auto bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-        OAK_CORE_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-        glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data);
+        auto [width, height] = m_Resolution;
+        if (width * height * bpp != size) {
+            throw std::invalid_argument("Data must be entire texture!");
+        }
+
+        glTextureSubImage2D(m_RendererID, 0, 0, 0, width, height, m_DataFormat, GL_UNSIGNED_BYTE, data);
     }
 
     void Texture2D::bind(uint32_t slot) const

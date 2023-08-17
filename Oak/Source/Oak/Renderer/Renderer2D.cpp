@@ -289,7 +289,7 @@ namespace oak {
     {
         if (s_Data.quadIndexCount) {
             auto dataSize = (uint32_t)((uint8_t*)s_Data.quadVertexBufferPtr - (uint8_t*)s_Data.quadVertexBufferBase);
-            s_Data.quadVertexBuffer->setData(s_Data.quadVertexBufferBase, dataSize);
+            s_Data.quadVertexBuffer->setData(std::span<std::byte>(reinterpret_cast<std::byte*>(s_Data.quadVertexBufferBase), dataSize));
 
             // Bind textures
             for (uint32_t i = 0; i < s_Data.textureSlotIndex; i++) {
@@ -303,7 +303,7 @@ namespace oak {
 
         if (s_Data.circleIndexCount) {
             auto dataSize = (uint32_t)((uint8_t*)s_Data.circleVertexBufferPtr - (uint8_t*)s_Data.circleVertexBufferBase);
-            s_Data.circleVertexBuffer->setData(s_Data.circleVertexBufferBase, dataSize);
+            s_Data.circleVertexBuffer->setData(std::span<std::byte>(reinterpret_cast<std::byte*>(s_Data.circleVertexBufferBase), dataSize));
 
             s_Data.circleShader->bind();
             RenderCommand::drawIndexed(s_Data.circleVertexArray, s_Data.circleIndexCount);
@@ -312,7 +312,7 @@ namespace oak {
 
         if (s_Data.lineVertexCount) {
             auto dataSize = (uint32_t)((uint8_t*)s_Data.lineVertexBufferPtr - (uint8_t*)s_Data.lineVertexBufferBase);
-            s_Data.lineVertexBuffer->setData(s_Data.lineVertexBufferBase, dataSize);
+            s_Data.lineVertexBuffer->setData(std::span<std::byte>(reinterpret_cast<std::byte*>(s_Data.lineVertexBufferBase), dataSize));
 
             s_Data.lineShader->bind();
             RenderCommand::setLineWidth(s_Data.lineWidth);
@@ -322,7 +322,7 @@ namespace oak {
 
         if (s_Data.textIndexCount) {
             auto dataSize = (uint32_t)((uint8_t*)s_Data.textVertexBufferPtr - (uint8_t*)s_Data.textVertexBufferBase);
-            s_Data.textVertexBuffer->setData(s_Data.textVertexBufferBase, dataSize);
+            s_Data.textVertexBuffer->setData(std::span<std::byte>(reinterpret_cast<std::byte*>(s_Data.textVertexBufferBase), dataSize));
 
             auto buf = s_Data.textVertexBufferBase;
             s_Data.fontAtlasTexture->bind(0);

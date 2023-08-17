@@ -1,4 +1,5 @@
 #pragma once
+#include <span>
 
 namespace oak {
     enum class ShaderDataType
@@ -6,7 +7,7 @@ namespace oak {
         None = 0, Float, Float2, Float3, Float4, Mat3, Mat4, Int, Int2, Int3, Int4, Bool
     };
 
-    static uint32_t shaderDataTypeSize(ShaderDataType type)
+    constexpr static uint32_t shaderDataTypeSize(ShaderDataType type)
     {
         switch (type) {
             case ShaderDataType::Float:
@@ -39,11 +40,11 @@ namespace oak {
 
     struct BufferElement
     {
-        std::string name;
-        ShaderDataType type;
-        uint32_t size;
-        size_t offset;
-        bool normalized;
+        std::string name{};
+        ShaderDataType type{};
+        uint32_t size{};
+        size_t offset{};
+        bool normalized{};
 
         BufferElement() = default;
 
@@ -51,7 +52,7 @@ namespace oak {
         {
         }
 
-        uint32_t getComponentCount() const
+        constexpr uint32_t getComponentCount() const
         {
             switch (type)
             {
@@ -103,9 +104,9 @@ namespace oak {
         std::vector<BufferElement>::const_iterator end() const { return m_Elements.end(); }
 
     private:
-        void calculateOffsetsAndStride()
+        constexpr void calculateOffsetsAndStride()
         {
-            size_t offset = 0;
+            size_t offset{ 0 };
             m_Stride = 0;
             for (auto& element : m_Elements)
             {
@@ -116,7 +117,7 @@ namespace oak {
         }
 
         std::vector<BufferElement> m_Elements;
-        uint32_t m_Stride = 0;
+        uint32_t m_Stride{ 0 };
     };
 
     class VertexBuffer
@@ -124,13 +125,13 @@ namespace oak {
     public:
         virtual ~VertexBuffer() = default;
 
-        virtual void bind() const = 0;
-        virtual void unbind() const = 0;
+        virtual constexpr auto bind() -> void const = 0;
+        virtual constexpr auto unbind() -> void const = 0;
 
-        virtual void setData(const void* data, uint32_t size) = 0;
+        virtual constexpr auto setData(std::span<std::byte> t_indicies) -> void = 0;
 
-        virtual const BufferLayout& getLayout() const = 0;
-        virtual void setLayout(const BufferLayout& layout) = 0;
+        virtual constexpr auto getLayout() const -> const BufferLayout& = 0;
+        virtual constexpr auto setLayout(const BufferLayout& t_layout) -> void = 0;
 
         static Ref<VertexBuffer> create(uint32_t size);
         static Ref<VertexBuffer> create(float* vertices, uint32_t size);
@@ -142,10 +143,10 @@ namespace oak {
     public:
         virtual ~IndexBuffer() = default;
 
-        virtual void bind() const = 0;
-        virtual void unbind() const = 0;
+        virtual constexpr auto bind() -> void const = 0;
+        virtual constexpr auto unbind() -> void const = 0;
 
-        virtual uint32_t getCount() const = 0;
+        virtual constexpr auto getCount() -> uint32_t const = 0;
 
         static Ref<IndexBuffer> create(uint32_t* indices, uint32_t count);
     };
