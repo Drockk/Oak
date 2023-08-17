@@ -6,8 +6,7 @@
 namespace opengl {
     static GLenum shaderDataTypeToOpenGLBaseType(oak::ShaderDataType type)
     {
-        switch (type)
-        {
+        switch (type) {
             case oak::ShaderDataType::Float:
                 return GL_FLOAT;
             case oak::ShaderDataType::Float2:
@@ -32,7 +31,7 @@ namespace opengl {
                 return GL_BOOL;
         }
 
-        OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
+        throw std::invalid_argument("Unknown ShaderDataType!");
         return 0;
     }
 
@@ -68,13 +67,14 @@ namespace opengl {
     {
         OAK_PROFILE_FUNCTION();
 
-        OAK_CORE_ASSERT(vertexBuffer->getLayout().getElements().size(), "Vertex Buffer has no layout!");
+        if (vertexBuffer->getLayout().getElements().size() == 0) {
+            throw std::invalid_argument("Vertex Buffer has no layout!");
+        }
 
         glBindVertexArray(m_RendererID);
         vertexBuffer->bind();
 
-        const auto& layout = vertexBuffer->getLayout();
-        for (const auto& element : layout) {
+        for (const auto& layout = vertexBuffer->getLayout(); const auto& element : layout) {
             switch (element.type) {
                 case oak::ShaderDataType::Float:
                 case oak::ShaderDataType::Float2:
@@ -87,7 +87,7 @@ namespace opengl {
                         shaderDataTypeToOpenGLBaseType(element.type),
                         element.normalized ? GL_TRUE : GL_FALSE,
                         layout.getStride(),
-                        (const void*)element.offset);
+                        reinterpret_cast<const void*>(element.offset));
                     m_VertexBufferIndex++;
                     break;
                 }
@@ -102,7 +102,7 @@ namespace opengl {
                         element.getComponentCount(),
                         shaderDataTypeToOpenGLBaseType(element.type),
                         layout.getStride(),
-                        (const void*)element.offset);
+                        reinterpret_cast<const void*>(element.offset));
                     m_VertexBufferIndex++;
                     break;
                 }
@@ -118,14 +118,14 @@ namespace opengl {
                             shaderDataTypeToOpenGLBaseType(element.type),
                             element.normalized ? GL_TRUE : GL_FALSE,
                             layout.getStride(),
-                            (const void*)(element.offset + sizeof(float) * count * i));
+                            reinterpret_cast<const void*>((element.offset + sizeof(float) * count * i)));
                         glVertexAttribDivisor(m_VertexBufferIndex, 1);
                         m_VertexBufferIndex++;
                     }
                     break;
                 }
                 default:
-                    OAK_CORE_ASSERT(false, "Unknown ShaderDataType!");
+                    throw std::invalid_argument("Unknown ShaderDataType!");
             }
         }
 
