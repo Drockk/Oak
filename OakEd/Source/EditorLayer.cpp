@@ -39,8 +39,7 @@ void EditorLayer::onAttach()
     auto commandLineArgs = oak::Application::get().getSpecification().commandLineArgs;
 
     if (commandLineArgs.count > 1) {
-        auto projectFilePath = commandLineArgs[1];
-        openProject(projectFilePath);
+        openProject(commandLineArgs[1]);
     }
     else {
         // TODO: prompt the user to select a directory
@@ -69,7 +68,7 @@ void EditorLayer::onUpdate(oak::Timestep t_timestep)
     m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
 
     // Resize
-    if (oak::FramebufferSpecification spec = m_Framebuffer->getSpecification(); m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y)) {
+    if (auto spec = m_Framebuffer->getSpecification(); m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y)) {
         m_Framebuffer->resize({ static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y) });
         m_EditorCamera.setViewportSize(m_ViewportSize.x, m_ViewportSize.y);
     }
@@ -128,8 +127,8 @@ void EditorLayer::onImGuiRender()
     OAK_PROFILE_FUNCTION();
 
     // Note: Switch this to true to enable dockspace
-    static auto dockspaceOpen{ true };
-    static auto optFullscreenPersistant{ true };
+    static auto dockspaceOpen = true;
+    static auto optFullscreenPersistant = true;
     auto optFullscreen = optFullscreenPersistant;
     static auto dockspaceFlags = ImGuiDockNodeFlags_None;
 
@@ -158,7 +157,7 @@ void EditorLayer::onImGuiRender()
     // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
     // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", &dockspaceOpen, windowFlags);
+    ImGui::Begin("OakEd DockSpace", &dockspaceOpen, windowFlags);
     ImGui::PopStyleVar();
 
     if (optFullscreen) {
@@ -171,7 +170,7 @@ void EditorLayer::onImGuiRender()
     auto minWinSizeX = style.WindowMinSize.x;
     style.WindowMinSize.x = 370.0f;
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+        auto dockspace_id = ImGui::GetID("OakEdDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspaceFlags);
     }
 
@@ -243,7 +242,7 @@ void EditorLayer::uiSettings()
 
 void EditorLayer::uiStatistics()
 {
-    ImGui::Begin("Stats");
+    ImGui::Begin("Statistics");
 
     auto stats = oak::Renderer2D::getStats();
     ImGui::Text("Renderer2D Stats:");
@@ -503,8 +502,7 @@ bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
     case oak::Key::Delete:
     {
         if (oak::Application::get().getImGuiLayer()->getActiveWidgetID() == 0) {
-            oak::Entity selectedEntity = m_SceneHierarchyPanel.getSelectedEntity();
-            if (selectedEntity) {
+            if (oak::Entity selectedEntity = m_SceneHierarchyPanel.getSelectedEntity(); selectedEntity) {
                 m_SceneHierarchyPanel.setSelectedEntity({});
                 m_ActiveScene->destroyEntity(selectedEntity);
             }
@@ -594,8 +592,7 @@ void EditorLayer::openProject(const std::filesystem::path& path)
     if (oak::Project::load(path)) {
         oak::ScriptEngine::init();
 
-        auto startScenePath = oak::Project::getAssetFileSystemPath(oak::Project::getActive()->getConfig().startScene);
-        openScene(startScenePath);
+        openScene(oak::Project::getAssetFileSystemPath(oak::Project::getActive()->getConfig().startScene));
         m_ContentBrowserPanel = oak::createScope<ContentBrowserPanel>();
     }
 }
@@ -626,8 +623,7 @@ void EditorLayer::newScene()
 
 void EditorLayer::openScene()
 {
-    auto filepath = oak::FileDialogs::openFile("Oak Scene (*.oak)\0*.oak\0");
-    if (!filepath.empty()) {
+    if (auto filepath = oak::FileDialogs::openFile("Oak Scene (*.oak)\0*.oak\0"); !filepath.empty()) {
         openScene(filepath);
     }
 }
@@ -644,8 +640,7 @@ void EditorLayer::openScene(const std::filesystem::path& path)
     }
 
     auto newScene = oak::createRef<oak::Scene>();
-    oak::SceneSerializer serializer(newScene);
-    if (serializer.deserialize(path.string())) {
+    if (oak::SceneSerializer serializer(newScene); serializer.deserialize(path.string())) {
         m_EditorScene = newScene;
         m_SceneHierarchyPanel.setContext(m_EditorScene);
 
@@ -666,8 +661,7 @@ void EditorLayer::saveScene()
 
 void EditorLayer::saveSceneAs()
 {
-    auto filepath = oak::FileDialogs::saveFile("Oak Scene (*.oak)\0*.oak\0");
-    if (!filepath.empty()) {
+    if (auto filepath = oak::FileDialogs::saveFile("Oak Scene (*.oak)\0*.oak\0"); !filepath.empty()) {
         serializeScene(m_ActiveScene, filepath);
         m_EditorScenePath = filepath;
     }
@@ -740,9 +734,7 @@ void EditorLayer::onDuplicateEntity()
         return;
     }
 
-    auto selectedEntity = m_SceneHierarchyPanel.getSelectedEntity();
-    if (selectedEntity) {
-        auto newEntity = m_EditorScene->duplicateEntity(selectedEntity);
-        m_SceneHierarchyPanel.setSelectedEntity(newEntity);
+    if (auto selectedEntity = m_SceneHierarchyPanel.getSelectedEntity(); selectedEntity) {
+        m_SceneHierarchyPanel.setSelectedEntity(m_EditorScene->duplicateEntity(selectedEntity));
     }
 }

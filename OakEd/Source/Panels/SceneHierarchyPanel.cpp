@@ -190,7 +190,7 @@ static void drawComponent(const std::string& name, oak::Entity entity, UIFunctio
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
         auto lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
         ImGui::Separator();
-        auto open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+        auto open = ImGui::TreeNodeEx(reinterpret_cast<void*>(typeid(T).hash_code()), treeNodeFlags, name.c_str());
         ImGui::PopStyleVar();
         ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
         if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight })) {
@@ -266,13 +266,13 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
         ImGui::Checkbox("Primary", &component.primary);
 
         const char* projectionTypeStrings[] = { "Perspective", "Orthographic" };
-        const char* currentProjectionTypeString = projectionTypeStrings[static_cast<int>(camera.getProjectionType())];
+        const auto* currentProjectionTypeString = projectionTypeStrings[static_cast<int>(camera.getProjectionType())];
         if (ImGui::BeginCombo("Projection", currentProjectionTypeString)) {
             for (auto i = 0; i < 2; i++) {
                 auto isSelected = currentProjectionTypeString == projectionTypeStrings[i];
                 if (ImGui::Selectable(projectionTypeStrings[i], isSelected)) {
                     currentProjectionTypeString = projectionTypeStrings[i];
-                    camera.setProjectionType((oak::SceneCamera::ProjectionType)i);
+                    camera.setProjectionType(static_cast<oak::SceneCamera::ProjectionType>(i));
                 }
 
                 if (isSelected) {
@@ -336,7 +336,7 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
         // Fields
         auto sceneRunning = scene->isRunning();
         if (sceneRunning) {
-            oak::Ref<oak::ScriptInstance> scriptInstance = oak::ScriptEngine::getEntityScriptInstance(entity.getUUID());
+            auto scriptInstance = oak::ScriptEngine::getEntityScriptInstance(entity.getUUID());
             if (scriptInstance) {
                 const auto& fields = scriptInstance->getScriptClass()->getFields();
                 for (const auto& [name, field] : fields) {
@@ -351,14 +351,14 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
         }
         else {
             if (scriptClassExists) {
-                oak::Ref<oak::ScriptClass> entityClass = oak::ScriptEngine::getEntityClass(component.className);
+                auto entityClass = oak::ScriptEngine::getEntityClass(component.className);
                 const auto& fields = entityClass->getFields();
 
                 auto& entityFields = oak::ScriptEngine::getScriptFieldMap(entity);
                 for (const auto& [name, field] : fields) {
                     // Field has been set in editor
                     if (entityFields.find(name) != entityFields.end()) {
-                        oak::ScriptFieldInstance& scriptField = entityFields.at(name);
+                        auto& scriptField = entityFields.at(name);
 
                         // Display control to set it maybe
                         if (field.type == oak::ScriptFieldType::Float) {
@@ -373,7 +373,7 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
                         if (field.type == oak::ScriptFieldType::Float) {
                             auto data = 0.0f;
                             if (ImGui::DragFloat(name.c_str(), &data)) {
-                                oak::ScriptFieldInstance& fieldInstance = entityFields[name];
+                                auto& fieldInstance = entityFields[name];
                                 fieldInstance.field = field;
                                 fieldInstance.setValue(data);
                             }
@@ -390,9 +390,9 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
         ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
         if (ImGui::BeginDragDropTarget()) {
             if (const auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-                const wchar_t* path = (const wchar_t*)payload->Data;
+                auto path = static_cast<const wchar_t*>(payload->Data);
                 std::filesystem::path texturePath(path);
-                oak::Ref<oak::Texture2D> texture = oak::Texture2D::create(texturePath.string());
+                auto texture = oak::Texture2D::create(texturePath.string());
                 if (texture->isLoaded()) {
                     component.texture = texture;
                 }
@@ -421,7 +421,7 @@ void SceneHierarchyPanel::drawComponents(oak::Entity entity)
                 auto isSelected = currentBodyTypeString == bodyTypeStrings[i];
                 if (ImGui::Selectable(bodyTypeStrings[i], isSelected)) {
                     currentBodyTypeString = bodyTypeStrings[i];
-                    component.type = (oak::Rigidbody2DComponent::BodyType)i;
+                    component.type = static_cast<oak::Rigidbody2DComponent::BodyType>(i);
                 }
 
                 if (isSelected) {
