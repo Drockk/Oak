@@ -92,4 +92,20 @@ namespace Oak
             set => InternalCalls.TextComponent_SetLineSpacing(Entity.ID, value);
         }
     }
+
+    public class SpriteRendererComponent : Component
+    {
+        public Vector4 Color
+        {
+            get
+            {
+
+            }
+
+            set
+            {
+
+            }
+        }
+    }
 }
