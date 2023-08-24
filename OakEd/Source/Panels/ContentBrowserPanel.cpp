@@ -43,7 +43,7 @@ void ContentBrowserPanel::onImGuiRender()
         ImGui::PushID(filenameString.c_str());
         auto& icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-        ImGui::ImageButton((ImTextureID)icon->getRendererID(), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
+        ImGui::ImageButton(reinterpret_cast<ImTextureID>(icon->getRendererID()), { thumbnailSize, thumbnailSize }, { 0, 1 }, { 1, 0 });
 
         if (ImGui::BeginDragDropSource())
         {

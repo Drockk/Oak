@@ -14,28 +14,28 @@ public:
     void onAttach() override;
     void onDetach() override;
 
-    void onUpdate(oak::Timestep ts) override;
+    void onUpdate(oak::Timestep t_timestep) override;
     void onImGuiRender() override;
-    void onEvent(oak::Event& e) override;
+    void onEvent(oak::Event& t_event) override;
 
 private:
-    bool onKeyPressed(oak::KeyPressedEvent& e);
-    bool onMouseButtonPressed(oak::MouseButtonPressedEvent& e);
+    bool onKeyPressed(oak::KeyPressedEvent& t_event);
+    bool onMouseButtonPressed(oak::MouseButtonPressedEvent& t_event);
 
     void onOverlayRender();
 
     void newProject();
     bool openProject();
-    void openProject(const std::filesystem::path& path);
+    void openProject(const std::filesystem::path& t_path);
     void saveProject();
 
     void newScene();
     void openScene();
-    void openScene(const std::filesystem::path& path);
+    void openScene(const std::filesystem::path& t_path);
     void saveScene();
     void saveSceneAs();
 
-    void serializeScene(oak::Ref<oak::Scene> scene, const std::filesystem::path& path);
+    void serializeScene(oak::Ref<oak::Scene> t_scene, const std::filesystem::path& t_path);
 
     void onScenePlay();
     void onSceneSimulate();
@@ -45,45 +45,36 @@ private:
     void onDuplicateEntity();
 
     // UI Panels
-    void UI_Toolbar();
-
-    oak::OrthographicCameraController m_CameraController;
+    void uiMenuBar();
+    void uiSettings();
+    void uiStatistics();
+    void uiToolbar();
+    void uiViewport();
 
     // Temp
-    oak::Ref<oak::VertexArray> m_SquareVA;
-    oak::Ref<oak::Shader> m_FlatColorShader;
     oak::Ref<oak::Framebuffer> m_Framebuffer;
-
     oak::Ref<oak::Scene> m_ActiveScene;
     oak::Ref<oak::Scene> m_EditorScene;
     std::filesystem::path m_EditorScenePath;
-    oak::Entity m_SquareEntity;
-    oak::Entity m_CameraEntity;
-    oak::Entity m_SecondCamera;
 
     oak::Entity m_HoveredEntity;
 
-    bool m_PrimaryCamera = true;
-
     oak::EditorCamera m_EditorCamera;
 
-    oak::Ref<oak::Texture2D> m_CheckerboardTexture;
-
-    bool m_ViewportFocused = false, m_ViewportHovered = false;
+    bool m_ViewportFocused{ false };
+    bool m_ViewportHovered{ false };
     glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
-    glm::vec2 m_ViewportBounds[2];
+    glm::vec2 m_ViewportBounds[2] = {};
 
-    glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+    int m_GizmoType{ -1 };
 
-    int m_GizmoType = -1;
-
-    bool m_ShowPhysicsColliders = false;
+    bool m_ShowPhysicsColliders{ false };
 
     enum class SceneState
     {
         Edit = 0, Play = 1, Simulate = 2
     };
-    SceneState m_SceneState = SceneState::Edit;
+    SceneState m_SceneState{ SceneState::Edit };
 
     // Panels
     SceneHierarchyPanel m_SceneHierarchyPanel;

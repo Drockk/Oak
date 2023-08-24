@@ -12,23 +12,20 @@
 
 #include "ImGuizmo.h"
 
-static oak::Ref<oak::Font> s_Font;
-
-EditorLayer::EditorLayer() : Layer("EditorLayer"), m_CameraController{ 1280.0f / 720.0f }, m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
+EditorLayer::EditorLayer() : Layer("EditorLayer")
 {
-    s_Font = oak::Font::getDefault();
 }
 
 void EditorLayer::onAttach()
 {
     OAK_PROFILE_FUNCTION();
 
-    m_CheckerboardTexture = oak::Texture2D::create("assets/textures/Checkerboard.png");
-    m_IconPlay = oak::Texture2D::create("Resources/Icons/PlayButton.png");
-    m_IconPause = oak::Texture2D::create("Resources/Icons/PauseButton.png");
-    m_IconSimulate = oak::Texture2D::create("Resources/Icons/SimulateButton.png");
-    m_IconStep = oak::Texture2D::create("Resources/Icons/StepButton.png");
-    m_IconStop = oak::Texture2D::create("Resources/Icons/StopButton.png");
+    constexpr auto iconsPath = "Resources/Icons";
+    m_IconPlay = oak::Texture2D::create(std::format("{}/{}", iconsPath, "PlayButton.png"));
+    m_IconPause = oak::Texture2D::create(std::format("{}/{}", iconsPath, "PauseButton.png"));
+    m_IconSimulate = oak::Texture2D::create(std::format("{}/{}", iconsPath, "SimulateButton.png"));
+    m_IconStep = oak::Texture2D::create(std::format("{}/{}", iconsPath, "StepButton.png"));
+    m_IconStop = oak::Texture2D::create(std::format("{}/{}", iconsPath, "StopButton.png"));
 
     oak::FramebufferSpecification fbSpec;
     fbSpec.attachments = { oak::FramebufferTextureFormat::RGBA8, oak::FramebufferTextureFormat::RED_INTEGER, oak::FramebufferTextureFormat::Depth };
@@ -42,8 +39,7 @@ void EditorLayer::onAttach()
     auto commandLineArgs = oak::Application::get().getSpecification().commandLineArgs;
 
     if (commandLineArgs.count > 1) {
-        auto projectFilePath = commandLineArgs[1];
-        openProject(projectFilePath);
+        openProject(commandLineArgs[1]);
     }
     else {
         // TODO: prompt the user to select a directory
@@ -65,16 +61,15 @@ void EditorLayer::onDetach()
     OAK_PROFILE_FUNCTION();
 }
 
-void EditorLayer::onUpdate(oak::Timestep ts)
+void EditorLayer::onUpdate(oak::Timestep t_timestep)
 {
     OAK_PROFILE_FUNCTION();
 
     m_ActiveScene->onViewportResize(static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y));
 
     // Resize
-    if (oak::FramebufferSpecification spec = m_Framebuffer->getSpecification(); m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y)) {
+    if (auto spec = m_Framebuffer->getSpecification(); m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.width != m_ViewportSize.x || spec.height != m_ViewportSize.y)) {
         m_Framebuffer->resize({ static_cast<uint32_t>(m_ViewportSize.x), static_cast<uint32_t>(m_ViewportSize.y) });
-        m_CameraController.onResize(m_ViewportSize.x, m_ViewportSize.y);
         m_EditorCamera.setViewportSize(m_ViewportSize.x, m_ViewportSize.y);
     }
 
@@ -90,25 +85,21 @@ void EditorLayer::onUpdate(oak::Timestep ts)
     switch (m_SceneState) {
     case SceneState::Edit:
     {
-        if (m_ViewportFocused) {
-            m_CameraController.onUpdate(ts);
-        }
+        m_EditorCamera.onUpdate(t_timestep);
 
-        m_EditorCamera.onUpdate(ts);
-
-        m_ActiveScene->onUpdateEditor(ts, m_EditorCamera);
+        m_ActiveScene->onUpdateEditor(t_timestep, m_EditorCamera);
         break;
     }
     case SceneState::Simulate:
     {
-        m_EditorCamera.onUpdate(ts);
+        m_EditorCamera.onUpdate(t_timestep);
 
-        m_ActiveScene->onUpdateSimulation(ts, m_EditorCamera);
+        m_ActiveScene->onUpdateSimulation(t_timestep, m_EditorCamera);
         break;
     }
     case SceneState::Play:
     {
-        m_ActiveScene->onUpdateRuntime(ts);
+        m_ActiveScene->onUpdateRuntime(t_timestep);
         break;
     }
     }
@@ -123,7 +114,7 @@ void EditorLayer::onUpdate(oak::Timestep ts)
 
     if (mouseX >= 0 && mouseY >= 0 && mouseX < static_cast<int>(viewportSize.x) && mouseY < static_cast<int>(viewportSize.y)) {
         auto pixelData = m_Framebuffer->readPixel(1, { mouseX, mouseY });
-        m_HoveredEntity = pixelData == -1 ? oak::Entity() : oak::Entity((entt::entity)pixelData, m_ActiveScene.get());
+        m_HoveredEntity = pixelData == -1 ? oak::Entity() : oak::Entity(static_cast<entt::entity>(pixelData), m_ActiveScene.get());
     }
 
     onOverlayRender();
@@ -137,27 +128,27 @@ void EditorLayer::onImGuiRender()
 
     // Note: Switch this to true to enable dockspace
     static auto dockspaceOpen = true;
-    static auto opt_fullscreen_persistant = true;
-    auto opt_fullscreen = opt_fullscreen_persistant;
-    static auto dockspace_flags = ImGuiDockNodeFlags_None;
+    static auto optFullscreenPersistant = true;
+    auto optFullscreen = optFullscreenPersistant;
+    static auto dockspaceFlags = ImGuiDockNodeFlags_None;
 
     // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
     // because it would be confusing to have two docking targets within each others.
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    if (opt_fullscreen) {
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    if (optFullscreen) {
         auto* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
         ImGui::SetNextWindowSize(viewport->Size);
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     }
 
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode) {
-        window_flags |= ImGuiWindowFlags_NoBackground;
+    if (dockspaceFlags & ImGuiDockNodeFlags_PassthruCentralNode) {
+        windowFlags |= ImGuiWindowFlags_NoBackground;
     }
 
     // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
@@ -166,10 +157,10 @@ void EditorLayer::onImGuiRender()
     // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
     // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+    ImGui::Begin("OakEd DockSpace", &dockspaceOpen, windowFlags);
     ImGui::PopStyleVar();
 
-    if (opt_fullscreen) {
+    if (optFullscreen) {
         ImGui::PopStyleVar(2);
     }
 
@@ -179,12 +170,27 @@ void EditorLayer::onImGuiRender()
     auto minWinSizeX = style.WindowMinSize.x;
     style.WindowMinSize.x = 370.0f;
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
-        ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+        auto dockspace_id = ImGui::GetID("OakEdDockSpace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspaceFlags);
     }
 
     style.WindowMinSize.x = minWinSizeX;
 
+    uiMenuBar();
+
+    m_SceneHierarchyPanel.onImGuiRender();
+    m_ContentBrowserPanel->onImGuiRender();
+
+    uiSettings();
+    uiStatistics();
+    uiToolbar();
+    uiViewport();
+
+    ImGui::End();
+}
+
+void EditorLayer::uiMenuBar()
+{
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open Project...", "Ctrl+O")) {
@@ -224,11 +230,19 @@ void EditorLayer::onImGuiRender()
 
         ImGui::EndMenuBar();
     }
+}
 
-    m_SceneHierarchyPanel.onImGuiRender();
-    m_ContentBrowserPanel->onImGuiRender();
+void EditorLayer::uiSettings()
+{
+    ImGui::Begin("Settings");
+    ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
 
-    ImGui::Begin("Stats");
+    ImGui::End();
+}
+
+void EditorLayer::uiStatistics()
+{
+    ImGui::Begin("Statistics");
 
     auto stats = oak::Renderer2D::getStats();
     ImGui::Text("Renderer2D Stats:");
@@ -238,92 +252,9 @@ void EditorLayer::onImGuiRender()
     ImGui::Text("Indices: %d", stats.getTotalIndexCount());
 
     ImGui::End();
-
-    ImGui::Begin("Settings");
-    ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
-
-    ImGui::Image(reinterpret_cast<ImTextureID>(s_Font->getAtlasTexture()->getRendererID()), { 512,512 }, { 0, 1 }, { 1, 0 });
-
-
-    ImGui::End();
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-    ImGui::Begin("Viewport");
-    auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-    auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-    auto viewportOffset = ImGui::GetWindowPos();
-    m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
-    m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-
-    m_ViewportFocused = ImGui::IsWindowFocused();
-    m_ViewportHovered = ImGui::IsWindowHovered();
-
-    oak::Application::get().getImGuiLayer()->blockEvents(!m_ViewportHovered);
-
-    auto viewportPanelSize = ImGui::GetContentRegionAvail();
-    m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-    uint64_t textureID = m_Framebuffer->getColorAttachmentRendererID();
-    ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
-    if (ImGui::BeginDragDropTarget()) {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
-            const wchar_t* path = (const wchar_t*)payload->Data;
-            openScene(path);
-        }
-
-        ImGui::EndDragDropTarget();
-    }
-
-    // Gizmos
-    oak::Entity selectedEntity = m_SceneHierarchyPanel.getSelectedEntity();
-    if (selectedEntity && m_GizmoType != -1) {
-        ImGuizmo::SetOrthographic(false);
-        ImGuizmo::SetDrawlist();
-
-        ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
-
-        // Editor camera
-        const auto& cameraProjection = m_EditorCamera.getProjection();
-        auto& cameraView = m_EditorCamera.getViewMatrix();
-
-        // Entity transform
-        auto& tc = selectedEntity.getComponent<oak::TransformComponent>();
-        auto transform = tc.getTransform();
-
-        // Snapping
-        auto snap = oak::Input::isKeyPressed(oak::Key::LeftControl);
-        auto snapValue = 0.5f; // Snap to 0.5m for translation/scale
-        // Snap to 45 degrees for rotation
-        if (m_GizmoType == ImGuizmo::OPERATION::ROTATE) {
-            snapValue = 45.0f;
-        }
-
-        float snapValues[3] = { snapValue, snapValue, snapValue };
-
-        ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), static_cast<ImGuizmo::OPERATION>(m_GizmoType), ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
-
-        if (ImGuizmo::IsUsing()) {
-            glm::vec3 translation, rotation, scale;
-            oak::math::decomposeTransform(transform, translation, rotation, scale);
-
-            auto deltaRotation = rotation - tc.rotation;
-            tc.translation = translation;
-            tc.rotation += deltaRotation;
-            tc.scale = scale;
-        }
-    }
-
-
-    ImGui::End();
-    ImGui::PopStyleVar();
-
-    UI_Toolbar();
-
-    ImGui::End();
 }
 
-void EditorLayer::UI_Toolbar()
+void EditorLayer::uiToolbar()
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
@@ -393,7 +324,6 @@ void EditorLayer::UI_Toolbar()
             ImGui::SameLine();
             {
                 auto& icon = m_IconStep;
-                auto isPaused = m_ActiveScene->isPaused();
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uint64_t>(icon->getRendererID())), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled) {
                     m_ActiveScene->step();
                 }
@@ -406,29 +336,100 @@ void EditorLayer::UI_Toolbar()
     ImGui::End();
 }
 
-void EditorLayer::onEvent(oak::Event& e)
+void EditorLayer::uiViewport()
 {
-    m_CameraController.onEvent(e);
-    if (m_SceneState == SceneState::Edit) {
-        m_EditorCamera.onEvent(e);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
+    ImGui::Begin("Viewport");
+
+    auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+    auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+    auto viewportOffset = ImGui::GetWindowPos();
+    m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+    m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
+
+    m_ViewportFocused = ImGui::IsWindowFocused();
+    m_ViewportHovered = ImGui::IsWindowHovered();
+
+    oak::Application::get().getImGuiLayer()->blockEvents(!m_ViewportHovered);
+
+    auto viewportPanelSize = ImGui::GetContentRegionAvail();
+    m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+
+    uint64_t textureID = m_Framebuffer->getColorAttachmentRendererID();
+    ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+    if (ImGui::BeginDragDropTarget()) {
+        if (auto* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM")) {
+            openScene(static_cast<const wchar_t*>(payload->Data));
+        }
+
+        ImGui::EndDragDropTarget();
     }
 
-    oak::EventDispatcher dispatcher(e);
+    // Gizmos
+    if (auto selectedEntity = m_SceneHierarchyPanel.getSelectedEntity(); selectedEntity && m_GizmoType != -1) {
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist();
+
+        ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+        // Editor camera
+        const auto& cameraProjection = m_EditorCamera.getProjection();
+        auto& cameraView = m_EditorCamera.getViewMatrix();
+
+        // Entity transform
+        auto& tc = selectedEntity.getComponent<oak::TransformComponent>();
+        auto transform = tc.getTransform();
+
+        // Snapping
+        auto snap = oak::Input::isKeyPressed(oak::Key::LeftControl);
+        auto snapValue = 0.5f; // Snap to 0.5m for translation/scale
+        // Snap to 45 degrees for rotation
+        if (m_GizmoType == ImGuizmo::OPERATION::ROTATE) {
+            snapValue = 45.0f;
+        }
+
+        float snapValues[3] = { snapValue, snapValue, snapValue };
+
+        ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection), static_cast<ImGuizmo::OPERATION>(m_GizmoType), ImGuizmo::LOCAL, glm::value_ptr(transform), nullptr, snap ? snapValues : nullptr);
+
+        if (ImGuizmo::IsUsing()) {
+            glm::vec3 translation, rotation, scale;
+            oak::math::decomposeTransform(transform, translation, rotation, scale);
+
+            auto deltaRotation = rotation - tc.rotation;
+            tc.translation = translation;
+            tc.rotation += deltaRotation;
+            tc.scale = scale;
+        }
+    }
+
+    ImGui::End();
+    ImGui::PopStyleVar();
+}
+
+void EditorLayer::onEvent(oak::Event& t_event)
+{
+    if (m_SceneState == SceneState::Edit) {
+        m_EditorCamera.onEvent(t_event);
+    }
+
+    oak::EventDispatcher dispatcher(t_event);
     dispatcher.dispatch<oak::KeyPressedEvent>(OAK_BIND_EVENT_FN(EditorLayer::onKeyPressed));
     dispatcher.dispatch<oak::MouseButtonPressedEvent>(OAK_BIND_EVENT_FN(EditorLayer::onMouseButtonPressed));
 }
 
-bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
+bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& t_event)
 {
     // Shortcuts
-    if (e.isRepeat()) {
+    if (t_event.isRepeat()) {
         return false;
     }
 
     auto control = oak::Input::isKeyPressed(oak::Key::LeftControl) || oak::Input::isKeyPressed(oak::Key::RightControl);
     auto shift = oak::Input::isKeyPressed(oak::Key::LeftShift) || oak::Input::isKeyPressed(oak::Key::RightShift);
 
-    switch (e.getKeyCode()) {
+    switch (t_event.getKeyCode()) {
     case oak::Key::N:
     {
         if (control) {
@@ -500,8 +501,7 @@ bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
     case oak::Key::Delete:
     {
         if (oak::Application::get().getImGuiLayer()->getActiveWidgetID() == 0) {
-            oak::Entity selectedEntity = m_SceneHierarchyPanel.getSelectedEntity();
-            if (selectedEntity) {
+            if (oak::Entity selectedEntity = m_SceneHierarchyPanel.getSelectedEntity(); selectedEntity) {
                 m_SceneHierarchyPanel.setSelectedEntity({});
                 m_ActiveScene->destroyEntity(selectedEntity);
             }
@@ -513,9 +513,9 @@ bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
     return false;
 }
 
-bool EditorLayer::onMouseButtonPressed(oak::MouseButtonPressedEvent& e)
+bool EditorLayer::onMouseButtonPressed(oak::MouseButtonPressedEvent& t_event)
 {
-    if (e.getMouseButton() == oak::Mouse::ButtonLeft) {
+    if (t_event.getMouseButton() == oak::Mouse::ButtonLeft) {
         if (m_ViewportHovered && !ImGuizmo::IsOver() && !oak::Input::isKeyPressed(oak::Key::LeftAlt)) {
             m_SceneHierarchyPanel.setSelectedEntity(m_HoveredEntity);
         }
@@ -586,13 +586,12 @@ void EditorLayer::newProject()
     oak::Project::newProject();
 }
 
-void EditorLayer::openProject(const std::filesystem::path& path)
+void EditorLayer::openProject(const std::filesystem::path& t_path)
 {
-    if (oak::Project::load(path)) {
+    if (oak::Project::load(t_path)) {
         oak::ScriptEngine::init();
 
-        auto startScenePath = oak::Project::getAssetFileSystemPath(oak::Project::getActive()->getConfig().startScene);
-        openScene(startScenePath);
+        openScene(oak::Project::getAssetFileSystemPath(oak::Project::getActive()->getConfig().startScene));
         m_ContentBrowserPanel = oak::createScope<ContentBrowserPanel>();
     }
 }
@@ -623,31 +622,29 @@ void EditorLayer::newScene()
 
 void EditorLayer::openScene()
 {
-    auto filepath = oak::FileDialogs::openFile("Oak Scene (*.oak)\0*.oak\0");
-    if (!filepath.empty()) {
+    if (auto filepath = oak::FileDialogs::openFile("Oak Scene (*.oak)\0*.oak\0"); !filepath.empty()) {
         openScene(filepath);
     }
 }
 
-void EditorLayer::openScene(const std::filesystem::path& path)
+void EditorLayer::openScene(const std::filesystem::path& t_path)
 {
     if (m_SceneState != SceneState::Edit) {
         onSceneStop();
     }
 
-    if (path.extension().string() != ".oak") {
-        OAK_LOG_CRITICAL("Could not load {0} - not a scene file", path.filename().string());
+    if (t_path.extension().string() != ".oak") {
+        OAK_LOG_CRITICAL("Could not load {0} - not a scene file", t_path.filename().string());
         return;
     }
 
     auto newScene = oak::createRef<oak::Scene>();
-    oak::SceneSerializer serializer(newScene);
-    if (serializer.deserialize(path.string())) {
+    if (oak::SceneSerializer serializer(newScene); serializer.deserialize(t_path.string())) {
         m_EditorScene = newScene;
         m_SceneHierarchyPanel.setContext(m_EditorScene);
 
         m_ActiveScene = m_EditorScene;
-        m_EditorScenePath = path;
+        m_EditorScenePath = t_path;
     }
 }
 
@@ -663,17 +660,16 @@ void EditorLayer::saveScene()
 
 void EditorLayer::saveSceneAs()
 {
-    auto filepath = oak::FileDialogs::saveFile("Oak Scene (*.oak)\0*.oak\0");
-    if (!filepath.empty()) {
+    if (auto filepath = oak::FileDialogs::saveFile("Oak Scene (*.oak)\0*.oak\0"); !filepath.empty()) {
         serializeScene(m_ActiveScene, filepath);
         m_EditorScenePath = filepath;
     }
 }
 
-void EditorLayer::serializeScene(oak::Ref<oak::Scene> scene, const std::filesystem::path& path)
+void EditorLayer::serializeScene(oak::Ref<oak::Scene> t_scene, const std::filesystem::path& t_path)
 {
-    oak::SceneSerializer serializer(scene);
-    serializer.serialize(path.string());
+    oak::SceneSerializer serializer(t_scene);
+    serializer.serialize(t_path.string());
 }
 
 void EditorLayer::onScenePlay()
@@ -737,9 +733,7 @@ void EditorLayer::onDuplicateEntity()
         return;
     }
 
-    auto selectedEntity = m_SceneHierarchyPanel.getSelectedEntity();
-    if (selectedEntity) {
-        auto newEntity = m_EditorScene->duplicateEntity(selectedEntity);
-        m_SceneHierarchyPanel.setSelectedEntity(newEntity);
+    if (auto selectedEntity = m_SceneHierarchyPanel.getSelectedEntity(); selectedEntity) {
+        m_SceneHierarchyPanel.setSelectedEntity(m_EditorScene->duplicateEntity(selectedEntity));
     }
 }
