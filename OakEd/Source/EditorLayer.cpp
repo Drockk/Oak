@@ -324,7 +324,6 @@ void EditorLayer::uiToolbar()
             ImGui::SameLine();
             {
                 auto& icon = m_IconStep;
-                auto isPaused = m_ActiveScene->isPaused();
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uint64_t>(icon->getRendererID())), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled) {
                     m_ActiveScene->step();
                 }
@@ -409,28 +408,28 @@ void EditorLayer::uiViewport()
     ImGui::PopStyleVar();
 }
 
-void EditorLayer::onEvent(oak::Event& e)
+void EditorLayer::onEvent(oak::Event& t_event)
 {
     if (m_SceneState == SceneState::Edit) {
-        m_EditorCamera.onEvent(e);
+        m_EditorCamera.onEvent(t_event);
     }
 
-    oak::EventDispatcher dispatcher(e);
+    oak::EventDispatcher dispatcher(t_event);
     dispatcher.dispatch<oak::KeyPressedEvent>(OAK_BIND_EVENT_FN(EditorLayer::onKeyPressed));
     dispatcher.dispatch<oak::MouseButtonPressedEvent>(OAK_BIND_EVENT_FN(EditorLayer::onMouseButtonPressed));
 }
 
-bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
+bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& t_event)
 {
     // Shortcuts
-    if (e.isRepeat()) {
+    if (t_event.isRepeat()) {
         return false;
     }
 
     auto control = oak::Input::isKeyPressed(oak::Key::LeftControl) || oak::Input::isKeyPressed(oak::Key::RightControl);
     auto shift = oak::Input::isKeyPressed(oak::Key::LeftShift) || oak::Input::isKeyPressed(oak::Key::RightShift);
 
-    switch (e.getKeyCode()) {
+    switch (t_event.getKeyCode()) {
     case oak::Key::N:
     {
         if (control) {
@@ -514,9 +513,9 @@ bool EditorLayer::onKeyPressed(oak::KeyPressedEvent& e)
     return false;
 }
 
-bool EditorLayer::onMouseButtonPressed(oak::MouseButtonPressedEvent& e)
+bool EditorLayer::onMouseButtonPressed(oak::MouseButtonPressedEvent& t_event)
 {
-    if (e.getMouseButton() == oak::Mouse::ButtonLeft) {
+    if (t_event.getMouseButton() == oak::Mouse::ButtonLeft) {
         if (m_ViewportHovered && !ImGuizmo::IsOver() && !oak::Input::isKeyPressed(oak::Key::LeftAlt)) {
             m_SceneHierarchyPanel.setSelectedEntity(m_HoveredEntity);
         }
@@ -587,9 +586,9 @@ void EditorLayer::newProject()
     oak::Project::newProject();
 }
 
-void EditorLayer::openProject(const std::filesystem::path& path)
+void EditorLayer::openProject(const std::filesystem::path& t_path)
 {
-    if (oak::Project::load(path)) {
+    if (oak::Project::load(t_path)) {
         oak::ScriptEngine::init();
 
         openScene(oak::Project::getAssetFileSystemPath(oak::Project::getActive()->getConfig().startScene));
@@ -628,24 +627,24 @@ void EditorLayer::openScene()
     }
 }
 
-void EditorLayer::openScene(const std::filesystem::path& path)
+void EditorLayer::openScene(const std::filesystem::path& t_path)
 {
     if (m_SceneState != SceneState::Edit) {
         onSceneStop();
     }
 
-    if (path.extension().string() != ".oak") {
-        OAK_LOG_CRITICAL("Could not load {0} - not a scene file", path.filename().string());
+    if (t_path.extension().string() != ".oak") {
+        OAK_LOG_CRITICAL("Could not load {0} - not a scene file", t_path.filename().string());
         return;
     }
 
     auto newScene = oak::createRef<oak::Scene>();
-    if (oak::SceneSerializer serializer(newScene); serializer.deserialize(path.string())) {
+    if (oak::SceneSerializer serializer(newScene); serializer.deserialize(t_path.string())) {
         m_EditorScene = newScene;
         m_SceneHierarchyPanel.setContext(m_EditorScene);
 
         m_ActiveScene = m_EditorScene;
-        m_EditorScenePath = path;
+        m_EditorScenePath = t_path;
     }
 }
 
@@ -667,10 +666,10 @@ void EditorLayer::saveSceneAs()
     }
 }
 
-void EditorLayer::serializeScene(oak::Ref<oak::Scene> scene, const std::filesystem::path& path)
+void EditorLayer::serializeScene(oak::Ref<oak::Scene> t_scene, const std::filesystem::path& t_path)
 {
-    oak::SceneSerializer serializer(scene);
-    serializer.serialize(path.string());
+    oak::SceneSerializer serializer(t_scene);
+    serializer.serialize(t_path.string());
 }
 
 void EditorLayer::onScenePlay()
