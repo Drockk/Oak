@@ -4,8 +4,6 @@
 #include "Platform/OpenGL/RendererAPI.hpp"
 
 namespace oak {
-    RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
-
     Scope<RendererAPI> RendererAPI::create()
     {
         switch (s_API) {
@@ -14,9 +12,11 @@ namespace oak {
             return nullptr;
         case RendererAPI::API::OpenGL:
             return createScope<opengl::RendererAPI>();
+        case RendererAPI::API::Vulkan:
+            return createScope<vulkan::RendererAPI>();
         }
 
-        OAK_CORE_ASSERT(false, "Unknown RendererAPI!");
+        throw std::runtime_error("Unknown RendererAPI!");
         return nullptr;
     }
 }

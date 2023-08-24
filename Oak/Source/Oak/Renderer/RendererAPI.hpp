@@ -10,7 +10,9 @@ namespace oak {
     public:
         enum class API
         {
-            None = 0, OpenGL = 1
+            None = 0,
+            OpenGL = 1,
+            Vulkan = 2
         };
 
         virtual ~RendererAPI() = default;
@@ -29,6 +31,6 @@ namespace oak {
         static Scope<RendererAPI> create();
 
     private:
-        static API s_API;
+        inline static API s_API{ RendererAPI::API::Vulkan };
     };
 }
