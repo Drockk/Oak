@@ -3,6 +3,7 @@
 
 #include "Oak/Renderer/Renderer.hpp"
 #include "Platform/OpenGL/Context.hpp"
+#include "Platform/Vulkan/Context.hpp"
 
 namespace oak {
     Scope<GraphicsContext> GraphicsContext::create(void* window)
@@ -14,6 +15,8 @@ namespace oak {
             return nullptr;
         case RendererAPI::API::OpenGL:
             return createScope<opengl::Context>(static_cast<GLFWwindow*>(window));
+        case RendererAPI::API::Vulkan:
+            return createScope<vulkan::Context>(static_cast<GLFWwindow*>(window));
         }
 
         OAK_CORE_ASSERT(false, "Unknown RendererAPI!");
